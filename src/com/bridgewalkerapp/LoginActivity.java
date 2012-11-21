@@ -1,7 +1,10 @@
 package com.bridgewalkerapp;
 
 import com.bridgewalkerapp.apidata.RequestVersion;
+import com.bridgewalkerapp.apidata.WebsocketReply;
 import com.bridgewalkerapp.apidata.WebsocketRequest;
+import com.bridgewalkerapp.data.ParameterizedRunnable;
+import com.bridgewalkerapp.data.ReplyAndRunnable;
 import com.bridgewalkerapp.data.RequestAndRunnable;
 
 import android.os.Bundle;
@@ -80,8 +83,8 @@ public class LoginActivity extends Activity implements Callback {
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
 			case BackendService.MSG_EXECUTE_RUNNABLE:
-				Runnable runnable = (Runnable)msg.obj;
-				runnable.run();
+				ReplyAndRunnable randr = (ReplyAndRunnable)msg.obj;
+				randr.getRunnable().run(randr.getReply());
 				return true;
 		}
 		return false;
@@ -101,9 +104,11 @@ public class LoginActivity extends Activity implements Callback {
 				Message msg2 = Message.obtain(null, BackendService.MSG_SEND_COMMAND);
 				msg2.replyTo = myMessenger;
 				WebsocketRequest request = new RequestVersion();
-				Runnable runnable = new Runnable() {
+				ParameterizedRunnable runnable = new ParameterizedRunnable() {
 					@Override
-					public void run() {
+					public void run(WebsocketReply reply) {
+						// TODO: check that we are compatible with the version returned
+						
 						loginProgressBar.setVisibility(View.INVISIBLE);
 						loginButtonsLayout.setVisibility(View.VISIBLE);
 					}

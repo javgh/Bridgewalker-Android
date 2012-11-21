@@ -16,6 +16,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.bridgewalkerapp.apidata.WebsocketReply;
 import com.bridgewalkerapp.apidata.WebsocketRequest;
+import com.bridgewalkerapp.data.ReplyAndRunnable;
 import com.bridgewalkerapp.data.RequestAndRunnable;
 
 import de.tavendo.autobahn.WebSocketConnection;
@@ -152,7 +153,9 @@ public class BackendService extends Service implements Callback {
 				Messenger client = this.clientMessengers.get(entry.getKey());
 				if (client != null) {
 					Message msg = Message.obtain(null, MSG_EXECUTE_RUNNABLE);
-					msg.obj = entry.getValue().getRunnable();
+					ReplyAndRunnable randr =
+							new ReplyAndRunnable(reply, entry.getValue().getRunnable());
+					msg.obj = randr;
 					try {
 						client.send(msg);
 					} catch (RemoteException e) { /* ignore */ }

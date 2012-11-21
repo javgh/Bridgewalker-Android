@@ -4,9 +4,9 @@ import com.bridgewalkerapp.apidata.WebsocketRequest;
 
 public class RequestAndRunnable {
 	private WebsocketRequest request;
-	private Runnable runnable;
+	private ParameterizedRunnable runnable;
 	
-	public RequestAndRunnable(WebsocketRequest request, Runnable runnable) {
+	public RequestAndRunnable(WebsocketRequest request, ParameterizedRunnable runnable) {
 		this.request = request;
 		this.runnable = runnable;
 	}
@@ -15,7 +15,7 @@ public class RequestAndRunnable {
 		return request;
 	}
 
-	public Runnable getRunnable() {
+	public ParameterizedRunnable getRunnable() {
 		return runnable;
 	}
 }
