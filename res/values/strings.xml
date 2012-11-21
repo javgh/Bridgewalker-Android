@@ -8,5 +8,6 @@
     <string name="standard_login_button">Create account (coming soon)</string>
     <string name="bridgewalker_logo">Bridgewalker logo</string>
     <string name="disclaimer">This software is beta and only a technology demo. Use at your own risk. No guarantees of any kind at this point.</string>
+    <string name="old_version">This app appears to be too old to talk to the server. Please check if an update is available. Thank you!</string>
 
 </resources>

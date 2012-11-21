@@ -1,6 +1,7 @@
 package com.bridgewalkerapp;
 
 import com.bridgewalkerapp.apidata.RequestVersion;
+import com.bridgewalkerapp.apidata.WSServerVersion;
 import com.bridgewalkerapp.apidata.WebsocketReply;
 import com.bridgewalkerapp.apidata.WebsocketRequest;
 import com.bridgewalkerapp.data.ParameterizedRunnable;
@@ -24,6 +25,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 public class LoginActivity extends Activity implements Callback {
 	private static final String TAG = "com.bridgewalkerapp";
@@ -36,6 +38,7 @@ public class LoginActivity extends Activity implements Callback {
 	
 	private ProgressBar loginProgressBar;
 	private LinearLayout loginButtonsLayout;
+	private TextView oldVersionTextView;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,7 @@ public class LoginActivity extends Activity implements Callback {
         setContentView(R.layout.activity_login);
         this.loginProgressBar = (ProgressBar)findViewById(R.id.login_progressbar);
         this.loginButtonsLayout = (LinearLayout)findViewById(R.id.login_buttons_layout);
+        this.oldVersionTextView = (TextView)findViewById(R.id.old_version_textview);
         this.handler = new Handler(this);
         this.myMessenger = new Messenger(this.handler);
     }
@@ -60,6 +64,7 @@ public class LoginActivity extends Activity implements Callback {
 		bindService(new Intent(this, BackendService.class), serviceConnection,
 				Context.BIND_AUTO_CREATE);
 		this.loginButtonsLayout.setVisibility(View.INVISIBLE);
+		this.oldVersionTextView.setVisibility(View.INVISIBLE);
 		this.loginProgressBar.setVisibility(View.VISIBLE);
 	}
 	
@@ -77,6 +82,18 @@ public class LoginActivity extends Activity implements Callback {
 			unbindService(serviceConnection);
 			isServiceBound = false;
 		}
+	}
+	
+	private boolean isServerVersionCompatible(String serverVersion) {
+		int clientMajor = extractMajorVersion(RequestVersion.BRIDGEWALKER_CLIENT_VERSION);
+		int serverMajor = extractMajorVersion(serverVersion);
+		
+		return clientMajor == serverMajor;
+	}
+	
+	private Integer extractMajorVersion(String version) {
+		String[] parts = version.split("\\.");
+		return Integer.valueOf(parts[0]);
 	}
 	
 	@Override
@@ -107,10 +124,14 @@ public class LoginActivity extends Activity implements Callback {
 				ParameterizedRunnable runnable = new ParameterizedRunnable() {
 					@Override
 					public void run(WebsocketReply reply) {
-						// TODO: check that we are compatible with the version returned
-						
 						loginProgressBar.setVisibility(View.INVISIBLE);
-						loginButtonsLayout.setVisibility(View.VISIBLE);
+						
+						WSServerVersion serverVersion = (WSServerVersion)reply;
+						if (isServerVersionCompatible(serverVersion.getServerVersion())) {
+							loginButtonsLayout.setVisibility(View.VISIBLE);
+						} else {
+							oldVersionTextView.setVisibility(View.VISIBLE);
+						}
 					}
 				};
 				RequestAndRunnable randr = new RequestAndRunnable(request, runnable);
