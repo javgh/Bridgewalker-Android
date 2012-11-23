@@ -13,6 +13,7 @@ public abstract class WebsocketReply {
 	private static final String TAG = "com.bridgewalkerapp";
 	
 	public static final int TYPE_WS_SERVER_VERSION = 0;
+	public static final int TYPE_WS_GUEST_ACCOUNT_CREATED = 1;
 	
 	private static ObjectMapper mapper = new ObjectMapper(); 
 	
@@ -29,6 +30,12 @@ public abstract class WebsocketReply {
 				WSServerVersion wsServerVersion =
 						mapper.treeToValue(json, WSServerVersion.class);
 				return wsServerVersion;
+			}
+			
+			if (json.get("reply").asText().equals("guest_account_created")) {
+				WSGuestAccountCreated wsGAC =
+						mapper.treeToValue(json, WSGuestAccountCreated.class);
+				return wsGAC;
 			}
 		} catch (JsonParseException e) {
 			Log.d(TAG, e.toString());

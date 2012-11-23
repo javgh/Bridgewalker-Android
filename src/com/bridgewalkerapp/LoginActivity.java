@@ -1,7 +1,7 @@
 package com.bridgewalkerapp;
 
-import com.bridgewalkerapp.apidata.RequestVersion;
-import com.bridgewalkerapp.apidata.WSServerVersion;
+import com.bridgewalkerapp.apidata.CreateGuestAccount;
+import com.bridgewalkerapp.apidata.WSGuestAccountCreated;
 import com.bridgewalkerapp.apidata.WebsocketReply;
 import com.bridgewalkerapp.apidata.WebsocketRequest;
 import com.bridgewalkerapp.data.ParameterizedRunnable;
@@ -20,9 +20,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -39,6 +41,9 @@ public class LoginActivity extends Activity implements Callback {
 	private ProgressBar loginProgressBar;
 	private LinearLayout loginButtonsLayout;
 	private TextView oldVersionTextView;
+	private Button guestLoginButton;
+	
+	private SharedPreferences settings;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,25 +52,25 @@ public class LoginActivity extends Activity implements Callback {
         this.loginProgressBar = (ProgressBar)findViewById(R.id.login_progressbar);
         this.loginButtonsLayout = (LinearLayout)findViewById(R.id.login_buttons_layout);
         this.oldVersionTextView = (TextView)findViewById(R.id.old_version_textview);
+        this.guestLoginButton = (Button)findViewById(R.id.guest_login_button);
+        this.guestLoginButton.setOnClickListener(this.guestLoginButtonOnClickListener);
         this.handler = new Handler(this);
         this.myMessenger = new Messenger(this.handler);
+        this.settings = getSharedPreferences(BackendService.BRIDGEWALKER_PREFERENCES_FILE, 0);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_login, menu);
-        return true;
-    }
-    
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Log.d(TAG, "LoginActivity: binding service");
-		bindService(new Intent(this, BackendService.class), serviceConnection,
-				Context.BIND_AUTO_CREATE);
-		this.loginButtonsLayout.setVisibility(View.INVISIBLE);
-		this.oldVersionTextView.setVisibility(View.INVISIBLE);
-		this.loginProgressBar.setVisibility(View.VISIBLE);
+		
+		if (!this.settings.contains(BackendService.SETTING_GUEST_ACCOUNT)) {
+			switchToMainActivity();
+		} else {
+			Log.d(TAG, "LoginActivity: binding service");
+			bindService(new Intent(this, BackendService.class), serviceConnection,
+					Context.BIND_AUTO_CREATE);
+			showProgressBar();
+		}
 	}
 	
 	@Override
@@ -84,16 +89,63 @@ public class LoginActivity extends Activity implements Callback {
 		}
 	}
 	
-	private boolean isServerVersionCompatible(String serverVersion) {
-		int clientMajor = extractMajorVersion(RequestVersion.BRIDGEWALKER_CLIENT_VERSION);
-		int serverMajor = extractMajorVersion(serverVersion);
-		
-		return clientMajor == serverMajor;
+	private void switchToMainActivity() {
+		Intent intent = new Intent(this, MainActivity.class);
+		startActivity(intent);		
 	}
 	
-	private Integer extractMajorVersion(String version) {
-		String[] parts = version.split("\\.");
-		return Integer.valueOf(parts[0]);
+	private void showProgressBar() {
+		this.loginButtonsLayout.setVisibility(View.INVISIBLE);
+		this.oldVersionTextView.setVisibility(View.INVISIBLE);
+		this.loginProgressBar.setVisibility(View.VISIBLE);
+	}
+	
+	private void hideProgressBar(boolean showButtons) {
+		loginProgressBar.setVisibility(View.INVISIBLE);
+		if (showButtons) {
+			loginButtonsLayout.setVisibility(View.VISIBLE);
+		} else {
+			oldVersionTextView.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	private OnClickListener guestLoginButtonOnClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			if (isServiceBound) {
+				showProgressBar();
+				
+				Message msg = draftCommand(new CreateGuestAccount(), new ParameterizedRunnable() {
+					@Override
+					public void run(WebsocketReply reply) {
+						WSGuestAccountCreated gac = (WSGuestAccountCreated)reply;
+						
+						SharedPreferences.Editor editor = settings.edit();
+						editor.putString(BackendService.SETTING_GUEST_ACCOUNT,
+												gac.getAccountName());
+						editor.putString(BackendService.SETTING_GUEST_PASSWORD,
+								gac.getAccountPassword());
+						editor.commit();
+						
+						switchToMainActivity();
+					}
+				});
+				try {
+					serviceMessenger.send(msg);
+				} catch (RemoteException e) {
+					throw new RuntimeException(
+							"Exception while sending CreateGuestAccount command", e);
+				}
+			}
+		}
+	};
+	
+	private Message draftCommand(WebsocketRequest request, ParameterizedRunnable runnable) {
+		Message msg = Message.obtain(null, BackendService.MSG_SEND_COMMAND);
+		msg.replyTo = myMessenger;
+		RequestAndRunnable randr = new RequestAndRunnable(request, runnable);
+		msg.obj = randr;
+		return msg;
 	}
 	
 	@Override
@@ -102,6 +154,17 @@ public class LoginActivity extends Activity implements Callback {
 			case BackendService.MSG_EXECUTE_RUNNABLE:
 				ReplyAndRunnable randr = (ReplyAndRunnable)msg.obj;
 				randr.getRunnable().run(randr.getReply());
+				return true;
+			case BackendService.MSG_CONNECTION_STATUS:
+				int status = (Integer)msg.obj;
+				Log.d(TAG, "Connection state is: " + status);
+				if (status == BackendService.CONNECTION_STATE_CONNECTING) {
+					showProgressBar();
+				} else if (status == BackendService.CONNECTION_STATE_PERMANENT_ERROR) {
+					hideProgressBar(false);
+				} else if (status >= BackendService.CONNECTION_STATE_COMPATIBILITY_CHECKED) {
+					hideProgressBar(true);
+				}
 				return true;
 		}
 		return false;
@@ -118,24 +181,8 @@ public class LoginActivity extends Activity implements Callback {
 				msg.replyTo = myMessenger;
 				serviceMessenger.send(msg);
 				
-				Message msg2 = Message.obtain(null, BackendService.MSG_SEND_COMMAND);
+				Message msg2 = Message.obtain(null, BackendService.MSG_REQUEST_STATUS);
 				msg2.replyTo = myMessenger;
-				WebsocketRequest request = new RequestVersion();
-				ParameterizedRunnable runnable = new ParameterizedRunnable() {
-					@Override
-					public void run(WebsocketReply reply) {
-						loginProgressBar.setVisibility(View.INVISIBLE);
-						
-						WSServerVersion serverVersion = (WSServerVersion)reply;
-						if (isServerVersionCompatible(serverVersion.getServerVersion())) {
-							loginButtonsLayout.setVisibility(View.VISIBLE);
-						} else {
-							oldVersionTextView.setVisibility(View.VISIBLE);
-						}
-					}
-				};
-				RequestAndRunnable randr = new RequestAndRunnable(request, runnable);
-				msg2.obj = randr;
 				serviceMessenger.send(msg2);
 			} catch (RemoteException e) {
 				/* can be ignored, as we should be automatically reconnected */

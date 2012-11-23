@@ -32,7 +32,6 @@
 		        android:id="@+id/guest_login_button"
 		        android:layout_width="match_parent"
 		        android:layout_height="60dp"
-		        android:enabled="false"
 		        android:text="@string/guest_login_button" />
 		
 		    <Button

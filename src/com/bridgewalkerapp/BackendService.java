@@ -14,6 +14,8 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.bridgewalkerapp.apidata.RequestVersion;
+import com.bridgewalkerapp.apidata.WSServerVersion;
 import com.bridgewalkerapp.apidata.WebsocketReply;
 import com.bridgewalkerapp.apidata.WebsocketRequest;
 import com.bridgewalkerapp.data.ReplyAndRunnable;
@@ -41,6 +43,17 @@ public class BackendService extends Service implements Callback {
 	public static final int MSG_SEND_COMMAND = 3;
 	public static final int MSG_RECEIVED_COMMAND = 4;
 	public static final int MSG_EXECUTE_RUNNABLE = 5;
+	public static final int MSG_REQUEST_STATUS = 6;
+	public static final int MSG_CONNECTION_STATUS = 7;
+
+	public static final int CONNECTION_STATE_PERMANENT_ERROR = -1;
+	public static final int CONNECTION_STATE_CONNECTING = 0;
+	public static final int CONNECTION_STATE_COMPATIBILITY_CHECKED = 1;
+	public static final int CONNECTION_STATE_AUTHENTICATED = 2;
+	
+	public static final String BRIDGEWALKER_PREFERENCES_FILE = "bridgewalker_preferences";
+	public static final String SETTING_GUEST_ACCOUNT = "SETTING_GUEST_ACCOUNT";
+	public static final String SETTING_GUEST_PASSWORD = "SETTING_GUEST_PASSWORD";
 	
 	private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:9160";
 	private static final int MAX_ERROR_WAIT_TIME = 15 * 1000;
@@ -49,6 +62,9 @@ public class BackendService extends Service implements Callback {
 	private WebSocketConnection connection;
 	private boolean isRunning = true;
 	private int currentErrorWaitTime = INITIAL_ERROR_WAIT_TIME;
+	private int connectionState = 0;
+	//private boolean useAuthentication = false;
+	
 
 	private ObjectMapper mapper;
 	
@@ -89,11 +105,19 @@ public class BackendService extends Service implements Callback {
 				this.clientMessengers.remove(msg.replyTo.hashCode());
 				Log.d(TAG, "Client unregistered. Clients remaining: " + this.clientMessengers.size());
 				break;
+			case MSG_REQUEST_STATUS:
+				Message replyMsg = Message.obtain(null, MSG_CONNECTION_STATUS);
+				replyMsg.obj = Integer.valueOf(this.connectionState);
+				try {
+					msg.replyTo.send(replyMsg);
+				} catch (RemoteException e) { /* ignore */ }
+				break;
 			case MSG_SEND_COMMAND:
 				RequestAndRunnable cmd = (RequestAndRunnable)msg.obj;
 				this.outstandingReplies.put(msg.replyTo.hashCode(), cmd);
 				this.cmdQueue.offer(cmd.getRequest());
 				sendCommands();
+				break;
 		}
 		return true;
 	}
@@ -113,6 +137,7 @@ public class BackendService extends Service implements Callback {
 	
 	private void connect() {
 		try {
+			this.connectionState = CONNECTION_STATE_CONNECTING;
 			this.connection.connect(BRIDGEWALKER_URI, webSocketHandler);
 		} catch (WebSocketException e) {
 			throw new RuntimeException(e);
@@ -122,6 +147,9 @@ public class BackendService extends Service implements Callback {
 	private void reconnect() {
 		if (this.isRunning) {
 			Log.d(TAG, "Lost connection; retrying in " + currentErrorWaitTime + " ms.");
+			connectionState = CONNECTION_STATE_CONNECTING;
+			sendToAllClients(MSG_CONNECTION_STATUS, Integer.valueOf(connectionState));
+			
 			Runnable initReconnect = new Runnable() {
 				@Override
 				public void run() { connect();	}
@@ -138,12 +166,30 @@ public class BackendService extends Service implements Callback {
 		if (this.connection.isConnected()) {
 			WebsocketRequest cmd;
 			while ((cmd = this.cmdQueue.poll()) != null) {
-				connection.sendTextMessage(asJson(cmd));
+				sendCommand(cmd);
 			}
 		}
 	}
 	
+	private void sendCommand(Object cmd) {
+		connection.sendTextMessage(asJson(cmd));
+	}
+	
 	private void processReply(WebsocketReply reply) {
+		// check for replies that are relevant for us
+		if (this.connectionState < CONNECTION_STATE_COMPATIBILITY_CHECKED &&
+						reply.getReplyType() == WebsocketReply.TYPE_WS_SERVER_VERSION) {
+			WSServerVersion serverVersion = (WSServerVersion)reply;
+			if (isServerVersionCompatible(serverVersion.getServerVersion())) {
+				this.connectionState = CONNECTION_STATE_COMPATIBILITY_CHECKED;				
+			} else {
+				this.connectionState = CONNECTION_STATE_PERMANENT_ERROR;
+				this.isRunning = false;
+				this.connection.disconnect();
+			}
+			sendToAllClients(MSG_CONNECTION_STATUS, Integer.valueOf(this.connectionState));
+		}
+		
 		// see if this is a reply to a specific request
 		Iterator<Map.Entry<Integer, RequestAndRunnable>> it = this.outstandingReplies.entrySet().iterator();
 		while (it.hasNext()) {
@@ -168,9 +214,13 @@ public class BackendService extends Service implements Callback {
 		}
 
 		// apparently not a specific reply, so just broadcast to all clients
+		sendToAllClients(MSG_RECEIVED_COMMAND, reply);
+	}
+	
+	private void sendToAllClients(int msgCode, Object msgObj) {
 		for (Messenger client : this.clientMessengers.values()) {
-			Message msg = Message.obtain(null, MSG_RECEIVED_COMMAND);
-			msg.obj = reply;
+			Message msg = Message.obtain(null, msgCode);
+			msg.obj = msgObj;
 			try {
 				client.send(msg);
 			} catch (RemoteException e) { /* ignore */ }
@@ -195,12 +245,26 @@ public class BackendService extends Service implements Callback {
 		}
     	return json;
     }
+    
+	private boolean isServerVersionCompatible(String serverVersion) {
+		int clientMajor = extractMajorVersion(RequestVersion.BRIDGEWALKER_CLIENT_VERSION);
+		int serverMajor = extractMajorVersion(serverVersion);
+		
+		return clientMajor == serverMajor;
+	}
+	
+	private Integer extractMajorVersion(String version) {
+		String[] parts = version.split("\\.");
+		return Integer.valueOf(parts[0]);
+	}
 	
 	private WebSocketHandler webSocketHandler = new WebSocketHandler() {
 		@Override
 		public void onOpen() {
 			Log.d(TAG, "WS: Connected to " + BRIDGEWALKER_URI);
 			currentErrorWaitTime = INITIAL_ERROR_WAIT_TIME;
+			
+			sendCommand(new RequestVersion());
 			
 			sendCommands();		// send out any commands that are queued
 		}
