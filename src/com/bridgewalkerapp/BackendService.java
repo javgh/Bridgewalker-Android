@@ -27,6 +27,7 @@ import de.tavendo.autobahn.WebSocketHandler;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -63,8 +64,10 @@ public class BackendService extends Service implements Callback {
 	private boolean isRunning = true;
 	private int currentErrorWaitTime = INITIAL_ERROR_WAIT_TIME;
 	private int connectionState = 0;
-	//private boolean useAuthentication = false;
 	
+	private boolean useAuthentication = false;
+	private String guestAccount = null;
+	private String guestPassword = null;
 
 	private ObjectMapper mapper;
 	
@@ -124,6 +127,16 @@ public class BackendService extends Service implements Callback {
 	
 	@Override
 	public IBinder onBind(Intent intent) {
+		Bundle extras = intent.getExtras();
+		
+		if (extras != null && extras.containsKey(SETTING_GUEST_ACCOUNT)) {
+			this.guestAccount = extras.getString(SETTING_GUEST_ACCOUNT);
+			this.guestPassword = extras.getString(SETTING_GUEST_PASSWORD);
+			this.useAuthentication = true;
+		} else {
+			this.useAuthentication = false;
+		}
+		
 		return myMessenger.getBinder();
 	}
 	
@@ -225,6 +238,10 @@ public class BackendService extends Service implements Callback {
 				client.send(msg);
 			} catch (RemoteException e) { /* ignore */ }
 		}
+	}
+	
+	private void authenticate() {
+		// TODO
 	}
 	
     private String asJson(Object o) {
