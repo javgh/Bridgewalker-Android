@@ -1,26 +1,37 @@
 package com.bridgewalkerapp.androidclient;
 
-import com.bridgewalkerapp.R;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.widget.TextView;
 
-public class MainActivity extends Activity implements Callback {
-	private TextView debugTextView;
+public class MainActivity extends SherlockFragmentActivity implements Callback {
+	//private TextView debugTextView;
 	
 	private ServiceUtils serviceUtils;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        this.debugTextView = (TextView)findViewById(R.id.hello_textview);
+        //this.debugTextView = (TextView)findViewById(R.id.hello_textview);
         this.serviceUtils = new ServiceUtils(this,
         		getSharedPreferences(BackendService.BRIDGEWALKER_PREFERENCES_FILE, 0),
         		getBaseContext());
+        
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        
+        actionBar.addTab(actionBar.newTab()
+        		.setText(R.string.send_tab_label)
+        		.setTabListener(new TabListenerUtils<SendFragment>(
+        				this, "send", SendFragment.class)));
+        
+        actionBar.addTab(actionBar.newTab()
+        		.setText(R.string.receive_tab_label)
+        		.setTabListener(new TabListenerUtils<ReceiveFragment>(
+        				this, "receive", ReceiveFragment.class)));
     }
 
 	@Override
@@ -41,7 +52,7 @@ public class MainActivity extends Activity implements Callback {
 			case BackendService.MSG_CONNECTION_STATUS:
 				int status = (Integer)msg.obj;
 				if (status == BackendService.CONNECTION_STATE_COMPATIBILITY_CHECKED) {
-					debugTextView.setText("Connected");
+					//debugTextView.setText("Connected");
 				}
 				break;
 		}

@@ -1,6 +1,6 @@
 package com.bridgewalkerapp.androidclient;
 
-import com.bridgewalkerapp.R;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bridgewalkerapp.androidclient.apidata.CreateGuestAccount;
 import com.bridgewalkerapp.androidclient.apidata.WSGuestAccountCreated;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.os.RemoteException;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -22,7 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class LoginActivity extends Activity implements Callback {
+public class LoginActivity extends SherlockFragmentActivity implements Callback {
 	private static final String TAG = "com.bridgewalkerapp";
 	
 	private ProgressBar loginProgressBar;
