@@ -1,10 +1,11 @@
-package com.bridgewalkerapp;
+package com.bridgewalkerapp.androidclient;
 
-import com.bridgewalkerapp.apidata.CreateGuestAccount;
-import com.bridgewalkerapp.apidata.WSGuestAccountCreated;
-import com.bridgewalkerapp.apidata.WebsocketReply;
-import com.bridgewalkerapp.data.ParameterizedRunnable;
-import com.bridgewalkerapp.data.ReplyAndRunnable;
+import com.bridgewalkerapp.R;
+import com.bridgewalkerapp.androidclient.apidata.CreateGuestAccount;
+import com.bridgewalkerapp.androidclient.apidata.WSGuestAccountCreated;
+import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
+import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
+import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
 
 import android.os.Bundle;
 import android.os.Handler.Callback;

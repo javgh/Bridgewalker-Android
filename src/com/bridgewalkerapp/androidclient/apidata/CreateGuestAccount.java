@@ -1,4 +1,4 @@
-package com.bridgewalkerapp.apidata;
+package com.bridgewalkerapp.androidclient.apidata;
 
 public class CreateGuestAccount extends WebsocketRequest {
 	public String getOp() {

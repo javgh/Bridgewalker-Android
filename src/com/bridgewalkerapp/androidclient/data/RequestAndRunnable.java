@@ -1,6 +1,6 @@
-package com.bridgewalkerapp.data;
+package com.bridgewalkerapp.androidclient.data;
 
-import com.bridgewalkerapp.apidata.WebsocketRequest;
+import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest;
 
 public class RequestAndRunnable {
 	private WebsocketRequest request;

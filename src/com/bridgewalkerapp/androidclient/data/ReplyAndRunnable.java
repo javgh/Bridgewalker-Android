@@ -1,6 +1,6 @@
-package com.bridgewalkerapp.data;
+package com.bridgewalkerapp.androidclient.data;
 
-import com.bridgewalkerapp.apidata.WebsocketReply;
+import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
 
 public class ReplyAndRunnable {
 	private WebsocketReply reply;

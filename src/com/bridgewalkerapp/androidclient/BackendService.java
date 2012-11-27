@@ -1,4 +1,4 @@
-package com.bridgewalkerapp;
+package com.bridgewalkerapp.androidclient;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,12 +14,12 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.bridgewalkerapp.apidata.RequestVersion;
-import com.bridgewalkerapp.apidata.WSServerVersion;
-import com.bridgewalkerapp.apidata.WebsocketReply;
-import com.bridgewalkerapp.apidata.WebsocketRequest;
-import com.bridgewalkerapp.data.ReplyAndRunnable;
-import com.bridgewalkerapp.data.RequestAndRunnable;
+import com.bridgewalkerapp.androidclient.apidata.RequestVersion;
+import com.bridgewalkerapp.androidclient.apidata.WSServerVersion;
+import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
+import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest;
+import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
+import com.bridgewalkerapp.androidclient.data.RequestAndRunnable;
 
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketException;

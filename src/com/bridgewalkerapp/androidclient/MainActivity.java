@@ -1,4 +1,6 @@
-package com.bridgewalkerapp;
+package com.bridgewalkerapp.androidclient;
+
+import com.bridgewalkerapp.R;
 
 import android.app.Activity;
 import android.os.Bundle;

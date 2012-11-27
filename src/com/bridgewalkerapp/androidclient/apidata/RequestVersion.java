@@ -1,4 +1,4 @@
-package com.bridgewalkerapp.apidata;
+package com.bridgewalkerapp.androidclient.apidata;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 

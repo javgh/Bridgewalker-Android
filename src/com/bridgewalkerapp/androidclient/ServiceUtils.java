@@ -1,8 +1,8 @@
-package com.bridgewalkerapp;
+package com.bridgewalkerapp.androidclient;
 
-import com.bridgewalkerapp.apidata.WebsocketRequest;
-import com.bridgewalkerapp.data.ParameterizedRunnable;
-import com.bridgewalkerapp.data.RequestAndRunnable;
+import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest;
+import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
+import com.bridgewalkerapp.androidclient.data.RequestAndRunnable;
 
 import android.content.ComponentName;
 import android.content.Context;

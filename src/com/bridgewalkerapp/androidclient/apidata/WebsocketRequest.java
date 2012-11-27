@@ -1,4 +1,4 @@
-package com.bridgewalkerapp.apidata;
+package com.bridgewalkerapp.androidclient.apidata;
 
 public abstract class WebsocketRequest {
 	public static final int TYPE_REQUEST_VERSION = 0;
