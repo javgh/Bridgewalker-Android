@@ -32,6 +32,8 @@ public class MainActivity extends SherlockFragmentActivity implements Callback {
         		.setText(R.string.receive_tab_label)
         		.setTabListener(new TabListenerUtils<ReceiveFragment>(
         				this, "receive", ReceiveFragment.class)));
+        
+        actionBar.setSelectedNavigationItem(1);
     }
 
 	@Override

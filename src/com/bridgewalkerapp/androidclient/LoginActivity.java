@@ -50,7 +50,7 @@ public class LoginActivity extends SherlockFragmentActivity implements Callback 
 	protected void onStart() {
 		super.onStart();
 		
-		if (!this.settings.contains(BackendService.SETTING_GUEST_ACCOUNT)) {
+		if (this.settings.contains(BackendService.SETTING_GUEST_ACCOUNT)) {
 			switchToMainActivity();
 		} else {
 			this.serviceUtils.bindService();

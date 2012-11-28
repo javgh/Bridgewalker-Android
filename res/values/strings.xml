@@ -10,4 +10,5 @@
     <string name="old_version">This app appears to be too old to talk to the server. Please check if an update is available. Thank you!</string>
 	<string name="send_tab_label">Send</string>
 	<string name="receive_tab_label">Receive</string>
+	<string name="usd_balance_zero">0 USD</string>
 </resources>

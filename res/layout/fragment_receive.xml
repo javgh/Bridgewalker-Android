@@ -3,11 +3,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="8dp"
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/hello_receive_fragment_textview"
-        android:layout_width="wrap_content"
+        android:id="@+id/usd_balance_textview"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="This will be the receive fragment" />
+        android:text="@string/usd_balance_zero"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:gravity="center"
+       	/>
+    
+    
+    <TextView
+        android:id="@+id/hello_receive_fragment_textview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:text="This will be the receive fragment\nSome long information here\nAnd also a very very long line of information right under this whole thing" />
+    
+    <View
+	    android:layout_width="match_parent"
+	    android:padding="5dp"
+	    android:layout_height="1dp"
+	    android:background="@android:color/darker_gray"
+	    />
+    
+    <TextView
+        android:id="@+id/receive_bitcoin_address_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="14Z1mazY4HfysZyMaKudFr63EwHqQT2njz"
+        />
+    
+	<ImageView
+        android:id="@+id/logo_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_launcher"
+        android:contentDescription="@string/bridgewalker_logo" />
 </LinearLayout>
