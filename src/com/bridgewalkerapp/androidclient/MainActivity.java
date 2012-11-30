@@ -6,8 +6,10 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.util.Log;
 
 public class MainActivity extends SherlockFragmentActivity implements Callback {
+	private static final String TAG = "com.bridgewalkerapp";
 	//private TextView debugTextView;
 	
 	private ServiceUtils serviceUtils;
@@ -53,6 +55,7 @@ public class MainActivity extends SherlockFragmentActivity implements Callback {
 		switch (msg.what) {
 			case BackendService.MSG_CONNECTION_STATUS:
 				int status = (Integer)msg.obj;
+				Log.d(TAG, "Connection state is: " + status);
 				if (status == BackendService.CONNECTION_STATE_COMPATIBILITY_CHECKED) {
 					//debugTextView.setText("Connected");
 				}

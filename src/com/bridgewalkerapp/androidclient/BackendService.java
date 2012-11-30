@@ -14,6 +14,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.bridgewalkerapp.androidclient.apidata.Login;
 import com.bridgewalkerapp.androidclient.apidata.RequestVersion;
 import com.bridgewalkerapp.androidclient.apidata.WSServerVersion;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
@@ -95,6 +96,23 @@ public class BackendService extends Service implements Callback {
 		connect();
 		
 		Log.d(TAG, "BackendService created");
+	}
+	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		if (intent != null && intent.getExtras() != null) {
+			Bundle extras = intent.getExtras();
+			String guestAccountExtra = extras.getString(SETTING_GUEST_ACCOUNT);
+			String guestPasswordExtra = extras.getString(SETTING_GUEST_PASSWORD);
+			
+			if (guestAccountExtra != null && guestPasswordExtra != null) {
+				this.useAuthentication = true;
+				this.guestAccount = guestAccountExtra;
+				this.guestPassword = guestPasswordExtra;
+			}
+		}
+		
+		return START_STICKY;
 	}
 	
 	@Override
@@ -196,10 +214,22 @@ public class BackendService extends Service implements Callback {
 			if (isServerVersionCompatible(serverVersion.getServerVersion())) {
 				this.connectionState = CONNECTION_STATE_COMPATIBILITY_CHECKED;				
 			} else {
-				this.connectionState = CONNECTION_STATE_PERMANENT_ERROR;
-				this.isRunning = false;
-				this.connection.disconnect();
+				setPermanentError();
 			}
+			sendToAllClients(MSG_CONNECTION_STATUS, Integer.valueOf(this.connectionState));
+			
+			authenticate();
+		}
+		
+		if (this.connectionState == CONNECTION_STATE_COMPATIBILITY_CHECKED &&
+				reply.getReplyType() == WebsocketReply.TYPE_WS_LOGIN_FAILED) {
+			setPermanentError();
+			sendToAllClients(MSG_CONNECTION_STATUS, Integer.valueOf(this.connectionState));
+		}
+		
+		if (this.connectionState == CONNECTION_STATE_COMPATIBILITY_CHECKED &&
+				reply.getReplyType() == WebsocketReply.TYPE_WS_LOGIN_SUCCESSFUL) {
+			this.connectionState = CONNECTION_STATE_AUTHENTICATED;
 			sendToAllClients(MSG_CONNECTION_STATUS, Integer.valueOf(this.connectionState));
 		}
 		
@@ -241,7 +271,16 @@ public class BackendService extends Service implements Callback {
 	}
 	
 	private void authenticate() {
-		// TODO
+		if (this.useAuthentication &&
+				this.connectionState == CONNECTION_STATE_COMPATIBILITY_CHECKED) {
+			sendCommand(new Login(this.guestAccount, this.guestPassword));
+		}
+	}
+	
+	private void setPermanentError() {
+		this.connectionState = CONNECTION_STATE_PERMANENT_ERROR;
+		this.isRunning = false;
+		this.connection.disconnect();
 	}
 	
     private String asJson(Object o) {

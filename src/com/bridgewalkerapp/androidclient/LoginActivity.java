@@ -123,7 +123,6 @@ public class LoginActivity extends SherlockFragmentActivity implements Callback 
 				return true;
 			case BackendService.MSG_CONNECTION_STATUS:
 				int status = (Integer)msg.obj;
-				Log.d(TAG, "Connection state is: " + status);
 				if (status == BackendService.CONNECTION_STATE_CONNECTING) {
 					showProgressBar();
 				} else if (status == BackendService.CONNECTION_STATE_PERMANENT_ERROR) {

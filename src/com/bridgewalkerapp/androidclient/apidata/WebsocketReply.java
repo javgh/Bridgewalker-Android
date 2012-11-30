@@ -14,6 +14,8 @@ public abstract class WebsocketReply {
 	
 	public static final int TYPE_WS_SERVER_VERSION = 0;
 	public static final int TYPE_WS_GUEST_ACCOUNT_CREATED = 1;
+	public static final int TYPE_WS_LOGIN_SUCCESSFUL = 2;
+	public static final int TYPE_WS_LOGIN_FAILED = 3;
 	
 	private static ObjectMapper mapper = new ObjectMapper(); 
 	
@@ -37,6 +39,19 @@ public abstract class WebsocketReply {
 						mapper.treeToValue(json, WSGuestAccountCreated.class);
 				return wsGAC;
 			}
+			
+			if (json.get("reply").asText().equals("login_successful")) {
+				WSLoginSuccessful wsLS =
+						mapper.treeToValue(json, WSLoginSuccessful.class);
+				return wsLS;
+			}
+			
+			if (json.get("reply").asText().equals("login_failed")) {
+				WSLoginFailed wsLF =
+						mapper.treeToValue(json, WSLoginFailed.class);
+				return wsLF;
+			}
+
 		} catch (JsonParseException e) {
 			Log.d(TAG, e.toString());
 			/* ignore, will return null */
