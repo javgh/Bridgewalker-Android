@@ -6,7 +6,7 @@ public class RequestVersion extends WebsocketRequest {
 	public static final String BRIDGEWALKER_CLIENT_VERSION = "0.1";
 	
 	public String getOp() {
-		return "version";
+		return "request_version";
 	}
 
 	@JsonProperty("client_version")

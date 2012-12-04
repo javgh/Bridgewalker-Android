@@ -59,13 +59,28 @@ public class ServiceUtils {
 		}
 	}
 	
+	public void sendCommand(int what) throws RemoteException {
+		Message msg = Message.obtain(null, what);
+		msg.replyTo = this.myMessenger;
+		
+		if (this.serviceMessenger != null) {
+			this.serviceMessenger.send(msg);
+		} else {
+			throw new RemoteException();
+		}
+	}
+	
 	public void sendCommand(WebsocketRequest request, ParameterizedRunnable runnable) throws RemoteException {
 		Message msg = Message.obtain(null, BackendService.MSG_SEND_COMMAND);
 		msg.replyTo = this.myMessenger;
 		RequestAndRunnable randr = new RequestAndRunnable(request, runnable);
 		msg.obj = randr;
 		
-		this.serviceMessenger.send(msg);
+		if (this.serviceMessenger != null) { 
+			this.serviceMessenger.send(msg);
+		} else {
+			throw new RemoteException();
+		}
 	}
 	
 	public boolean isServiceBound() {
