@@ -1,5 +1,6 @@
 package com.bridgewalkerapp.androidclient;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,6 +29,7 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 	private LinearLayout contentLinearLayout = null;
 	private TextView usdBalanceTextView = null;
 	private TextView receiveBitcoinAddressTextView = null;
+	private ImageView primaryBTCAddressQRCodeImageView = null;
 	
 	private BitcoinFragmentHost parentActivity = null;
 	
@@ -40,6 +43,7 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 		this.contentLinearLayout = (LinearLayout)view.findViewById(R.id.receive_fragment_content_linearlayout);
 		this.usdBalanceTextView = (TextView)view.findViewById(R.id.usd_balance_textview);
 		this.receiveBitcoinAddressTextView = (TextView)view.findViewById(R.id.receive_bitcoin_address_textview);
+		this.primaryBTCAddressQRCodeImageView = (ImageView)view.findViewById(R.id.primary_btc_address_qrcode_imageview);
 		return view; 
 	}
 	
@@ -107,10 +111,20 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 			return;
 		
 		this.usdBalanceTextView.setText(
-				Long.toString(this.currentStatus.getUsdBalance()) + " USD (just now)");
-		this.receiveBitcoinAddressTextView.setText(
+				formatUSDBalance(this.currentStatus.getUsdBalance()));
+		this.receiveBitcoinAddressTextView.setText("Use this Bitcoin address to fund your account:\n" +
 				this.currentStatus.getPrimaryBTCAddress());
+		
+		Bitmap qrCode = QRCodeUtils.encodeAsBitmap(
+				"bitcoin:" + this.currentStatus.getPrimaryBTCAddress(), 500);
+		this.primaryBTCAddressQRCodeImageView.setImageBitmap(qrCode);
+		
 		hideProgressBar();
+	}
+	
+	private String formatUSDBalance(long usdBalance) {
+		double asDouble = (double)usdBalance / 100000.0;
+		return String.format("Balance: %.5f USD", asDouble);
 	}
 	
 	private void showProgressBar() {

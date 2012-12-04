@@ -27,6 +27,8 @@
 	        android:text="@string/usd_balance_zero"
 	        android:textAppearance="?android:attr/textAppearanceLarge"
 	        android:gravity="center"
+	        android:paddingTop="16dp"
+	        android:paddingBottom="8dp"
 	       	/>
 	    
 	    
@@ -39,11 +41,10 @@
 	        android:text="This will be the receive fragment\nSome long information here\nAnd also a very very long line of information right under this whole thing" />
 	    
 		<ImageView
-	        android:id="@+id/logo_imageview"
-	        android:layout_width="200dp"
-	        android:layout_height="200dp"
-	        android:src="@drawable/ic_launcher"
-	        android:contentDescription="@string/bridgewalker_logo" />
+	        android:id="@+id/primary_btc_address_qrcode_imageview"
+	        android:layout_width="match_parent"
+	        android:layout_height="280dp"
+	        android:contentDescription="@string/qrcode_desc" />
 		
 		<TextView
 	        android:id="@+id/receive_bitcoin_address_textview"
@@ -51,6 +52,7 @@
 	        android:layout_height="wrap_content"
 	        android:text=""
 	        android:gravity="center"
+	        android:padding="8dp"
 	        />
 	</LinearLayout>
 </RelativeLayout>

@@ -11,4 +11,5 @@
 	<string name="send_tab_label">Send</string>
 	<string name="receive_tab_label">Receive</string>
 	<string name="usd_balance_zero">0 USD</string>
+	<string name="qrcode_desc">QRCode of Bitcoin address</string>
 </resources>
