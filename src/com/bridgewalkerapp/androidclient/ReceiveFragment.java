@@ -1,20 +1,24 @@
 package com.bridgewalkerapp.androidclient;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.os.RemoteException;
+import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.bridgewalkerapp.androidclient.apidata.RequestStatus;
@@ -22,8 +26,8 @@ import com.bridgewalkerapp.androidclient.apidata.WSStatus;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
 import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
 import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
-import com.bridgewalkerapp.androidclient.data.RequestAndRunnable;
 
+@SuppressWarnings("deprecation")	/* use old clipboard to work on API 8+ */
 public class ReceiveFragment extends SherlockFragment implements Callback {
 	private static final String TAG = "com.bridgewalkerapp";
 	
@@ -51,8 +55,7 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 		this.copyAddressToClipboardButton = (Button)view.findViewById(R.id.copy_address_to_clipboard_button);
 		this.shareAddressButton = (ImageButton)view.findViewById(R.id.share_address_button);
 		
-		/* final tweaks; didn't manage to do this directly in the XML file */
-		this.copyAddressToClipboardButton.setHeight(this.shareAddressButton.getHeight());
+		this.copyAddressToClipboardButton.setOnClickListener(this.copyAddressToClipboardButtonOnClickListener);
 		
 		return view; 
 	}
@@ -146,4 +149,18 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 		this.progressBar.setVisibility(View.INVISIBLE);
 		this.contentLinearLayout.setVisibility(View.VISIBLE);
 	}
+
+	private OnClickListener copyAddressToClipboardButtonOnClickListener = new OnClickListener() {
+		@SuppressWarnings("deprecation")	/* use old clipboard to work on API 8+ */
+		@Override
+		public void onClick(View v) {
+			if (currentStatus != null) {
+				ClipboardManager clipboard = (ClipboardManager)
+						getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+				clipboard.setText(currentStatus.getPrimaryBTCAddress());
+				Toast.makeText(getActivity().getBaseContext(),
+						R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+			}
+		}
+	};
 }

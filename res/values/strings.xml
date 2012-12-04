@@ -14,4 +14,5 @@
 	<string name="qrcode_desc">QRCode of Bitcoin address</string>
 	<string name="copy_to_clipboard">Copy to clipboard</string>
 	<string name="share">Share</string>
+	<string name="copied_to_clipboard">Copied to clipboard</string>
 </resources>

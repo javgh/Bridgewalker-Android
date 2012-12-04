@@ -1077,6 +1077,7 @@ containing a value of this type.
         public static final int activity_title=0x7f090011;
         public static final int app_name=0x7f09000f;
         public static final int bridgewalker_logo=0x7f090014;
+        public static final int copied_to_clipboard=0x7f09001d;
         public static final int copy_to_clipboard=0x7f09001b;
         public static final int disclaimer=0x7f090015;
         public static final int guest_login_button=0x7f090012;
