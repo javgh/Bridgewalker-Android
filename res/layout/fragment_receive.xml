@@ -43,7 +43,7 @@
 		<ImageView
 	        android:id="@+id/primary_btc_address_qrcode_imageview"
 	        android:layout_width="match_parent"
-	        android:layout_height="280dp"
+	        android:layout_height="260dp"
 	        android:contentDescription="@string/qrcode_desc" />
 		
 		<TextView
@@ -54,5 +54,30 @@
 	        android:gravity="center"
 	        android:padding="8dp"
 	        />
+		
+		<RelativeLayout
+		    android:id="@+id/receive_fragment_buttons_relativelayout"
+			android:layout_width="match_parent"
+	    	android:layout_height="wrap_content"
+	    	android:gravity="center"
+	    	android:orientation="horizontal">
+
+		    <!-- TODO: maybe (?) try to figure out, how to make this match the share button -->		    
+		    <Button
+		        android:id="@+id/copy_address_to_clipboard_button"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_centerVertical="true"
+		        android:text="@string/copy_to_clipboard" />
+		    		    
+		    <ImageButton
+		        android:id="@+id/share_address_button"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/ic_menu_share"
+		        android:layout_toRightOf="@id/copy_address_to_clipboard_button"
+		        android:contentDescription="@string/share"
+		        />
+		</RelativeLayout>
 	</LinearLayout>
 </RelativeLayout>

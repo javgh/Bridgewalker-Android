@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -30,6 +32,8 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 	private TextView usdBalanceTextView = null;
 	private TextView receiveBitcoinAddressTextView = null;
 	private ImageView primaryBTCAddressQRCodeImageView = null;
+	private Button copyAddressToClipboardButton = null;
+	private ImageButton shareAddressButton = null;
 	
 	private BitcoinFragmentHost parentActivity = null;
 	
@@ -44,6 +48,12 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 		this.usdBalanceTextView = (TextView)view.findViewById(R.id.usd_balance_textview);
 		this.receiveBitcoinAddressTextView = (TextView)view.findViewById(R.id.receive_bitcoin_address_textview);
 		this.primaryBTCAddressQRCodeImageView = (ImageView)view.findViewById(R.id.primary_btc_address_qrcode_imageview);
+		this.copyAddressToClipboardButton = (Button)view.findViewById(R.id.copy_address_to_clipboard_button);
+		this.shareAddressButton = (ImageButton)view.findViewById(R.id.share_address_button);
+		
+		/* final tweaks; didn't manage to do this directly in the XML file */
+		this.copyAddressToClipboardButton.setHeight(this.shareAddressButton.getHeight());
+		
 		return view; 
 	}
 	
