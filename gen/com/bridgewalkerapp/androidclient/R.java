@@ -967,7 +967,6 @@ containing a value of this type.
         public static final int disclaimer_textview=0x7f040039;
         public static final int edit_query=0x7f040027;
         public static final int guest_login_button=0x7f040035;
-        public static final int hello_receive_fragment_textview=0x7f04003d;
         public static final int hello_send_fragment_textview=0x7f040043;
         public static final int homeAsUp=0x7f040006;
         public static final int listMode=0x7f040002;
@@ -977,6 +976,7 @@ containing a value of this type.
         public static final int menu_settings=0x7f040044;
         public static final int normal=0x7f040001;
         public static final int old_version_textview=0x7f040037;
+        public static final int pending_events_textview=0x7f04003d;
         public static final int primary_btc_address_qrcode_imageview=0x7f04003e;
         public static final int receive_bitcoin_address_textview=0x7f04003f;
         public static final int receive_fragment_buttons_relativelayout=0x7f040040;

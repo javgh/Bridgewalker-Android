@@ -1,5 +1,8 @@
 package com.bridgewalkerapp.androidclient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -24,6 +27,7 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.bridgewalkerapp.androidclient.apidata.RequestStatus;
 import com.bridgewalkerapp.androidclient.apidata.WSStatus;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
+import com.bridgewalkerapp.androidclient.apidata.subcomponents.PendingTransaction;
 import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
 import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
 
@@ -34,6 +38,7 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 	private ProgressBar progressBar = null;
 	private LinearLayout contentLinearLayout = null;
 	private TextView usdBalanceTextView = null;
+	private TextView pendingEventsTextView = null;
 	private TextView receiveBitcoinAddressTextView = null;
 	private ImageView primaryBTCAddressQRCodeImageView = null;
 	private Button copyAddressToClipboardButton = null;
@@ -50,6 +55,7 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 		this.progressBar = (ProgressBar)view.findViewById(R.id.receive_fragment_progressbar);
 		this.contentLinearLayout = (LinearLayout)view.findViewById(R.id.receive_fragment_content_linearlayout);
 		this.usdBalanceTextView = (TextView)view.findViewById(R.id.usd_balance_textview);
+		this.pendingEventsTextView = (TextView)view.findViewById(R.id.pending_events_textview);
 		this.receiveBitcoinAddressTextView = (TextView)view.findViewById(R.id.receive_bitcoin_address_textview);
 		this.primaryBTCAddressQRCodeImageView = (ImageView)view.findViewById(R.id.primary_btc_address_qrcode_imageview);
 		this.copyAddressToClipboardButton = (Button)view.findViewById(R.id.copy_address_to_clipboard_button);
@@ -128,6 +134,28 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 		this.receiveBitcoinAddressTextView.setText("Use this Bitcoin address to fund your account:\n" +
 				this.currentStatus.getPrimaryBTCAddress());
 		
+		List<String> pendingEvents = new ArrayList<String>();
+		String btcIn = formatBTCIn(this.currentStatus.getBtcIn());
+		if (btcIn != null) pendingEvents.add(btcIn);
+		pendingEvents.addAll(formatPendingTxs(this.currentStatus.getPendingTxs()));
+		
+		//pendingEvents.add("Dummy event A");
+		//pendingEvents.add("Dummy event B");
+		//pendingEvents.add("Dummy event C");
+		
+		if (pendingEvents.size() > 0) {
+			StringBuilder sb = new StringBuilder();
+			String separator = "";
+			for (String s: pendingEvents) {
+				sb.append(separator).append(s);
+				separator = "\n";
+			}
+			this.pendingEventsTextView.setText(sb.toString());
+			this.pendingEventsTextView.setVisibility(View.VISIBLE);
+		} else {
+			this.pendingEventsTextView.setVisibility(View.GONE);
+		}
+		
 		Bitmap qrCode = QRCodeUtils.encodeAsBitmap(
 				"bitcoin:" + this.currentStatus.getPrimaryBTCAddress(), 500);
 		this.primaryBTCAddressQRCodeImageView.setImageBitmap(qrCode);
@@ -138,6 +166,27 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 	private String formatUSDBalance(long usdBalance) {
 		double asDouble = (double)usdBalance / 100000.0;
 		return String.format("Balance: %.5f USD", asDouble);
+	}
+	
+	private String formatBTCIn(long btcIn) {
+		if (btcIn == 0) return null;
+		
+		return String.format("+ %s BTC waiting to be exchanged.", formatBTC(btcIn));
+	}
+	
+	private List<String> formatPendingTxs(List<PendingTransaction> pendingTxs) {
+		List<String> result = new ArrayList<String>();
+		for (PendingTransaction pendingTx : pendingTxs) {
+			result.add(String.format("+ %s BTC waiting to be confirmed.",
+						formatBTC(pendingTx.getAmount())));
+		}
+		return result;
+	}
+	
+	private String formatBTC(long btc) {
+		double asDouble = (long)btc / 100000000.0;
+		String s = String.format("%.8f", asDouble);
+		return s.replaceAll("[.,]?0+$", "");
 	}
 	
 	private void showProgressBar() {
