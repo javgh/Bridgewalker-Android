@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler.Callback;
@@ -62,6 +63,7 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 		this.shareAddressButton = (ImageButton)view.findViewById(R.id.share_address_button);
 		
 		this.copyAddressToClipboardButton.setOnClickListener(this.copyAddressToClipboardButtonOnClickListener);
+		this.shareAddressButton.setOnClickListener(this.shareAddressButtonOnClickListener);
 		
 		return view; 
 	}
@@ -98,6 +100,12 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 					this.currentStatus = null;
 				}
 				return true;
+			case BackendService.MSG_RECEIVED_COMMAND:
+				WebsocketReply reply = (WebsocketReply)msg.obj;
+				if (reply.getReplyType() == WebsocketReply.TYPE_WS_STATUS) {
+					currentStatus = (WSStatus)reply;
+					displayStatus();
+				}
 		}
 		return false;
 	}
@@ -209,6 +217,18 @@ public class ReceiveFragment extends SherlockFragment implements Callback {
 				clipboard.setText(currentStatus.getPrimaryBTCAddress());
 				Toast.makeText(getActivity().getBaseContext(),
 						R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+			}
+		}
+	};
+	
+	private OnClickListener shareAddressButtonOnClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			if (currentStatus != null) {
+				Intent intent = new Intent(Intent.ACTION_SEND);
+				intent.setType("text/plain");
+				intent.putExtra(Intent.EXTRA_TEXT, currentStatus.getPrimaryBTCAddress());
+				startActivity(Intent.createChooser(intent, getSherlockActivity().getString(R.string.share_bitcoin_address)));
 			}
 		}
 	};

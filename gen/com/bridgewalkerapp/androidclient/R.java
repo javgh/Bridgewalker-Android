@@ -1087,6 +1087,7 @@ containing a value of this type.
         public static final int receive_tab_label=0x7f090018;
         public static final int send_tab_label=0x7f090017;
         public static final int share=0x7f09001c;
+        public static final int share_bitcoin_address=0x7f09001e;
         public static final int standard_login_button=0x7f090013;
         public static final int usd_balance_zero=0x7f090019;
     }
