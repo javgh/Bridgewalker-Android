@@ -57,7 +57,7 @@ public class BackendService extends Service implements Callback {
 	public static final String SETTING_GUEST_ACCOUNT = "SETTING_GUEST_ACCOUNT";
 	public static final String SETTING_GUEST_PASSWORD = "SETTING_GUEST_PASSWORD";
 	
-	private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:9160";
+	private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
 	private static final int MAX_ERROR_WAIT_TIME = 15 * 1000;
 	private static final int INITIAL_ERROR_WAIT_TIME = 1 * 1000;
 	
