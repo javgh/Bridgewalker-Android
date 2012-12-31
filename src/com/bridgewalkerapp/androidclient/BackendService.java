@@ -15,6 +15,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.bridgewalkerapp.androidclient.apidata.Login;
+import com.bridgewalkerapp.androidclient.apidata.Ping;
 import com.bridgewalkerapp.androidclient.apidata.RequestVersion;
 import com.bridgewalkerapp.androidclient.apidata.WSServerVersion;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
@@ -47,6 +48,7 @@ public class BackendService extends Service implements Callback {
 	public static final int MSG_EXECUTE_RUNNABLE = 5;
 	public static final int MSG_REQUEST_STATUS = 6;
 	public static final int MSG_CONNECTION_STATUS = 7;
+	public static final int MSG_SEND_PING = 8;
 
 	public static final int CONNECTION_STATE_PERMANENT_ERROR = -1;
 	public static final int CONNECTION_STATE_CONNECTING = 0;
@@ -60,6 +62,9 @@ public class BackendService extends Service implements Callback {
 	private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
 	private static final int MAX_ERROR_WAIT_TIME = 15 * 1000;
 	private static final int INITIAL_ERROR_WAIT_TIME = 1 * 1000;
+	
+	// server will time us out after 30 seconds, so send ping every 25 seconds
+	private static final int KEEP_ALIVE_INTERVAL = 25 * 1000;
 	
 	private WebSocketConnection connection;
 	private boolean isRunning = true;
@@ -94,6 +99,7 @@ public class BackendService extends Service implements Callback {
 		
 		this.connection = new WebSocketConnection();
 		connect();
+		enqueuePing();
 		
 		Log.d(TAG, "BackendService created");
 	}
@@ -138,6 +144,11 @@ public class BackendService extends Service implements Callback {
 				this.outstandingReplies.put(msg.replyTo.hashCode(), cmd);
 				this.cmdQueue.offer(cmd.getRequest());
 				sendCommands();
+				break;
+			case MSG_SEND_PING:
+				if (this.connection.isConnected())
+					sendCommand(new Ping());
+				enqueuePing();
 				break;
 		}
 		return true;
@@ -191,6 +202,11 @@ public class BackendService extends Service implements Callback {
 			if (currentErrorWaitTime > MAX_ERROR_WAIT_TIME)
 				currentErrorWaitTime = MAX_ERROR_WAIT_TIME;
 		}
+	}
+	
+	private void enqueuePing() {
+		Message msg = Message.obtain(null, MSG_SEND_PING);
+		this.myHandler.sendMessageDelayed(msg, KEEP_ALIVE_INTERVAL);
 	}
 	
 	private void sendCommands() {
