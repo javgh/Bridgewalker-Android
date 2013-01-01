@@ -1,14 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/hello_send_fragment_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="This will be the send fragment" />
-</LinearLayout>
+    android:layout_height="match_parent">
+    
+	<RelativeLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" >
+	    
+	    <ProgressBar
+			android:id="@+id/send_fragment_progressbar"
+		    style="?android:attr/progressBarStyleLarge"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_centerInParent="true"
+		    />
+	
+		<LinearLayout 
+		    xmlns:tools="http://schemas.android.com/tools"
+		    android:id="@+id/send_fragment_content_linearlayout"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:padding="8dp"
+		    android:orientation="vertical"
+		    android:visibility="invisible" >
+		
+		    <TextView
+		        android:id="@+id/send_fragment_usd_balance_textview"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/usd_balance_zero"
+		        android:textAppearance="?android:attr/textAppearanceLarge"
+		        android:gravity="center"
+		        android:paddingTop="16dp"
+		        android:paddingBottom="4dp"
+		       	/>
+		    
+		    
+		    <TextView
+		        android:id="@+id/send_fragment_pending_events_textview"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:paddingBottom="8dp"
+		        android:gravity="center"
+		        android:visibility="gone"
+		        android:text="" />
+		    
+		</LinearLayout>
+	</RelativeLayout>
+</ScrollView>
