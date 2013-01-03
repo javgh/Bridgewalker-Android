@@ -962,7 +962,10 @@ containing a value of this type.
         public static final int abs__title=0x7f04001b;
         public static final int abs__titleDivider=0x7f04001c;
         public static final int abs__up=0x7f04000b;
-        public static final int btc_radio_button=0x7f04004a;
+        public static final int alignment_helper1=0x7f040047;
+        public static final int alignment_helper2=0x7f040048;
+        public static final int amount_edittext=0x7f04004b;
+        public static final int btc_radio_button=0x7f04004d;
         public static final int copy_address_to_clipboard_button=0x7f040041;
         public static final int disableHome=0x7f040009;
         public static final int disclaimer_textview=0x7f040039;
@@ -973,7 +976,7 @@ containing a value of this type.
         public static final int login_buttons_layout=0x7f040034;
         public static final int login_progressbar=0x7f040038;
         public static final int logo_imageview=0x7f040033;
-        public static final int menu_settings=0x7f04004b;
+        public static final int menu_settings=0x7f04004f;
         public static final int normal=0x7f040001;
         public static final int old_version_textview=0x7f040037;
         public static final int primary_btc_address_qrcode_imageview=0x7f04003e;
@@ -983,8 +986,8 @@ containing a value of this type.
         public static final int receive_fragment_pending_events_textview=0x7f04003d;
         public static final int receive_fragment_progressbar=0x7f04003a;
         public static final int receive_fragment_usd_balance_textview=0x7f04003c;
-        public static final int recipient_address_edittext=0x7f040047;
-        public static final int scan_button=0x7f040048;
+        public static final int recipient_address_edittext=0x7f040049;
+        public static final int scan_button=0x7f04004a;
         public static final int send_fragment_content_linearlayout=0x7f040044;
         public static final int send_fragment_pending_events_textview=0x7f040046;
         public static final int send_fragment_progressbar=0x7f040043;
@@ -994,8 +997,9 @@ containing a value of this type.
         public static final int showHome=0x7f040005;
         public static final int showTitle=0x7f040007;
         public static final int standard_login_button=0x7f040036;
+        public static final int summary_textview=0x7f04004e;
         public static final int tabMode=0x7f040003;
-        public static final int usd_radio_button=0x7f040049;
+        public static final int usd_radio_button=0x7f04004c;
         public static final int useLogo=0x7f040004;
         public static final int wrap_content=0x7f040000;
     }
@@ -1098,6 +1102,7 @@ containing a value of this type.
         public static final int receive_tab_label=0x7f090018;
         public static final int recipient_will_receive=0x7f090025;
         public static final int scan=0x7f090020;
+        public static final int send_payment=0x7f090027;
         public static final int send_tab_label=0x7f090017;
         public static final int send_to=0x7f09001f;
         public static final int share=0x7f09001c;

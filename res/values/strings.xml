@@ -24,4 +24,5 @@
 	<string name="fees_on_top">Deduct fees separately</string>
 	<string name="recipient_will_receive">Recipient will\nreceive:</string>
 	<string name="deducted_from_your_account">Deducted from\nyour account:</string>
+	<string name="send_payment">Send payment</string>
 </resources>
