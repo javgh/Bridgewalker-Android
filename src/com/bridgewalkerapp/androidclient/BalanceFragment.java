@@ -34,13 +34,9 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		this.parentActivity = (BitcoinFragmentHost)getActivity();
 		this.parentActivity.registerFragment(this);
 		
-		if (this.currentStatus == null) {
-			try {
-				this.parentActivity.getServiceUtils().sendCommand(BackendService.MSG_REQUEST_ACCOUNT_STATUS);
-			} catch (RemoteException e) { /* ignore */ }
-		} else {
-			displayStatus();
-		}
+		requestStatus();	// always request current status, in case updates
+							// happened, while the fragment was not displayed
+		displayStatus();	// if we have status, display that already
 	}
 	
 	@Override
@@ -63,6 +59,12 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 				displayStatus();
 		}
 		return false;
+	}
+	
+	private void requestStatus() {
+		try {
+			this.parentActivity.getServiceUtils().sendCommand(BackendService.MSG_REQUEST_ACCOUNT_STATUS);
+		} catch (RemoteException e) { /* ignore */ }
 	}
 	
 	private void displayStatus() {

@@ -382,6 +382,7 @@ public class BackendService extends Service implements Callback {
 		public void onOpen() {
 			Log.d(TAG, "WS: Connected to " + BRIDGEWALKER_URI);
 			currentErrorWaitTime = INITIAL_ERROR_WAIT_TIME;
+			currentAccountStatus = null;
 			
 			sendCommand(new RequestVersion());
 			
