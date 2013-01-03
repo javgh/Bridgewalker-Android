@@ -13,7 +13,6 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -22,8 +21,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class LoginActivity extends SherlockFragmentActivity implements Callback {
-	private static final String TAG = "com.bridgewalkerapp";
-	
 	private ProgressBar loginProgressBar;
 	private LinearLayout loginButtonsLayout;
 	private TextView oldVersionTextView;

@@ -9,7 +9,6 @@ import android.os.Message;
 
 public class MainActivity extends SherlockFragmentActivity implements Callback, BitcoinFragmentHost {
 	public static final String BITCOIN_FRAGMENT_HOST = "BITCOIN_FRAGMENT_HOST";
-	//private static final String TAG = "com.bridgewalkerapp";
 	
 	private ServiceUtils serviceUtils;
 	
@@ -56,24 +55,6 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
 		} else {
 			return false;
 		}
-		
-//		switch (msg.what) {
-//			case BackendService.MSG_CONNECTION_STATUS:
-//				int status = (Integer)msg.obj;
-//				Log.d(TAG, "Connection state is: " + status);
-//				
-//				if (status == BackendService.CONNECTION_STATE_CONNECTING) {
-//					toggleUI(false);
-//				} else {
-//					toggleUI(true);
-//				}
-//				
-//				if (status == BackendService.CONNECTION_STATE_COMPATIBILITY_CHECKED) {
-//					//debugTextView.setText("Connected");
-//				}
-//				break;
-//		}
-//		return false;
 	}
 
 	@Override

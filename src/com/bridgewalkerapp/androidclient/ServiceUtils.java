@@ -98,7 +98,7 @@ public class ServiceUtils {
 				msg.replyTo = myMessenger;
 				serviceMessenger.send(msg);
 				
-				Message msg2 = Message.obtain(null, BackendService.MSG_REQUEST_STATUS);
+				Message msg2 = Message.obtain(null, BackendService.MSG_REQUEST_CONNECTION_STATUS);
 				msg2.replyTo = myMessenger;
 				serviceMessenger.send(msg2);
 			} catch (RemoteException e) {

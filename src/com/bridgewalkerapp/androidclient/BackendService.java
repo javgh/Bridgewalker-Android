@@ -16,8 +16,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.bridgewalkerapp.androidclient.apidata.Login;
 import com.bridgewalkerapp.androidclient.apidata.Ping;
+import com.bridgewalkerapp.androidclient.apidata.RequestStatus;
 import com.bridgewalkerapp.androidclient.apidata.RequestVersion;
 import com.bridgewalkerapp.androidclient.apidata.WSServerVersion;
+import com.bridgewalkerapp.androidclient.apidata.WSStatus;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest;
 import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
@@ -46,9 +48,11 @@ public class BackendService extends Service implements Callback {
 	public static final int MSG_SEND_COMMAND = 3;
 	public static final int MSG_RECEIVED_COMMAND = 4;
 	public static final int MSG_EXECUTE_RUNNABLE = 5;
-	public static final int MSG_REQUEST_STATUS = 6;
+	public static final int MSG_REQUEST_CONNECTION_STATUS = 6;
 	public static final int MSG_CONNECTION_STATUS = 7;
 	public static final int MSG_SEND_PING = 8;
+	public static final int MSG_REQUEST_ACCOUNT_STATUS = 9;
+	public static final int MSG_ACCOUNT_STATUS = 10;
 
 	public static final int CONNECTION_STATE_PERMANENT_ERROR = -1;
 	public static final int CONNECTION_STATE_CONNECTING = 0;
@@ -84,6 +88,8 @@ public class BackendService extends Service implements Callback {
 	
 	private Map<Integer, RequestAndRunnable> outstandingReplies;
 	private Queue<WebsocketRequest> cmdQueue;
+	
+	private WSStatus currentAccountStatus = null;
 	
 	@SuppressLint("UseSparseArrays")
 	@Override
@@ -132,12 +138,24 @@ public class BackendService extends Service implements Callback {
 				this.clientMessengers.remove(msg.replyTo.hashCode());
 				Log.d(TAG, "Client unregistered. Clients remaining: " + this.clientMessengers.size());
 				break;
-			case MSG_REQUEST_STATUS:
+			case MSG_REQUEST_CONNECTION_STATUS:
 				Message replyMsg = Message.obtain(null, MSG_CONNECTION_STATUS);
 				replyMsg.obj = Integer.valueOf(this.connectionState);
 				try {
 					msg.replyTo.send(replyMsg);
 				} catch (RemoteException e) { /* ignore */ }
+				break;
+			case MSG_REQUEST_ACCOUNT_STATUS:
+				if (this.currentAccountStatus != null) {
+					Message replyMsg2 = Message.obtain(null, MSG_ACCOUNT_STATUS);
+					replyMsg2.obj = this.currentAccountStatus;
+					try {
+						msg.replyTo.send(replyMsg2);
+					} catch (RemoteException e) { /* ignore */ }
+				}
+				// Note: If we do not have the account status yet,
+				// we ignore this message, as we will be broadcasting
+				// the status later anyway.
 				break;
 			case MSG_SEND_COMMAND:
 				RequestAndRunnable cmd = (RequestAndRunnable)msg.obj;
@@ -247,6 +265,13 @@ public class BackendService extends Service implements Callback {
 				reply.getReplyType() == WebsocketReply.TYPE_WS_LOGIN_SUCCESSFUL) {
 			this.connectionState = CONNECTION_STATE_AUTHENTICATED;
 			sendToAllClients(MSG_CONNECTION_STATUS, Integer.valueOf(this.connectionState));
+			
+			requestAccountStatus();
+		}
+		
+		if (reply.getReplyType() == WebsocketReply.TYPE_WS_STATUS) {
+			this.currentAccountStatus = (WSStatus)reply;
+			sendToAllClients(MSG_ACCOUNT_STATUS, this.currentAccountStatus);
 		}
 		
 		// see if this is a reply to a specific request
@@ -291,6 +316,10 @@ public class BackendService extends Service implements Callback {
 				this.connectionState == CONNECTION_STATE_COMPATIBILITY_CHECKED) {
 			sendCommand(new Login(this.guestAccount, this.guestPassword));
 		}
+	}
+	
+	private void requestAccountStatus() {
+		sendCommand(new RequestStatus());
 	}
 	
 	private void setPermanentError() {

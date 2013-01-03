@@ -13,11 +13,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.bridgewalkerapp.androidclient.apidata.RequestStatus;
 import com.bridgewalkerapp.androidclient.apidata.WSStatus;
-import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
 import com.bridgewalkerapp.androidclient.apidata.subcomponents.PendingTransaction;
-import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
 import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
 
 abstract public class BalanceFragment extends SherlockFragment implements Callback {
@@ -40,7 +37,7 @@ abstract public class BalanceFragment extends SherlockFragment implements Callba
 		
 		if (this.currentStatus == null) {
 			try {
-				this.parentActivity.getServiceUtils().sendCommand(BackendService.MSG_REQUEST_STATUS);
+				this.parentActivity.getServiceUtils().sendCommand(BackendService.MSG_REQUEST_ACCOUNT_STATUS);
 			} catch (RemoteException e) { /* ignore */ }
 		} else {
 			displayStatus();
@@ -57,38 +54,16 @@ abstract public class BalanceFragment extends SherlockFragment implements Callba
 			case BackendService.MSG_CONNECTION_STATUS:
 				int status = (Integer)msg.obj;
 				Log.d(TAG, "Fragment: Connection state is: " + status);
-				if (status == BackendService.CONNECTION_STATE_AUTHENTICATED) {
-					requestStatus();
-				} else {
+				if (status != BackendService.CONNECTION_STATE_AUTHENTICATED) {
 					showProgressBar();
 					this.currentStatus = null;
 				}
 				return true;
-			case BackendService.MSG_RECEIVED_COMMAND:
-				WebsocketReply reply = (WebsocketReply)msg.obj;
-				if (reply.getReplyType() == WebsocketReply.TYPE_WS_STATUS) {
-					currentStatus = (WSStatus)reply;
-					displayStatus();
-				}
+			case BackendService.MSG_ACCOUNT_STATUS:
+				this.currentStatus = (WSStatus)msg.obj;
+				displayStatus();
 		}
 		return false;
-	}
-	
-	private void requestStatus() {
-		if (this.currentStatus == null) {
-			Log.d(TAG, "Fragment: Requesting status from server");
-			try {
-				this.parentActivity.getServiceUtils().sendCommand(new RequestStatus(), new ParameterizedRunnable() {
-					@Override
-					public void run(WebsocketReply reply) {
-						currentStatus = (WSStatus)reply;
-						displayStatus();
-					}
-				});
-			} catch (RemoteException e) {
-				throw new RuntimeException(e);
-			}
-		}
 	}
 	
 	private void displayStatus() {
