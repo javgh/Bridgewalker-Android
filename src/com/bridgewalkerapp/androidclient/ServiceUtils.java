@@ -43,6 +43,11 @@ public class ServiceUtils {
 					this.settings.getString(BackendService.SETTING_GUEST_PASSWORD, null));
 		}
 		
+		// Start service before also binding to it, so that it
+		// can stick around for a little longer even after we unbind
+		// again. In that way, it will be available, if we need it again
+		// shortly afterwards.
+		this.context.startService(intent);
 		this.context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
 	}
 	

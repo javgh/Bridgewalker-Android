@@ -53,6 +53,7 @@ public class BackendService extends Service implements Callback {
 	public static final int MSG_SEND_PING = 8;
 	public static final int MSG_REQUEST_ACCOUNT_STATUS = 9;
 	public static final int MSG_ACCOUNT_STATUS = 10;
+	public static final int MSG_SHUTDOWN = 11;
 
 	public static final int CONNECTION_STATE_PERMANENT_ERROR = -1;
 	public static final int CONNECTION_STATE_CONNECTING = 0;
@@ -69,11 +70,14 @@ public class BackendService extends Service implements Callback {
 	
 	// server will time us out after 30 seconds, so send ping every 25 seconds
 	private static final int KEEP_ALIVE_INTERVAL = 25 * 1000;
+	private static final int SHUTDOWN_INTERVAL = 5 * 60 * 1000;
 	
 	private WebSocketConnection connection;
 	private boolean isRunning = true;
 	private int currentErrorWaitTime = INITIAL_ERROR_WAIT_TIME;
 	private int connectionState = 0;
+	private long lastClientActivity = 0;
+	private int lastStartId = -1;
 	
 	private boolean useAuthentication = false;
 	private String guestAccount = null;
@@ -112,6 +116,7 @@ public class BackendService extends Service implements Callback {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		this.lastStartId = startId;
 		if (intent != null && intent.getExtras() != null) {
 			Bundle extras = intent.getExtras();
 			String guestAccountExtra = extras.getString(SETTING_GUEST_ACCOUNT);
@@ -132,11 +137,17 @@ public class BackendService extends Service implements Callback {
 		switch (msg.what) {
 			case MSG_REGISTER_CLIENT:
 				this.clientMessengers.put(msg.replyTo.hashCode(), msg.replyTo);
+				this.lastClientActivity = System.currentTimeMillis();
 				Log.d(TAG, "Client registered");
 				break;
 			case MSG_UNREGISTER_CLIENT:
 				this.clientMessengers.remove(msg.replyTo.hashCode());
 				Log.d(TAG, "Client unregistered. Clients remaining: " + this.clientMessengers.size());
+				if (this.clientMessengers.size() == 0) {
+					Log.d(TAG, "Last client unregistered. Starting shutdown timer.");
+					Message shutdownMsg = Message.obtain(null, MSG_SHUTDOWN);
+					this.myHandler.sendMessageDelayed(shutdownMsg, SHUTDOWN_INTERVAL);
+				}
 				break;
 			case MSG_REQUEST_CONNECTION_STATUS:
 				Message replyMsg = Message.obtain(null, MSG_CONNECTION_STATUS);
@@ -168,6 +179,13 @@ public class BackendService extends Service implements Callback {
 					sendCommand(new Ping());
 				enqueuePing();
 				break;
+			case MSG_SHUTDOWN:
+				// double check, that there have not been any new
+				// clients registering in the mean time
+				long idleTime = System.currentTimeMillis() - this.lastClientActivity;
+				if (idleTime > SHUTDOWN_INTERVAL * 0.8) {
+					stopSelfResult(this.lastStartId);
+				}
 		}
 		return true;
 	}
