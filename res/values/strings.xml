@@ -16,4 +16,12 @@
 	<string name="share">Share</string>
 	<string name="copied_to_clipboard">Copied to clipboard</string>
 	<string name="share_bitcoin_address">Share Bitcoin address</string>
+	<string name="send_to">Send to:</string>
+	<string name="scan">Scan</string>
+	<string name="amount">Amount:</string>
+	<string name="usd">USD</string>
+	<string name="btc">BTC</string>
+	<string name="fees_on_top">Deduct fees separately</string>
+	<string name="recipient_will_receive">Recipient will\nreceive:</string>
+	<string name="deducted_from_your_account">Deducted from\nyour account:</string>
 </resources>

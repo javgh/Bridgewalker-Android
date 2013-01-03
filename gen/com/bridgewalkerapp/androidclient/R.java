@@ -962,6 +962,7 @@ containing a value of this type.
         public static final int abs__title=0x7f04001b;
         public static final int abs__titleDivider=0x7f04001c;
         public static final int abs__up=0x7f04000b;
+        public static final int btc_radio_button=0x7f04004a;
         public static final int copy_address_to_clipboard_button=0x7f040041;
         public static final int disableHome=0x7f040009;
         public static final int disclaimer_textview=0x7f040039;
@@ -972,7 +973,7 @@ containing a value of this type.
         public static final int login_buttons_layout=0x7f040034;
         public static final int login_progressbar=0x7f040038;
         public static final int logo_imageview=0x7f040033;
-        public static final int menu_settings=0x7f040047;
+        public static final int menu_settings=0x7f04004b;
         public static final int normal=0x7f040001;
         public static final int old_version_textview=0x7f040037;
         public static final int primary_btc_address_qrcode_imageview=0x7f04003e;
@@ -982,6 +983,8 @@ containing a value of this type.
         public static final int receive_fragment_pending_events_textview=0x7f04003d;
         public static final int receive_fragment_progressbar=0x7f04003a;
         public static final int receive_fragment_usd_balance_textview=0x7f04003c;
+        public static final int recipient_address_edittext=0x7f040047;
+        public static final int scan_button=0x7f040048;
         public static final int send_fragment_content_linearlayout=0x7f040044;
         public static final int send_fragment_pending_events_textview=0x7f040046;
         public static final int send_fragment_progressbar=0x7f040043;
@@ -992,6 +995,7 @@ containing a value of this type.
         public static final int showTitle=0x7f040007;
         public static final int standard_login_button=0x7f040036;
         public static final int tabMode=0x7f040003;
+        public static final int usd_radio_button=0x7f040049;
         public static final int useLogo=0x7f040004;
         public static final int wrap_content=0x7f040000;
     }
@@ -1078,20 +1082,28 @@ containing a value of this type.
          */
         public static final int abs__shareactionprovider_share_with_application=0x7f090009;
         public static final int activity_title=0x7f090011;
+        public static final int amount=0x7f090021;
         public static final int app_name=0x7f09000f;
         public static final int bridgewalker_logo=0x7f090014;
+        public static final int btc=0x7f090023;
         public static final int copied_to_clipboard=0x7f09001d;
         public static final int copy_to_clipboard=0x7f09001b;
+        public static final int deducted_from_your_account=0x7f090026;
         public static final int disclaimer=0x7f090015;
+        public static final int fees_on_top=0x7f090024;
         public static final int guest_login_button=0x7f090012;
         public static final int menu_settings=0x7f090010;
         public static final int old_version=0x7f090016;
         public static final int qrcode_desc=0x7f09001a;
         public static final int receive_tab_label=0x7f090018;
+        public static final int recipient_will_receive=0x7f090025;
+        public static final int scan=0x7f090020;
         public static final int send_tab_label=0x7f090017;
+        public static final int send_to=0x7f09001f;
         public static final int share=0x7f09001c;
         public static final int share_bitcoin_address=0x7f09001e;
         public static final int standard_login_button=0x7f090013;
+        public static final int usd=0x7f090022;
         public static final int usd_balance_zero=0x7f090019;
     }
     public static final class style {
