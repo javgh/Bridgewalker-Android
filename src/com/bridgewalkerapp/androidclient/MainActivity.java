@@ -3,6 +3,7 @@ package com.bridgewalkerapp.androidclient;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
@@ -12,7 +13,7 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
 	
 	private ServiceUtils serviceUtils;
 	
-	private Callback currentFragment = null;
+	private BitcoinFragment currentFragment = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,15 +57,22 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
 			return false;
 		}
 	}
+	
+	@Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if (this.currentFragment != null) {
+			this.currentFragment.onActivityResult(requestCode, resultCode, intent);
+		}
+	}
 
 	@Override
-	public void registerFragment(Callback fragment) {
+	public void registerFragment(BitcoinFragment fragment) {
 		this.currentFragment = fragment;
 		
 	}
 
 	@Override
-	public void deregisterFragment(Callback fragment) {
+	public void deregisterFragment(BitcoinFragment fragment) {
 		this.currentFragment = null;
 	}
 

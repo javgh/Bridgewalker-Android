@@ -28,7 +28,7 @@ public class SendFragment extends BalanceFragment {
 		this.contentLinearLayout = (LinearLayout)view.findViewById(R.id.send_fragment_content_linearlayout);
 		this.usdBalanceTextView = (TextView)view.findViewById(R.id.send_fragment_usd_balance_textview);
 		this.pendingEventsTextView = (TextView)view.findViewById(R.id.send_fragment_pending_events_textview);
-		this.recipientAddressEditText = (EditText)view.findViewById(R.id.receive_bitcoin_address_textview);
+		this.recipientAddressEditText = (EditText)view.findViewById(R.id.recipient_address_edittext);
 		this.scanButton = (Button)view.findViewById(R.id.scan_button);
 		
 		this.scanButton.setOnClickListener(this.scanButtonOnClickListener);
@@ -41,15 +41,16 @@ public class SendFragment extends BalanceFragment {
 		/* do nothing */
 	}
 	
+	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-    	if (scanResult != null) {
+    	if (scanResult != null && scanResult.getContents() != null) {
     		BitcoinURI btcURI = BitcoinURI.parse(scanResult.getContents());
     		if (btcURI != null) {
     			this.recipientAddressEditText.setText(btcURI.getAddress());
     		}
     	}
-    }	
+    }
 	
 	private OnClickListener scanButtonOnClickListener = new OnClickListener() {
 		@Override

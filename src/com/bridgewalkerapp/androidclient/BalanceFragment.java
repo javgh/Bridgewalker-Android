@@ -5,7 +5,6 @@ import java.util.List;
 
 import android.os.Message;
 import android.os.RemoteException;
-import android.os.Handler.Callback;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -17,7 +16,7 @@ import com.bridgewalkerapp.androidclient.apidata.WSStatus;
 import com.bridgewalkerapp.androidclient.apidata.subcomponents.PendingTransaction;
 import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
 
-abstract public class BalanceFragment extends SherlockFragment implements Callback {
+abstract public class BalanceFragment extends SherlockFragment implements BitcoinFragment {
 	private static final String TAG = "com.bridgewalkerapp";
 	
 	protected ProgressBar progressBar = null;
