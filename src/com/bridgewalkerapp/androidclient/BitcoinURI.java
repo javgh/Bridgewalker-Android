@@ -3,17 +3,7 @@ package com.bridgewalkerapp.androidclient;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//TODO: Upgrade to be able to parse all of these:
-//
-//bitcoin:1abc
-//bitcoin:1abc?amount=123
-//bitcoin://1abc				(broken format)
-//bitcoin://1abc?amount=123	(broken format)
-//1abc
-//1abc?amount=123
-//
-//write unit tests for it
-
+// See unit tests for sample input.
 public class BitcoinURI {
 	private String address;
 	private long amount;
@@ -32,17 +22,32 @@ public class BitcoinURI {
 	}
 	
 	public static BitcoinURI parse(String uriString) {
-		Pattern pattern = Pattern.compile("(bitcoin:(//)?)?([^?]*)(\\?.*)?");
+		Pattern pattern = Pattern.compile("(bitcoin:(//)?)?([^?]*)(\\?(.*))?");
 		Matcher matcher = pattern.matcher(uriString);
 		
 		if (matcher.matches()) {
 			// group 0 is the whole match
 			String bitcoinAddress = matcher.group(3);
-			String queryPart = matcher.group(4);	// might be null
+			String queryPart = matcher.group(5);	// might be null
 			
-			// TODO: deal with queryPart
-			
-			return new BitcoinURI(bitcoinAddress, 0);
+			if (queryPart == null)
+				return new BitcoinURI(bitcoinAddress, 0);
+
+			// try to parse amount
+			long amount = 0;
+			Pattern subpattern = Pattern.compile("amount=(.*)");
+			String[] parameters = queryPart.split("&");
+			for (String parameter : parameters) {
+				Matcher submatcher = subpattern.matcher(parameter);
+				if (submatcher.matches()) {
+					String asString = submatcher.group(1);
+					try {
+						double asDouble = Double.parseDouble(asString);
+						amount = Math.round(asDouble * Math.pow(10, 8));
+					} catch (NumberFormatException e) { /* ignore */ }
+				}
+			}
+			return new BitcoinURI(bitcoinAddress, amount);
 		} else {
 			return null;
 		}

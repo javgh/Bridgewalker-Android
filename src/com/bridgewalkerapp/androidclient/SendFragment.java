@@ -13,11 +13,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 public class SendFragment extends BalanceFragment {
 	private EditText recipientAddressEditText = null;
+	private EditText amountEditText = null;
 	private Button scanButton = null;
+	private RadioButton btcRadioButton = null;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,7 +32,9 @@ public class SendFragment extends BalanceFragment {
 		this.usdBalanceTextView = (TextView)view.findViewById(R.id.send_fragment_usd_balance_textview);
 		this.pendingEventsTextView = (TextView)view.findViewById(R.id.send_fragment_pending_events_textview);
 		this.recipientAddressEditText = (EditText)view.findViewById(R.id.recipient_address_edittext);
+		this.amountEditText = (EditText)view.findViewById(R.id.amount_edittext);
 		this.scanButton = (Button)view.findViewById(R.id.scan_button);
+		this.btcRadioButton = (RadioButton)view.findViewById(R.id.btc_radio_button);
 		
 		this.scanButton.setOnClickListener(this.scanButtonOnClickListener);
 		
@@ -44,12 +49,17 @@ public class SendFragment extends BalanceFragment {
 	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-    	if (scanResult != null && scanResult.getContents() != null) {
-    		BitcoinURI btcURI = BitcoinURI.parse(scanResult.getContents());
-    		if (btcURI != null) {
-    			this.recipientAddressEditText.setText(btcURI.getAddress());
-    		}
-    	}
+    	if (scanResult == null || scanResult.getContents() == null)
+    		return;
+    	
+		BitcoinURI btcURI = BitcoinURI.parse(scanResult.getContents());
+		if (btcURI != null) {
+			this.recipientAddressEditText.setText(btcURI.getAddress());
+			if (btcURI.getAmount() > 0) {
+				this.amountEditText.setText(formatBTCForEditText(btcURI.getAmount()));
+				this.btcRadioButton.setChecked(true);
+			}
+		}
     }
 	
 	private OnClickListener scanButtonOnClickListener = new OnClickListener() {

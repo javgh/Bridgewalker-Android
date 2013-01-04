@@ -2,6 +2,7 @@ package com.bridgewalkerapp.androidclient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.os.Message;
 import android.os.RemoteException;
@@ -119,9 +120,16 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		return result;
 	}
 	
-	private String formatBTC(long btc) {
+	protected String formatBTC(long btc) {
 		double asDouble = (long)btc / 100000000.0;
 		String s = String.format("%.8f", asDouble);
+		return s.replaceAll("[.,]?0+$", "");
+	}
+	
+	protected String formatBTCForEditText(long btc) {
+		// EditText in Android is still locale-unaware
+		double asDouble = (long)btc / 100000000.0;
+		String s = String.format(Locale.US, "%.8f", asDouble);
 		return s.replaceAll("[.,]?0+$", "");
 	}
 	
