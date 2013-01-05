@@ -965,18 +965,21 @@ containing a value of this type.
         public static final int alignment_helper1=0x7f040047;
         public static final int alignment_helper2=0x7f040048;
         public static final int amount_edittext=0x7f04004b;
-        public static final int btc_radio_button=0x7f04004d;
+        public static final int btc_radiobutton=0x7f04004e;
         public static final int copy_address_to_clipboard_button=0x7f040041;
+        public static final int currency_radiogroup=0x7f04004c;
         public static final int disableHome=0x7f040009;
         public static final int disclaimer_textview=0x7f040039;
         public static final int edit_query=0x7f040027;
+        public static final int fees_on_top_checkbox=0x7f04004f;
         public static final int guest_login_button=0x7f040035;
         public static final int homeAsUp=0x7f040006;
+        public static final int info_textview=0x7f040050;
         public static final int listMode=0x7f040002;
         public static final int login_buttons_layout=0x7f040034;
         public static final int login_progressbar=0x7f040038;
         public static final int logo_imageview=0x7f040033;
-        public static final int menu_settings=0x7f04004f;
+        public static final int menu_settings=0x7f040051;
         public static final int normal=0x7f040001;
         public static final int old_version_textview=0x7f040037;
         public static final int primary_btc_address_qrcode_imageview=0x7f04003e;
@@ -997,9 +1000,8 @@ containing a value of this type.
         public static final int showHome=0x7f040005;
         public static final int showTitle=0x7f040007;
         public static final int standard_login_button=0x7f040036;
-        public static final int summary_textview=0x7f04004e;
         public static final int tabMode=0x7f040003;
-        public static final int usd_radio_button=0x7f04004c;
+        public static final int usd_radiobutton=0x7f04004d;
         public static final int useLogo=0x7f040004;
         public static final int wrap_content=0x7f040000;
     }

@@ -124,12 +124,13 @@
 				            />
 		           	    
 					    <RadioGroup
+					        android:id="@+id/currency_radiogroup"
 					        android:layout_width="wrap_content"
 			        		android:layout_height="match_parent"
 			        		android:orientation="horizontal" >
 			 
 					        <RadioButton
-					            android:id="@+id/usd_radio_button"
+					            android:id="@+id/usd_radiobutton"
 					            android:layout_width="wrap_content"
 					            android:layout_height="wrap_content"
 					            android:text="@string/usd" 
@@ -137,7 +138,7 @@
 					             />
 					 
 					        <RadioButton
-					            android:id="@+id/btc_radio_button"
+					            android:id="@+id/btc_radiobutton"
 					            android:layout_width="wrap_content"
 					            android:layout_height="wrap_content"
 					            android:text="@string/btc" />
@@ -145,16 +146,17 @@
 					</LinearLayout>    		 
 	
 		            <CheckBox
+		                android:id="@+id/fees_on_top_checkbox"
 				        android:layout_width="wrap_content"
 				        android:layout_height="wrap_content"
 				        android:text="@string/fees_on_top"
 				        android:checked="true" />
 		        
 		            <TextView 
-				        android:id="@+id/summary_textview"
+				        android:id="@+id/info_textview"
 		                android:layout_width="match_parent"
 				        android:layout_height="wrap_content"
-				        android:text="Summary: Recipient will receive 0,01 BTC (~ 0,10 USD). From your account 0,11 USD will be deducted."
+				        android:text=""
 				        />
 		    	</LinearLayout>
 		    </LinearLayout>

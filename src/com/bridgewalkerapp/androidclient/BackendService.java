@@ -70,7 +70,8 @@ public class BackendService extends Service implements Callback {
 	
 	// server will time us out after 30 seconds, so send ping every 25 seconds
 	private static final int KEEP_ALIVE_INTERVAL = 25 * 1000;
-	private static final int SHUTDOWN_INTERVAL = 5 * 60 * 1000;
+	
+	private static final int SHUTDOWN_INTERVAL = 2 * 60 * 1000;
 	
 	private WebSocketConnection connection;
 	private boolean isRunning = true;
