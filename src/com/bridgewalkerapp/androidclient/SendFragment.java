@@ -14,6 +14,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.Editable;
@@ -46,6 +47,8 @@ public class SendFragment extends BalanceFragment {
 	private TextView infoTextView = null;
 	private Button sendPaymentButton = null;
 	
+	private Resources resources;
+	
 	private long nextRequestId = 0;
 	private long lastRequestQuoteTimestamp = 0;
 	private RequestQuote lastSuccessfulRequestQuote = null;
@@ -74,6 +77,8 @@ public class SendFragment extends BalanceFragment {
 		this.amountEditText.addTextChangedListener(this.amountTextWatcher);
 		this.currencyRadioGroup.setOnCheckedChangeListener(this.currencyOnCheckedChangeListener);
 		this.feesOnTop.setOnCheckedChangeListener(this.feesOnTopOnCheckedChangeListener);
+		
+		this.resources = getResources();
 		
 		return view;
 	}
@@ -148,9 +153,7 @@ public class SendFragment extends BalanceFragment {
 								(double)(quote.getUsdAccount() - quote.getUsdRecipient())
 									/ (double)quote.getUsdRecipient();
 						String infoText = String.format(
-								"Info: Recipient will receive %s BTC (~ %s USD)."
-								+ " From your account %s USD will be deducted."
-								+ " This is a difference of about +%.2f %%."
+								resources.getString(R.string.quote_info_text)
 								, formatBTC(quote.getBtc())
 								, formatUSD(quote.getUsdRecipient())
 								, formatUSD(quote.getUsdAccount())

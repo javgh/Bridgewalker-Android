@@ -25,4 +25,5 @@
 	<string name="recipient_will_receive">Recipient will\nreceive:</string>
 	<string name="deducted_from_your_account">Deducted from\nyour account:</string>
 	<string name="send_payment">Send payment</string>
+	<string name="quote_info_text">Info: Recipient will receive %1$s BTC (~ %2$s USD). From your account %3$s USD will be deducted. This is a difference of about +%4$.2f %%.</string>
 </resources>

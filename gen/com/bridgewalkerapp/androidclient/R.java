@@ -1102,6 +1102,7 @@ containing a value of this type.
         public static final int menu_settings=0x7f090010;
         public static final int old_version=0x7f090016;
         public static final int qrcode_desc=0x7f09001a;
+        public static final int quote_info_text=0x7f090028;
         public static final int receive_tab_label=0x7f090018;
         public static final int recipient_will_receive=0x7f090025;
         public static final int scan=0x7f090020;
