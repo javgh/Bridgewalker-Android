@@ -101,9 +101,8 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	abstract protected void displayStatusHook();
 	
 	private String formatUSDBalance(long usdBalance) {
-		double asDouble = (double)usdBalance / 100000.0;
-		return String.format("Balance: %.5f USD", asDouble);
-	}
+		return String.format("Balance: %s USD", formatUSD(usdBalance));
+	}	
 	
 	private String formatBTCIn(long btcIn) {
 		if (btcIn == 0) return null;
@@ -120,15 +119,20 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		return result;
 	}
 	
+	protected String formatUSD(long usd) {
+		double asDouble = (double)usd / BackendService.USD_BASE_AMOUNT;
+		return String.format("%.5f", asDouble);
+	}	
+	
 	protected String formatBTC(long btc) {
-		double asDouble = (long)btc / 100000000.0;
+		double asDouble = (long)btc / BackendService.BTC_BASE_AMOUNT;
 		String s = String.format("%.8f", asDouble);
 		return s.replaceAll("[.,]?0+$", "");
 	}
 	
 	protected String formatBTCForEditText(long btc) {
 		// EditText in Android is still locale-unaware
-		double asDouble = (long)btc / 100000000.0;
+		double asDouble = (long)btc / BackendService.BTC_BASE_AMOUNT;
 		String s = String.format(Locale.US, "%.8f", asDouble);
 		return s.replaceAll("[.,]?0+$", "");
 	}

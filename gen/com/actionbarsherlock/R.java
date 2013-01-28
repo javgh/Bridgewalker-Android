@@ -979,7 +979,7 @@ containing a value of this type.
         public static final int login_buttons_layout=0x7f040034;
         public static final int login_progressbar=0x7f040038;
         public static final int logo_imageview=0x7f040033;
-        public static final int menu_settings=0x7f040051;
+        public static final int menu_settings=0x7f040052;
         public static final int normal=0x7f040001;
         public static final int old_version_textview=0x7f040037;
         public static final int primary_btc_address_qrcode_imageview=0x7f04003e;
@@ -995,6 +995,7 @@ containing a value of this type.
         public static final int send_fragment_pending_events_textview=0x7f040046;
         public static final int send_fragment_progressbar=0x7f040043;
         public static final int send_fragment_usd_balance_textview=0x7f040045;
+        public static final int send_payment_button=0x7f040051;
         public static final int share_address_button=0x7f040042;
         public static final int showCustom=0x7f040008;
         public static final int showHome=0x7f040005;

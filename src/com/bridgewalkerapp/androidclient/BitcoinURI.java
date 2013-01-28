@@ -5,6 +5,8 @@ import java.util.regex.Pattern;
 
 // See unit tests for sample input.
 public class BitcoinURI {
+	private static final double BTC_BASE_AMOUNT = Math.pow(10, 8);
+	
 	private String address;
 	private long amount;
 
@@ -43,7 +45,7 @@ public class BitcoinURI {
 					String asString = submatcher.group(1);
 					try {
 						double asDouble = Double.parseDouble(asString);
-						amount = Math.round(asDouble * Math.pow(10, 8));
+						amount = Math.round(asDouble * BTC_BASE_AMOUNT);
 					} catch (NumberFormatException e) { /* ignore */ }
 				}
 			}

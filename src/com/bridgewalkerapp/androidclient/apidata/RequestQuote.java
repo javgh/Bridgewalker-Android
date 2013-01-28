@@ -1,21 +1,30 @@
 package com.bridgewalkerapp.androidclient.apidata;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 public class RequestQuote extends WebsocketRequest {
 	public enum QuoteType { QUOTE_BASED_ON_BTC
 						  , QUOTE_BASED_ON_USD_BEFORE_FEES
 						  , QUOTE_BASED_ON_USD_AFTER_FEES
 						  }
 	
+	private long id;
 	private QuoteType type;
 	private long amount;
 	
-	public RequestQuote(QuoteType type, long amount) {
+	public RequestQuote(long id, QuoteType type, long amount) {
+		this.id = id;
 		this.type = type;
 		this.amount = amount;
 	}
 	
 	public String getOp() {
 		return "request_quote";
+	}
+	
+	@JsonProperty("request_id")	
+	public long getId() {
+		return id;
 	}
 	
 	public String getType() {

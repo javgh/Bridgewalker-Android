@@ -18,6 +18,7 @@ public abstract class WebsocketReply {
 	public static final int TYPE_WS_LOGIN_FAILED = 3;
 	public static final int TYPE_WS_STATUS = 4;
 	public static final int TYPE_WS_QUOTE_UNAVAILABLE = 5;
+	public static final int TYPE_WS_QUOTE = 6;
 	
 	private static ObjectMapper mapper = new ObjectMapper(); 
 	
@@ -58,7 +59,13 @@ public abstract class WebsocketReply {
 				WSQuoteUnavailable wsQU =
 						mapper.treeToValue(json, WSQuoteUnavailable.class);
 				return wsQU;
-			}			
+			}
+			
+			if (json.get("reply").asText().equals("quote")) {
+				WSQuote wsQ =
+						mapper.treeToValue(json, WSQuote.class);
+				return wsQ;
+			}					
 			
 			if (json.get("reply").asText().equals("status")) {
 				JsonNode statusJSON = json.get("status");

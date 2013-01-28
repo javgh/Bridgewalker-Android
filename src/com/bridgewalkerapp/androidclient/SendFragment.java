@@ -1,6 +1,11 @@
 package com.bridgewalkerapp.androidclient;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import com.bridgewalkerapp.androidclient.apidata.RequestQuote;
+import com.bridgewalkerapp.androidclient.apidata.WSQuote;
 import com.bridgewalkerapp.androidclient.apidata.WSQuoteUnavailable;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
 import com.bridgewalkerapp.androidclient.apidata.RequestQuote.QuoteType;
@@ -39,11 +44,13 @@ public class SendFragment extends BalanceFragment {
 	private RadioGroup currencyRadioGroup = null;
 	private CheckBox feesOnTop = null;
 	private TextView infoTextView = null;
-	// Info: Recipient will receive 0,01 BTC (~ 0,10 USD). From your account 0,11 USD will be deducted.
+	private Button sendPaymentButton = null;
 	
+	private long nextRequestId = 0;
 	private long lastRequestQuoteTimestamp = 0;
-	private RequestQuote lastRequestQuote = null;
 	private RequestQuote lastSuccessfulRequestQuote = null;
+	
+	private List<RequestQuote> pendingRequests = new ArrayList<RequestQuote>();
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,6 +68,7 @@ public class SendFragment extends BalanceFragment {
 		this.currencyRadioGroup = (RadioGroup)view.findViewById(R.id.currency_radiogroup);
 		this.feesOnTop = (CheckBox)view.findViewById(R.id.fees_on_top_checkbox);
 		this.infoTextView = (TextView)view.findViewById(R.id.info_textview);
+		this.sendPaymentButton = (Button)view.findViewById(R.id.send_payment_button);
 		
 		this.scanButton.setOnClickListener(this.scanButtonOnClickListener);
 		this.amountEditText.addTextChangedListener(this.amountTextWatcher);
@@ -75,26 +83,28 @@ public class SendFragment extends BalanceFragment {
 		/* do nothing */
 	}
 	
-	private long parseAmount() {
+	private double parseAmount() {
 		String amountStr = this.amountEditText.getText().toString();
-		long amount = 0;
+		double amount = 0;
 		try {
-			amount = Long.parseLong(amountStr);
+			amount = Double.parseDouble(amountStr);
 		} catch (NumberFormatException e) { /* ignore */ }
 		
 		return amount;
 	}
 	
 	private void maybeRequestQuote() {
-		long amount = parseAmount();
+		double amount = parseAmount();
+		long adjustedAmount = Math.round(amount * BackendService.BTC_BASE_AMOUNT);
 		QuoteType type = QuoteType.QUOTE_BASED_ON_BTC;
 		if (this.currencyRadioGroup.getCheckedRadioButtonId() == R.id.usd_radiobutton) {
 			if (this.feesOnTop.isChecked())
 				type = QuoteType.QUOTE_BASED_ON_USD_BEFORE_FEES;
 			else
 				type = QuoteType.QUOTE_BASED_ON_USD_AFTER_FEES;
+			adjustedAmount = Math.round(amount * BackendService.USD_BASE_AMOUNT);
 		}
-		RequestQuote rq = new RequestQuote(type, amount);
+		RequestQuote rq = new RequestQuote(this.nextRequestId, type, adjustedAmount);
 		
 		// do not send requests too fast
 		if (System.currentTimeMillis() - this.lastRequestQuoteTimestamp
@@ -105,21 +115,48 @@ public class SendFragment extends BalanceFragment {
 		if (rq.isSameRequest(lastSuccessfulRequestQuote))
 			return;
 		
+		// do not send requests for 0
+		if (adjustedAmount == 0) {
+			infoTextView.setText("");
+			return;
+		}
+		
+		// add to pending requests
+		this.pendingRequests.add(rq);
+		this.lastRequestQuoteTimestamp = System.currentTimeMillis();
+		this.nextRequestId++;
+		
 		try {
-			this.lastRequestQuoteTimestamp = System.currentTimeMillis();
-			this.lastRequestQuote = rq;
 			this.parentActivity.getServiceUtils().sendCommand(rq, new ParameterizedRunnable() {
 				@Override
 				public void run(WebsocketReply reply) {
 					lastRequestQuoteTimestamp = 0;
 					
-					// assume that lastRequestQuote contains our request;
-					// might sometimes be wrong
-					// TODO: do this properly, requires server help
-					lastSuccessfulRequestQuote = lastRequestQuote;
-					
 					if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE_UNAVAILABLE) {
-						infoTextView.setText("Quote unavailable (" + System.currentTimeMillis() + ")");
+						WSQuoteUnavailable qu = (WSQuoteUnavailable)reply;
+						removePendingRequests(qu.getId());
+						
+						infoTextView.setText("Sorry, I was unable to get a quote.");
+						sendPaymentButton.setEnabled(true);
+					}
+					
+					if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE) {
+						WSQuote quote = (WSQuote)reply;
+						removePendingRequests(quote.getId());
+						
+						double actualFee =
+								(double)(quote.getUsdAccount() - quote.getUsdRecipient())
+									/ (double)quote.getUsdRecipient();
+						String infoText = String.format(
+								"Info: Recipient will receive %s BTC (~ %s USD)."
+								+ " From your account %s USD will be deducted."
+								+ " This is a difference of about +%.2f %%."
+								, formatBTC(quote.getBtc())
+								, formatUSD(quote.getUsdRecipient())
+								, formatUSD(quote.getUsdAccount())
+								, actualFee * 100);
+						infoTextView.setText(infoText);
+						sendPaymentButton.setEnabled(quote.hasSufficientBalance());
 					}
 					
 					maybeRequestQuote(); // see if we need to fire of a new request,
@@ -128,6 +165,26 @@ public class SendFragment extends BalanceFragment {
 				}
 			});
 		} catch (RemoteException e) { /* ignore */ }
+	}
+	
+	/*
+	 * Delete matching requests and also remove any
+	 * older requests as their answers might have gotten lost.
+	 */
+	private void removePendingRequests(long id) {
+		Iterator<RequestQuote> it = pendingRequests.iterator();
+		while (it.hasNext()) {
+			RequestQuote prq = it.next();
+			
+			if (prq.getId() == id)
+				lastSuccessfulRequestQuote = prq;
+			
+			// delete matching requests and also remove any
+			// older requests as their answers might have
+			// gotten lost
+			if (prq.getId() <= id)
+				it.remove();
+		}		
 	}
 	
 	@Override
