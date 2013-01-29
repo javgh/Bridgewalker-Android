@@ -3,16 +3,16 @@ package com.bridgewalkerapp.androidclient.apidata;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RequestQuote extends WebsocketRequest {
-	public enum QuoteType { QUOTE_BASED_ON_BTC
-						  , QUOTE_BASED_ON_USD_BEFORE_FEES
-						  , QUOTE_BASED_ON_USD_AFTER_FEES
-						  }
+	public enum AmountType { AMOUNT_BASED_ON_BTC
+						   , AMOUNT_BASED_ON_USD_BEFORE_FEES
+						   , AMOUNT_BASED_ON_USD_AFTER_FEES
+						   }
 	
 	private long id;
-	private QuoteType type;
+	private AmountType type;
 	private long amount;
 	
-	public RequestQuote(long id, QuoteType type, long amount) {
+	public RequestQuote(long id, AmountType type, long amount) {
 		this.id = id;
 		this.type = type;
 		this.amount = amount;
@@ -29,9 +29,9 @@ public class RequestQuote extends WebsocketRequest {
 	
 	public String getType() {
 		switch (type) {
-			case QUOTE_BASED_ON_BTC: return "quote_based_on_btc";
-			case QUOTE_BASED_ON_USD_BEFORE_FEES: return "quote_based_on_usd_before_fees";
-			case QUOTE_BASED_ON_USD_AFTER_FEES: return "quote_based_on_usd_after_fees";
+			case AMOUNT_BASED_ON_BTC: return "amount_based_on_btc";
+			case AMOUNT_BASED_ON_USD_BEFORE_FEES: return "amount_based_on_usd_before_fees";
+			case AMOUNT_BASED_ON_USD_AFTER_FEES: return "amount_based_on_usd_after_fees";
 		}
 		throw new RuntimeException("Should not reach here");
 	}

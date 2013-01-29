@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.actionbarsherlock.app.SherlockDialogFragment;
+import com.bridgewalkerapp.androidclient.SendConfirmationDialogFragment.SendConfirmationDialogListener;
 import com.bridgewalkerapp.androidclient.apidata.RequestQuote;
+import com.bridgewalkerapp.androidclient.apidata.RequestQuote.AmountType;
 import com.bridgewalkerapp.androidclient.apidata.WSQuote;
 import com.bridgewalkerapp.androidclient.apidata.WSQuoteUnavailable;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
-import com.bridgewalkerapp.androidclient.apidata.RequestQuote.QuoteType;
 import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -32,8 +34,9 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class SendFragment extends BalanceFragment {
+public class SendFragment extends BalanceFragment implements SendConfirmationDialogListener {
 	// only send new requests when either this time has
 	// passed or the previous result has been received
 	private static int REPEAT_REQUEST_QUOTE_INTERVAL = 3 * 1000;
@@ -77,6 +80,7 @@ public class SendFragment extends BalanceFragment {
 		this.amountEditText.addTextChangedListener(this.amountTextWatcher);
 		this.currencyRadioGroup.setOnCheckedChangeListener(this.currencyOnCheckedChangeListener);
 		this.feesOnTop.setOnCheckedChangeListener(this.feesOnTopOnCheckedChangeListener);
+		this.sendPaymentButton.setOnClickListener(this.sendPaymentButtonOnClickListener);
 		
 		this.resources = getResources();
 		
@@ -101,12 +105,12 @@ public class SendFragment extends BalanceFragment {
 	private void maybeRequestQuote() {
 		double amount = parseAmount();
 		long adjustedAmount = Math.round(amount * BackendService.BTC_BASE_AMOUNT);
-		QuoteType type = QuoteType.QUOTE_BASED_ON_BTC;
+		AmountType type = AmountType.AMOUNT_BASED_ON_BTC;
 		if (this.currencyRadioGroup.getCheckedRadioButtonId() == R.id.usd_radiobutton) {
 			if (this.feesOnTop.isChecked())
-				type = QuoteType.QUOTE_BASED_ON_USD_BEFORE_FEES;
+				type = AmountType.AMOUNT_BASED_ON_USD_BEFORE_FEES;
 			else
-				type = QuoteType.QUOTE_BASED_ON_USD_AFTER_FEES;
+				type = AmountType.AMOUNT_BASED_ON_USD_AFTER_FEES;
 			adjustedAmount = Math.round(amount * BackendService.USD_BASE_AMOUNT);
 		}
 		RequestQuote rq = new RequestQuote(this.nextRequestId, type, adjustedAmount);
@@ -249,4 +253,22 @@ public class SendFragment extends BalanceFragment {
 	    	integrator.initiateScan();
 		}
 	};
+	
+	private OnClickListener sendPaymentButtonOnClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			SherlockDialogFragment dialog = SendConfirmationDialogFragment.newInstance("this is a test");
+			dialog.show(getActivity().getSupportFragmentManager(), "sendconfirmation");
+		}
+	};
+
+	@Override
+	public void onDialogPositiveClick() {
+		Toast.makeText(getActivity(), "positive click", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void onDialogNegativeClick() {
+		Toast.makeText(getActivity(), "negative click", Toast.LENGTH_SHORT).show();
+	}
 }

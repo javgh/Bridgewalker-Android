@@ -2,13 +2,14 @@ package com.bridgewalkerapp.androidclient;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.bridgewalkerapp.androidclient.SendConfirmationDialogFragment.SendConfirmationDialogListener;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
 
-public class MainActivity extends SherlockFragmentActivity implements Callback, BitcoinFragmentHost {
+public class MainActivity extends SherlockFragmentActivity implements Callback, BitcoinFragmentHost, SendConfirmationDialogListener {
 	public static final String BITCOIN_FRAGMENT_HOST = "BITCOIN_FRAGMENT_HOST";
 	
 	private ServiceUtils serviceUtils;
@@ -79,5 +80,19 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
 	@Override
 	public ServiceUtils getServiceUtils() {
 		return serviceUtils;
+	}
+
+	@Override
+	public void onDialogPositiveClick() {
+		if (this.currentFragment != null) {
+			this.currentFragment.onDialogPositiveClick();
+		}
+	}
+
+	@Override
+	public void onDialogNegativeClick() {
+		if (this.currentFragment != null) {
+			this.currentFragment.onDialogNegativeClick();
+		}
 	}
 }

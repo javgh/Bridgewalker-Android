@@ -146,4 +146,8 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		this.progressBar.setVisibility(View.INVISIBLE);
 		this.contentLinearLayout.setVisibility(View.VISIBLE);
 	}
+	
+	public void onDialogPositiveClick() { /* default is to do nothing */ }
+	
+	public void onDialogNegativeClick() { /* default is to do nothing */ }
 }

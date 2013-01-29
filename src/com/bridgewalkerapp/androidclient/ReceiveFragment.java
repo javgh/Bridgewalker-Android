@@ -58,7 +58,7 @@ public class ReceiveFragment extends BalanceFragment {
 				ClipboardManager clipboard = (ClipboardManager)
 						getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
 				clipboard.setText(currentStatus.getPrimaryBTCAddress());
-				Toast.makeText(getActivity().getBaseContext(),
+				Toast.makeText(getActivity(),
 						R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
 			}
 		}
