@@ -7,10 +7,12 @@ import java.util.List;
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.bridgewalkerapp.androidclient.SendConfirmationDialogFragment.SendConfirmationDialogListener;
 import com.bridgewalkerapp.androidclient.apidata.RequestQuote;
-import com.bridgewalkerapp.androidclient.apidata.RequestQuote.AmountType;
+import com.bridgewalkerapp.androidclient.apidata.SendPayment;
 import com.bridgewalkerapp.androidclient.apidata.WSQuote;
 import com.bridgewalkerapp.androidclient.apidata.WSQuoteUnavailable;
+import com.bridgewalkerapp.androidclient.apidata.WSSendFailed;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
+import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest.AmountType;
 import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -55,6 +57,9 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private long nextRequestId = 0;
 	private long lastRequestQuoteTimestamp = 0;
 	private RequestQuote lastSuccessfulRequestQuote = null;
+	private WSQuote lastSuccessfulQuote = null;
+	
+	private SendPayment lastSendPayment = null;
 	
 	private List<RequestQuote> pendingRequests = new ArrayList<RequestQuote>();
 	
@@ -104,13 +109,12 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	
 	private void maybeRequestQuote() {
 		double amount = parseAmount();
-		long adjustedAmount = Math.round(amount * BackendService.BTC_BASE_AMOUNT);
-		AmountType type = AmountType.AMOUNT_BASED_ON_BTC;
-		if (this.currencyRadioGroup.getCheckedRadioButtonId() == R.id.usd_radiobutton) {
-			if (this.feesOnTop.isChecked())
-				type = AmountType.AMOUNT_BASED_ON_USD_BEFORE_FEES;
-			else
-				type = AmountType.AMOUNT_BASED_ON_USD_AFTER_FEES;
+		long adjustedAmount = 0;
+		AmountType type = getAmountType();
+		
+		if (type == AmountType.AMOUNT_BASED_ON_BTC) {
+			adjustedAmount = Math.round(amount * BackendService.BTC_BASE_AMOUNT);
+		} else {
 			adjustedAmount = Math.round(amount * BackendService.USD_BASE_AMOUNT);
 		}
 		RequestQuote rq = new RequestQuote(this.nextRequestId, type, adjustedAmount);
@@ -143,7 +147,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 					
 					if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE_UNAVAILABLE) {
 						WSQuoteUnavailable qu = (WSQuoteUnavailable)reply;
-						removePendingRequests(qu.getId());
+						removePendingRequests(qu.getId(), null);
 						
 						infoTextView.setText("Sorry, I was unable to get a quote.");
 						sendPaymentButton.setEnabled(true);
@@ -151,13 +155,13 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 					
 					if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE) {
 						WSQuote quote = (WSQuote)reply;
-						removePendingRequests(quote.getId());
+						removePendingRequests(quote.getId(), quote);
 						
 						double actualFee =
 								(double)(quote.getUsdAccount() - quote.getUsdRecipient())
 									/ (double)quote.getUsdRecipient();
-						String infoText = String.format(
-								resources.getString(R.string.quote_info_text)
+						String infoText = resources.getString(
+								R.string.quote_info_text
 								, formatBTC(quote.getBtc())
 								, formatUSD(quote.getUsdRecipient())
 								, formatUSD(quote.getUsdAccount())
@@ -174,17 +178,31 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		} catch (RemoteException e) { /* ignore */ }
 	}
 	
+	private AmountType getAmountType() {
+		if (this.currencyRadioGroup.getCheckedRadioButtonId() == R.id.usd_radiobutton) {
+			if (this.feesOnTop.isChecked())
+				return AmountType.AMOUNT_BASED_ON_USD_BEFORE_FEES;
+			else
+				return AmountType.AMOUNT_BASED_ON_USD_AFTER_FEES;
+		} else {
+			return AmountType.AMOUNT_BASED_ON_BTC;
+		}
+	}
+	
 	/*
 	 * Delete matching requests and also remove any
 	 * older requests as their answers might have gotten lost.
+	 * Sets the provided quote as the last successful answer. 
 	 */
-	private void removePendingRequests(long id) {
+	private void removePendingRequests(long id, WSQuote answer) {
 		Iterator<RequestQuote> it = pendingRequests.iterator();
 		while (it.hasNext()) {
 			RequestQuote prq = it.next();
 			
-			if (prq.getId() == id)
+			if (prq.getId() == id) {
 				lastSuccessfulRequestQuote = prq;
+				lastSuccessfulQuote = answer;
+			}
 			
 			// delete matching requests and also remove any
 			// older requests as their answers might have
@@ -192,7 +210,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			if (prq.getId() <= id)
 				it.remove();
 		}		
-	}
+	}	
 	
 	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -257,18 +275,100 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private OnClickListener sendPaymentButtonOnClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-			SherlockDialogFragment dialog = SendConfirmationDialogFragment.newInstance("this is a test");
+			String address = recipientAddressEditText.getText().toString();
+			double amount = parseAmount();
+			long adjustedAmount = 0;
+			AmountType type = getAmountType();
+			
+			if (type == AmountType.AMOUNT_BASED_ON_BTC) {
+				adjustedAmount = Math.round(amount * BackendService.BTC_BASE_AMOUNT);
+			} else {
+				adjustedAmount = Math.round(amount * BackendService.USD_BASE_AMOUNT);
+			}
+			
+			// do some checks; should not be necessary
+			// though, as the button should be disabled then
+			if (address.equalsIgnoreCase(""))
+				return;
+			if (adjustedAmount == 0)
+				return;
+			
+			// always use 0 as request id; we will not track it
+			SendPayment sp = new SendPayment(0, address, type, adjustedAmount);
+			
+			// prepare confirmation text
+			String message = "";
+			WSQuote quote = null;
+			if (lastSuccessfulRequestQuote != null
+					&& lastSuccessfulRequestQuote.isSimilarRequest(sp)) {
+				quote = lastSuccessfulQuote;
+			}
+			
+			switch (type) {
+				case AMOUNT_BASED_ON_BTC:
+					if (quote == null)
+						message = resources.getString(
+								R.string.send_payment_confirmation_text_based_on_btc
+								, formatBTC(adjustedAmount), address);
+					else
+						message = resources.getString(
+								R.string.send_payment_confirmation_text_based_on_btc_with_quote
+								, formatBTC(adjustedAmount)
+								, formatUSD(quote.getUsdRecipient()), address);
+					break;
+				case AMOUNT_BASED_ON_USD_BEFORE_FEES:
+					if (quote == null)
+						message = resources.getString(
+								R.string.send_payment_confirmation_text_based_on_usd_before_fees
+								, formatBTC(adjustedAmount), address);
+					else
+						message = resources.getString(
+								R.string.send_payment_confirmation_text_based_on_usd_before_fees_with_quote
+								, formatUSD(adjustedAmount)
+								, formatBTC(quote.getBtc()), address);
+					break;
+				case AMOUNT_BASED_ON_USD_AFTER_FEES:
+					if (quote == null)
+						message = resources.getString(
+								R.string.send_payment_confirmation_text_based_on_usd_after_fees
+								, formatBTC(adjustedAmount), address);
+					else
+						message = resources.getString(
+								R.string.send_payment_confirmation_text_based_on_usd_after_fees_with_quote
+								, formatUSD(adjustedAmount)
+								, formatBTC(quote.getBtc()), address);
+					break;
+			}
+			
+			lastSendPayment = sp;
+			SherlockDialogFragment dialog = SendConfirmationDialogFragment.newInstance(message);
 			dialog.show(getActivity().getSupportFragmentManager(), "sendconfirmation");
 		}
 	};
 
 	@Override
 	public void onDialogPositiveClick() {
-		Toast.makeText(getActivity(), "positive click", Toast.LENGTH_SHORT).show();
-	}
-
-	@Override
-	public void onDialogNegativeClick() {
-		Toast.makeText(getActivity(), "negative click", Toast.LENGTH_SHORT).show();
+		try {
+			this.parentActivity.getServiceUtils().sendCommand(lastSendPayment, new ParameterizedRunnable() {
+				@Override
+				public void run(WebsocketReply reply) {
+					if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_FAILED) {
+						WSSendFailed wsSF = (WSSendFailed)reply;
+						String message = resources.getString(R.string.send_payment_error)
+												+ " " + wsSF.getReason(); 
+						SherlockDialogFragment dialog = ErrorMessageDialogFragment.newInstance(message);
+						dialog.show(getActivity().getSupportFragmentManager(), "errormessage");
+					}
+					
+					if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_SUCCESSFUL) {
+						Toast.makeText(getActivity()
+								, R.string.send_payment_success, Toast.LENGTH_SHORT).show();
+					}
+				}
+			});
+		} catch (RemoteException e) {
+			Toast.makeText(getActivity()
+					, R.string.send_payment_generic_error, Toast.LENGTH_SHORT).show();
+		}
 	}
 }

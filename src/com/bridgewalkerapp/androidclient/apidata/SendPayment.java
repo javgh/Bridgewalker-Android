@@ -2,24 +2,30 @@ package com.bridgewalkerapp.androidclient.apidata;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class RequestQuote extends WebsocketRequest {
+public class SendPayment extends WebsocketRequest {
 	private long id;
+	private String address;
 	private AmountType type;
 	private long amount;
 	
-	public RequestQuote(long id, AmountType type, long amount) {
+	public SendPayment(long id, String address, AmountType type, long amount) {
 		this.id = id;
+		this.address = address;
 		this.type = type;
 		this.amount = amount;
 	}
-	
+
 	public String getOp() {
-		return "request_quote";
+		return "send_payment";
 	}
 	
 	@JsonProperty("request_id")	
 	public long getId() {
 		return id;
+	}
+	
+	public String getAddress() {
+		return address;
 	}
 	
 	public String getType() {
@@ -33,24 +39,10 @@ public class RequestQuote extends WebsocketRequest {
 	
 	public long getAmount() {
 		return amount;
-	}
+	}	
 	
 	@Override
 	public int getRequestType() {
-		return TYPE_REQUEST_QUOTE;
-	}
-	
-	public boolean isSameRequest(RequestQuote rq) {
-		if (rq == null)
-			return false;
-		else 
-			return (rq.getType() == getType() && rq.getAmount() == getAmount());
-	}
-	
-	public boolean isSimilarRequest(SendPayment sp) {
-		if (sp == null)
-			return false;
-		else
-			return (sp.getType() == getType() && sp.getAmount() == getAmount());
+		return TYPE_SEND_PAYMENT;
 	}
 }

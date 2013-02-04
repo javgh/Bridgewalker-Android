@@ -19,6 +19,8 @@ public abstract class WebsocketReply {
 	public static final int TYPE_WS_STATUS = 4;
 	public static final int TYPE_WS_QUOTE_UNAVAILABLE = 5;
 	public static final int TYPE_WS_QUOTE = 6;
+	public static final int TYPE_WS_SEND_FAILED = 7;
+	public static final int TYPE_WS_SEND_SUCCESSFUL = 8;
 	
 	private static ObjectMapper mapper = new ObjectMapper(); 
 	
@@ -65,6 +67,18 @@ public abstract class WebsocketReply {
 				WSQuote wsQ =
 						mapper.treeToValue(json, WSQuote.class);
 				return wsQ;
+			}					
+			
+			if (json.get("reply").asText().equals("send_failed")) {
+				WSSendFailed wsSF =
+						mapper.treeToValue(json, WSSendFailed.class);
+				return wsSF;
+			}					
+			
+			if (json.get("reply").asText().equals("send_succesful")) {
+				WSSendSuccessful wsSS =
+						mapper.treeToValue(json, WSSendSuccessful.class);
+				return wsSS;
 			}					
 			
 			if (json.get("reply").asText().equals("status")) {
