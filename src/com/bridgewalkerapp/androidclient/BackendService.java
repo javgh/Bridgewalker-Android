@@ -129,6 +129,8 @@ public class BackendService extends Service implements Callback {
 				this.useAuthentication = true;
 				this.guestAccount = guestAccountExtra;
 				this.guestPassword = guestPasswordExtra;
+				
+				authenticate();
 			}
 		}
 		
