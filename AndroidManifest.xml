@@ -16,6 +16,7 @@
             android:name=".LoginActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
+            android:noHistory="true"
             android:label="@string/activity_title" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
