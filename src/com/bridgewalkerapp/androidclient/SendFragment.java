@@ -19,7 +19,6 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
@@ -133,6 +132,10 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		if (rq.isSameRequest(this.lastSuccessfulRequestQuote)) {
 			displayQuote(this.lastSuccessfulQuote);
 		}
+		
+		// do not send any requests, if we are not yet fully resumed
+		if (!isResumed())
+			return;
 		
 		// do not send requests too fast
 		if (System.currentTimeMillis() - this.lastRequestQuoteTimestamp
