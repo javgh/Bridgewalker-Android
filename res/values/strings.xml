@@ -36,4 +36,6 @@
 	<string name="send_payment_success">Payment sent</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
+	<string name="insufficient_balance">Insufficient balance</string>
+	<string name="minimum_amount">Minimum amount is currently %1$s BTC</string>
 </resources>

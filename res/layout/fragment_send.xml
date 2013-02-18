@@ -169,6 +169,15 @@
 		        android:layout_marginTop="32dp"
 		        android:textAppearance="?android:attr/textAppearanceLarge"
 		        android:text="@string/send_payment"
+		        android:enabled="false"
+		        />
+		    
+		    <TextView 
+		        android:id="@+id/send_payment_hint_textview"
+                android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:gravity="center"
+		        android:text=""
 		        />		            
 		</LinearLayout>
 	</RelativeLayout>

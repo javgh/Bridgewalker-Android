@@ -984,7 +984,7 @@ containing a value of this type.
         public static final int login_buttons_layout=0x7f040034;
         public static final int login_progressbar=0x7f040038;
         public static final int logo_imageview=0x7f040033;
-        public static final int menu_settings=0x7f040052;
+        public static final int menu_settings=0x7f040053;
         public static final int normal=0x7f040001;
         public static final int old_version_textview=0x7f040037;
         public static final int primary_btc_address_qrcode_imageview=0x7f04003e;
@@ -1001,6 +1001,7 @@ containing a value of this type.
         public static final int send_fragment_progressbar=0x7f040043;
         public static final int send_fragment_usd_balance_textview=0x7f040045;
         public static final int send_payment_button=0x7f040051;
+        public static final int send_payment_hint_textview=0x7f040052;
         public static final int share_address_button=0x7f040042;
         public static final int showCustom=0x7f040008;
         public static final int showHome=0x7f040005;
@@ -1105,7 +1106,9 @@ containing a value of this type.
         public static final int disclaimer=0x7f090015;
         public static final int fees_on_top=0x7f090024;
         public static final int guest_login_button=0x7f090012;
+        public static final int insufficient_balance=0x7f090033;
         public static final int menu_settings=0x7f090010;
+        public static final int minimum_amount=0x7f090034;
         public static final int ok=0x7f090031;
         public static final int old_version=0x7f090016;
         public static final int qrcode_desc=0x7f09001a;

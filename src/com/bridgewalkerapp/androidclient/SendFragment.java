@@ -14,6 +14,7 @@ import com.bridgewalkerapp.androidclient.apidata.WSSendFailed;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest.AmountType;
 import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
+import com.bridgewalkerapp.androidclient.data.SendPaymentCheck;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -51,6 +52,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private CheckBox feesOnTop = null;
 	private TextView infoTextView = null;
 	private Button sendPaymentButton = null;
+	private TextView sendPaymentHintTextView = null;
 	
 	private Resources resources;
 	
@@ -80,8 +82,10 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.feesOnTop = (CheckBox)view.findViewById(R.id.fees_on_top_checkbox);
 		this.infoTextView = (TextView)view.findViewById(R.id.info_textview);
 		this.sendPaymentButton = (Button)view.findViewById(R.id.send_payment_button);
+		this.sendPaymentHintTextView = (TextView)view.findViewById(R.id.send_payment_hint_textview);
 		
 		this.scanButton.setOnClickListener(this.scanButtonOnClickListener);
+		this.recipientAddressEditText.addTextChangedListener(this.recipientAddressTextWatcher);
 		this.amountEditText.addTextChangedListener(this.amountTextWatcher);
 		this.currencyRadioGroup.setOnCheckedChangeListener(this.currencyOnCheckedChangeListener);
 		this.feesOnTop.setOnCheckedChangeListener(this.feesOnTopOnCheckedChangeListener);
@@ -107,7 +111,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		return amount;
 	}
 	
-	private void displayAndOrRequestQuote() {
+	private RequestQuote compileRequestQuote() {
 		double amount = parseAmount();
 		long adjustedAmount = 0;
 		AmountType type = getAmountType();
@@ -117,7 +121,13 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		} else {
 			adjustedAmount = Math.round(amount * BackendService.USD_BASE_AMOUNT);
 		}
-		RequestQuote rq = new RequestQuote(this.nextRequestId, type, adjustedAmount);
+		
+		return new RequestQuote(this.nextRequestId, type, adjustedAmount);
+	}
+	
+	private void displayAndOrRequestQuote() {
+		RequestQuote rq = compileRequestQuote();
+		long adjustedAmount = rq.getAmount();
 		
 		// display old data, if available
 		if (rq.isSameRequest(this.lastSuccessfulRequestQuote)) {
@@ -153,7 +163,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 					removePendingRequests(qu.getId(), null);
 					
 					infoTextView.setText("Sorry, I was unable to get a quote.");
-					sendPaymentButton.setEnabled(true);
+					updateSendPaymentButton();
 				}
 				
 				if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE) {
@@ -180,7 +190,44 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 				, formatUSD(quote.getUsdAccount())
 				, actualFee * 100);
 		infoTextView.setText(infoText);
-		sendPaymentButton.setEnabled(quote.hasSufficientBalance());
+		updateSendPaymentButton();
+	}
+	
+	private SendPaymentCheck isReadyToSendPayment() {
+		if (parseAmount() == 0)
+			return new SendPaymentCheck(false, "");
+		
+		String address = recipientAddressEditText.getText().toString();
+		if (address.equalsIgnoreCase(""))
+			return new SendPaymentCheck(false, "");
+
+		// see if we have quote data to do some additional checks
+		RequestQuote rq = compileRequestQuote();
+		if (rq.isSameRequest(this.lastSuccessfulRequestQuote)) {
+			if (!this.lastSuccessfulQuote.hasSufficientBalance()) {
+				String hint = this.resources.getString(R.string.insufficient_balance);
+				return new SendPaymentCheck(false, hint);
+			}
+			
+			if (this.lastSuccessfulQuote.getBtc() < BackendService.MINIMUM_BTC_AMOUNT) {
+				String hint = this.resources.getString(R.string.minimum_amount,
+						formatBTC(BackendService.MINIMUM_BTC_AMOUNT));
+				return new SendPaymentCheck(false, hint);
+			}
+		}
+		
+		return new SendPaymentCheck(true, "");
+	}
+	
+	private void updateSendPaymentButton() {
+		SendPaymentCheck check = isReadyToSendPayment();
+		if (check.isReady()) {
+			this.sendPaymentButton.setEnabled(true);
+			this.sendPaymentHintTextView.setText("");
+		} else {
+			this.sendPaymentButton.setEnabled(false);
+			this.sendPaymentHintTextView.setText(check.getHint());
+		}
 	}
 	
 	private AmountType getAmountType() {
@@ -237,6 +284,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 			displayAndOrRequestQuote();
+			updateSendPaymentButton();
 		}
 	};
 	
@@ -248,6 +296,25 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 				feesOnTop.setChecked(true);
 			
 			displayAndOrRequestQuote();
+			updateSendPaymentButton();
+		}
+	};
+	
+	private TextWatcher recipientAddressTextWatcher = new TextWatcher() {
+		@Override
+		public void afterTextChanged(Editable s) {
+			updateSendPaymentButton();
+		}
+		
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
+			/* do nothing */
+		}
+		
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count,
+				int after) {
+			/* do nothing */
 		}
 	};
 	
@@ -257,6 +324,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			if (parseAmount() == 0)
 				infoTextView.setText("");
 			displayAndOrRequestQuote();
+			updateSendPaymentButton();
 		}
 		
 		@Override
@@ -300,11 +368,9 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 				adjustedAmount = Math.round(amount * BackendService.USD_BASE_AMOUNT);
 			}
 			
-			// do some checks; should not be necessary
+			// double check; should not be necessary
 			// though, as the button should be disabled then
-			if (address.equalsIgnoreCase(""))
-				return;
-			if (adjustedAmount == 0)
+			if (!isReadyToSendPayment().isReady())
 				return;
 			
 			// always use 0 as request id; we will not track it
