@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Locale;
 
 import android.os.Message;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -63,9 +62,7 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	}
 	
 	private void requestStatus() {
-		try {
-			this.parentActivity.getServiceUtils().sendCommand(BackendService.MSG_REQUEST_ACCOUNT_STATUS);
-		} catch (RemoteException e) { /* ignore */ }
+		this.parentActivity.getServiceUtils().sendCommand(BackendService.MSG_REQUEST_ACCOUNT_STATUS);
 	}
 	
 	private void displayStatus() {

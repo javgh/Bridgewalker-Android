@@ -260,6 +260,7 @@ public class BackendService extends Service implements Callback {
 	}
 	
 	private void sendCommand(Object cmd) {
+		Log.d(TAG, "WS: Sending text message (" + asJson(cmd) + ")");
 		connection.sendTextMessage(asJson(cmd));
 	}
 	

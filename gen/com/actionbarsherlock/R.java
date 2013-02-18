@@ -1098,7 +1098,7 @@ containing a value of this type.
         public static final int app_name=0x7f09000f;
         public static final int bridgewalker_logo=0x7f090014;
         public static final int btc=0x7f090023;
-        public static final int cancel=0x7f090033;
+        public static final int cancel=0x7f090032;
         public static final int copied_to_clipboard=0x7f09001d;
         public static final int copy_to_clipboard=0x7f09001b;
         public static final int deducted_from_your_account=0x7f090026;
@@ -1106,7 +1106,7 @@ containing a value of this type.
         public static final int fees_on_top=0x7f090024;
         public static final int guest_login_button=0x7f090012;
         public static final int menu_settings=0x7f090010;
-        public static final int ok=0x7f090032;
+        public static final int ok=0x7f090031;
         public static final int old_version=0x7f090016;
         public static final int qrcode_desc=0x7f09001a;
         public static final int quote_info_text=0x7f090028;
@@ -1121,8 +1121,7 @@ containing a value of this type.
         public static final int send_payment_confirmation_text_based_on_usd_before_fees=0x7f09002b;
         public static final int send_payment_confirmation_text_based_on_usd_before_fees_with_quote=0x7f09002c;
         public static final int send_payment_error=0x7f09002f;
-        public static final int send_payment_generic_error=0x7f090030;
-        public static final int send_payment_success=0x7f090031;
+        public static final int send_payment_success=0x7f090030;
         public static final int send_tab_label=0x7f090017;
         public static final int send_to=0x7f09001f;
         public static final int share=0x7f09001c;

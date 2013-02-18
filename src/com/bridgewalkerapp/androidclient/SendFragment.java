@@ -18,9 +18,9 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -139,43 +139,41 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.lastRequestQuoteTimestamp = System.currentTimeMillis();
 		this.nextRequestId++;
 		
-		try {
-			this.parentActivity.getServiceUtils().sendCommand(rq, new ParameterizedRunnable() {
-				@Override
-				public void run(WebsocketReply reply) {
-					lastRequestQuoteTimestamp = 0;
+		this.parentActivity.getServiceUtils().sendCommand(rq, new ParameterizedRunnable() {
+			@Override
+			public void run(WebsocketReply reply) {
+				lastRequestQuoteTimestamp = 0;
+				
+				if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE_UNAVAILABLE) {
+					WSQuoteUnavailable qu = (WSQuoteUnavailable)reply;
+					removePendingRequests(qu.getId(), null);
 					
-					if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE_UNAVAILABLE) {
-						WSQuoteUnavailable qu = (WSQuoteUnavailable)reply;
-						removePendingRequests(qu.getId(), null);
-						
-						infoTextView.setText("Sorry, I was unable to get a quote.");
-						sendPaymentButton.setEnabled(true);
-					}
-					
-					if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE) {
-						WSQuote quote = (WSQuote)reply;
-						removePendingRequests(quote.getId(), quote);
-						
-						double actualFee =
-								(double)(quote.getUsdAccount() - quote.getUsdRecipient())
-									/ (double)quote.getUsdRecipient();
-						String infoText = resources.getString(
-								R.string.quote_info_text
-								, formatBTC(quote.getBtc())
-								, formatUSD(quote.getUsdRecipient())
-								, formatUSD(quote.getUsdAccount())
-								, actualFee * 100);
-						infoTextView.setText(infoText);
-						sendPaymentButton.setEnabled(quote.hasSufficientBalance());
-					}
-					
-					maybeRequestQuote(); // see if we need to fire of a new request,
-										 // as the user might have entered new
-										 // input in the meantime
+					infoTextView.setText("Sorry, I was unable to get a quote.");
+					sendPaymentButton.setEnabled(true);
 				}
-			});
-		} catch (RemoteException e) { /* ignore */ }
+				
+				if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE) {
+					WSQuote quote = (WSQuote)reply;
+					removePendingRequests(quote.getId(), quote);
+					
+					double actualFee =
+							(double)(quote.getUsdAccount() - quote.getUsdRecipient())
+								/ (double)quote.getUsdRecipient();
+					String infoText = resources.getString(
+							R.string.quote_info_text
+							, formatBTC(quote.getBtc())
+							, formatUSD(quote.getUsdRecipient())
+							, formatUSD(quote.getUsdAccount())
+							, actualFee * 100);
+					infoTextView.setText(infoText);
+					sendPaymentButton.setEnabled(quote.hasSufficientBalance());
+				}
+				
+				maybeRequestQuote(); // see if we need to fire of a new request,
+									 // as the user might have entered new
+									 // input in the meantime
+			}
+		});
 	}
 	
 	private AmountType getAmountType() {
@@ -275,6 +273,13 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private OnClickListener sendPaymentButtonOnClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
+//			SharedPreferences settings = 
+//					getActivity().getSharedPreferences(BackendService.BRIDGEWALKER_PREFERENCES_FILE, 0);
+//			SharedPreferences.Editor editor = settings.edit();
+//			editor.clear();
+//			editor.commit();
+			
+			
 			String address = recipientAddressEditText.getText().toString();
 			double amount = parseAmount();
 			long adjustedAmount = 0;
@@ -348,27 +353,22 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 
 	@Override
 	public void onDialogPositiveClick() {
-		try {
-			this.parentActivity.getServiceUtils().sendCommand(lastSendPayment, new ParameterizedRunnable() {
-				@Override
-				public void run(WebsocketReply reply) {
-					if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_FAILED) {
-						WSSendFailed wsSF = (WSSendFailed)reply;
-						String message = resources.getString(R.string.send_payment_error)
-												+ " " + wsSF.getReason(); 
-						SherlockDialogFragment dialog = ErrorMessageDialogFragment.newInstance(message);
-						dialog.show(getActivity().getSupportFragmentManager(), "errormessage");
-					}
-					
-					if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_SUCCESSFUL) {
-						Toast.makeText(getActivity()
-								, R.string.send_payment_success, Toast.LENGTH_SHORT).show();
-					}
+		this.parentActivity.getServiceUtils().sendCommand(lastSendPayment, new ParameterizedRunnable() {
+			@Override
+			public void run(WebsocketReply reply) {
+				if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_FAILED) {
+					WSSendFailed wsSF = (WSSendFailed)reply;
+					String message = resources.getString(R.string.send_payment_error)
+											+ " " + wsSF.getReason(); 
+					SherlockDialogFragment dialog = ErrorMessageDialogFragment.newInstance(message);
+					dialog.show(getActivity().getSupportFragmentManager(), "errormessage");
 				}
-			});
-		} catch (RemoteException e) {
-			Toast.makeText(getActivity()
-					, R.string.send_payment_generic_error, Toast.LENGTH_SHORT).show();
-		}
+				
+				if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_SUCCESSFUL) {
+					Toast.makeText(getActivity()
+							, R.string.send_payment_success, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
 	}
 }

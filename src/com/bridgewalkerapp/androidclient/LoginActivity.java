@@ -10,7 +10,6 @@ import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.os.RemoteException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.View;
@@ -87,26 +86,21 @@ public class LoginActivity extends SherlockFragmentActivity implements Callback 
 			if (serviceUtils.isServiceBound()) {
 				showProgressBar();
 
-				try {
-					serviceUtils.sendCommand(new CreateGuestAccount(), new ParameterizedRunnable() {
-						@Override
-						public void run(WebsocketReply reply) {
-							WSGuestAccountCreated gac = (WSGuestAccountCreated)reply;
-							
-							SharedPreferences.Editor editor = settings.edit();
-							editor.putString(BackendService.SETTING_GUEST_ACCOUNT,
-													gac.getAccountName());
-							editor.putString(BackendService.SETTING_GUEST_PASSWORD,
-									gac.getAccountPassword());
-							editor.commit();
-							
-							switchToMainActivity();
-						}
-					});
-				} catch (RemoteException e) {
-					throw new RuntimeException(
-							"Exception while sending CreateGuestAccount command", e);
-				}
+				serviceUtils.sendCommand(new CreateGuestAccount(), new ParameterizedRunnable() {
+					@Override
+					public void run(WebsocketReply reply) {
+						WSGuestAccountCreated gac = (WSGuestAccountCreated)reply;
+						
+						SharedPreferences.Editor editor = settings.edit();
+						editor.putString(BackendService.SETTING_GUEST_ACCOUNT,
+												gac.getAccountName());
+						editor.putString(BackendService.SETTING_GUEST_PASSWORD,
+								gac.getAccountPassword());
+						editor.commit();
+						
+						switchToMainActivity();
+					}
+				});
 			}
 		}
 	};

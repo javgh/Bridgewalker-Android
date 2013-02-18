@@ -1,5 +1,8 @@
 package com.bridgewalkerapp.androidclient;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest;
 import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
 import com.bridgewalkerapp.androidclient.data.RequestAndRunnable;
@@ -26,11 +29,14 @@ public class ServiceUtils {
 	private SharedPreferences settings;
 	private Context context;
 	
+	private List<Message> commandQueue = null;
+	
 	public ServiceUtils(Callback parent, SharedPreferences settings, Context context) {
 		this.handler = new Handler(parent);
 		this.myMessenger = new Messenger(this.handler);
 		this.settings = settings;
 		this.context = context;
+		this.commandQueue = new LinkedList<Message>();
 	}
 	
 	public void bindService() {
@@ -64,28 +70,37 @@ public class ServiceUtils {
 		}
 	}
 	
-	public void sendCommand(int what) throws RemoteException {
+	public void sendCommand(int what) {
 		Message msg = Message.obtain(null, what);
 		msg.replyTo = this.myMessenger;
 		
 		if (this.serviceMessenger != null) {
-			this.serviceMessenger.send(msg);
+			try {
+				this.serviceMessenger.send(msg);
+			} catch (RemoteException e) {
+				this.commandQueue.add(msg);
+			}
 		} else {
-			throw new RemoteException();
+			this.commandQueue.add(msg);
 		}
 	}
 	
-	public void sendCommand(WebsocketRequest request, ParameterizedRunnable runnable) throws RemoteException {
+	public void sendCommand(WebsocketRequest request, ParameterizedRunnable runnable) {
 		Message msg = Message.obtain(null, BackendService.MSG_SEND_COMMAND);
 		msg.replyTo = this.myMessenger;
 		RequestAndRunnable randr = new RequestAndRunnable(request, runnable);
 		msg.obj = randr;
 		
 		if (this.serviceMessenger != null) { 
-			this.serviceMessenger.send(msg);
+			try {
+				this.serviceMessenger.send(msg);
+			} catch (RemoteException e) {
+				this.commandQueue.add(msg);
+			}
 		} else {
-			throw new RemoteException();
+			this.commandQueue.add(msg);
 		}
+		
 	}
 	
 	public boolean isServiceBound() {
@@ -108,6 +123,17 @@ public class ServiceUtils {
 				serviceMessenger.send(msg2);
 			} catch (RemoteException e) {
 				/* can be ignored, as we should be automatically reconnected */
+			}
+			
+			List<Message> cmdQueue = commandQueue;
+			commandQueue = new LinkedList<Message>();
+			
+			for (Message msg3: cmdQueue) {
+				try {
+					serviceMessenger.send(msg3);
+				} catch (RemoteException e) {
+					throw new RuntimeException("Background service disappeared during critical phase.", e);
+				}
 			}
 		}
 		

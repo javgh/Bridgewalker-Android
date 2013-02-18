@@ -33,7 +33,6 @@
 	<string name="send_payment_confirmation_text_based_on_usd_after_fees">About to use %1$s USD for a payment to %2$s.</string>
 	<string name="send_payment_confirmation_text_based_on_usd_after_fees_with_quote">About to use %1$s USD for a payment (~ %2$s BTC) to %3$s.</string>
 	<string name="send_payment_error">Sorry, something went wrong.</string>
-	<string name="send_payment_generic_error">Sorry, something went wrong. It seems like an internal app error.</string>
 	<string name="send_payment_success">Payment sent</string>
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
