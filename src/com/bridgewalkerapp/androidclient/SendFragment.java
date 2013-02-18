@@ -107,7 +107,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		return amount;
 	}
 	
-	private void maybeRequestQuote() {
+	private void displayAndOrRequestQuote() {
 		double amount = parseAmount();
 		long adjustedAmount = 0;
 		AmountType type = getAmountType();
@@ -119,18 +119,22 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		}
 		RequestQuote rq = new RequestQuote(this.nextRequestId, type, adjustedAmount);
 		
+		// display old data, if available
+		if (rq.isSameRequest(this.lastSuccessfulRequestQuote)) {
+			displayQuote(this.lastSuccessfulQuote);
+		}
+		
 		// do not send requests too fast
 		if (System.currentTimeMillis() - this.lastRequestQuoteTimestamp
 				< REPEAT_REQUEST_QUOTE_INTERVAL)
 			return;
 		
 		// do not send the same request again
-		if (rq.isSameRequest(lastSuccessfulRequestQuote))
+		if (rq.isSameRequest(this.lastSuccessfulRequestQuote))
 			return;
 		
 		// do not send requests for 0
 		if (adjustedAmount == 0) {
-			infoTextView.setText("");
 			return;
 		}
 		
@@ -155,25 +159,28 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 				if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE) {
 					WSQuote quote = (WSQuote)reply;
 					removePendingRequests(quote.getId(), quote);
-					
-					double actualFee =
-							(double)(quote.getUsdAccount() - quote.getUsdRecipient())
-								/ (double)quote.getUsdRecipient();
-					String infoText = resources.getString(
-							R.string.quote_info_text
-							, formatBTC(quote.getBtc())
-							, formatUSD(quote.getUsdRecipient())
-							, formatUSD(quote.getUsdAccount())
-							, actualFee * 100);
-					infoTextView.setText(infoText);
-					sendPaymentButton.setEnabled(quote.hasSufficientBalance());
+					displayQuote(quote);
 				}
 				
-				maybeRequestQuote(); // see if we need to fire of a new request,
-									 // as the user might have entered new
-									 // input in the meantime
+				displayAndOrRequestQuote();  // see if we need to fire of a new request,
+											 // as the user might have entered new
+											 // input in the meantime
 			}
 		});
+	}
+	
+	private void displayQuote(WSQuote quote) {
+		double actualFee =
+				(double)(quote.getUsdAccount() - quote.getUsdRecipient())
+					/ (double)quote.getUsdRecipient();
+		String infoText = resources.getString(
+				R.string.quote_info_text
+				, formatBTC(quote.getBtc())
+				, formatUSD(quote.getUsdRecipient())
+				, formatUSD(quote.getUsdAccount())
+				, actualFee * 100);
+		infoTextView.setText(infoText);
+		sendPaymentButton.setEnabled(quote.hasSufficientBalance());
 	}
 	
 	private AmountType getAmountType() {
@@ -229,7 +236,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private android.widget.CompoundButton.OnCheckedChangeListener feesOnTopOnCheckedChangeListener = new android.widget.CompoundButton.OnCheckedChangeListener() {
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-			maybeRequestQuote();
+			displayAndOrRequestQuote();
 		}
 	};
 	
@@ -240,14 +247,16 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			if (checkedId == R.id.btc_radiobutton)
 				feesOnTop.setChecked(true);
 			
-			maybeRequestQuote();
+			displayAndOrRequestQuote();
 		}
 	};
 	
 	private TextWatcher amountTextWatcher = new TextWatcher() {
 		@Override
 		public void afterTextChanged(Editable s) {
-			maybeRequestQuote();
+			if (parseAmount() == 0)
+				infoTextView.setText("");
+			displayAndOrRequestQuote();
 		}
 		
 		@Override
