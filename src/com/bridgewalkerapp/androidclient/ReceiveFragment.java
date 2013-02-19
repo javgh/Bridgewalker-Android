@@ -21,8 +21,10 @@ import android.widget.Toast;
 public class ReceiveFragment extends BalanceFragment {
 	private TextView receiveBitcoinAddressTextView = null;
 	private ImageView primaryBTCAddressQRCodeImageView = null;
+	private ImageView fullScreenImageView = null;
 	private Button copyAddressToClipboardButton = null;
 	private ImageButton shareAddressButton = null;
+	private LinearLayout innerContentLinearLayout = null;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,11 +36,15 @@ public class ReceiveFragment extends BalanceFragment {
 		this.pendingEventsTextView = (TextView)view.findViewById(R.id.receive_fragment_pending_events_textview);
 		this.receiveBitcoinAddressTextView = (TextView)view.findViewById(R.id.receive_bitcoin_address_textview);
 		this.primaryBTCAddressQRCodeImageView = (ImageView)view.findViewById(R.id.primary_btc_address_qrcode_imageview);
+		this.fullScreenImageView = (ImageView)view.findViewById(R.id.fullscreen_imageview);
 		this.copyAddressToClipboardButton = (Button)view.findViewById(R.id.copy_address_to_clipboard_button);
 		this.shareAddressButton = (ImageButton)view.findViewById(R.id.share_address_button);
+		this.innerContentLinearLayout = (LinearLayout)view.findViewById(R.id.inner_content_linearlayout);
 		
 		this.copyAddressToClipboardButton.setOnClickListener(this.copyAddressToClipboardButtonOnClickListener);
 		this.shareAddressButton.setOnClickListener(this.shareAddressButtonOnClickListener);
+		this.primaryBTCAddressQRCodeImageView.setOnClickListener(this.primaryBTCAddressQRCodeOnClickListener);
+		this.fullScreenImageView.setOnClickListener(this.fullScreenOnClickListener);
 		
 		return view; 
 	}
@@ -49,6 +55,7 @@ public class ReceiveFragment extends BalanceFragment {
 		Bitmap qrCode = QRCodeUtils.encodeAsBitmap(
 				"bitcoin:" + this.currentStatus.getPrimaryBTCAddress(), 500);
 		this.primaryBTCAddressQRCodeImageView.setImageBitmap(qrCode);		
+		this.fullScreenImageView.setImageBitmap(qrCode);
 	}
 
 	private OnClickListener copyAddressToClipboardButtonOnClickListener = new OnClickListener() {
@@ -73,6 +80,22 @@ public class ReceiveFragment extends BalanceFragment {
 				intent.putExtra(Intent.EXTRA_TEXT, currentStatus.getPrimaryBTCAddress());
 				startActivity(Intent.createChooser(intent, getSherlockActivity().getString(R.string.share_bitcoin_address)));
 			}
+		}
+	};
+	
+	private OnClickListener primaryBTCAddressQRCodeOnClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			innerContentLinearLayout.setVisibility(View.GONE);
+			fullScreenImageView.setVisibility(View.VISIBLE);
+		}
+	};
+	
+	private OnClickListener fullScreenOnClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			fullScreenImageView.setVisibility(View.GONE);
+			innerContentLinearLayout.setVisibility(View.VISIBLE);
 		}
 	};
 }
