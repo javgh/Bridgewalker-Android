@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.ClipboardManager;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-@SuppressWarnings("deprecation")	/* use old clipboard to work on API 8+ */
+@SuppressWarnings("deprecation")	/* use old clipboard and getWidth() to work on API 8+ */
 public class ReceiveFragment extends BalanceFragment {
 	private TextView receiveBitcoinAddressTextView = null;
 	private ImageView primaryBTCAddressQRCodeImageView = null;
@@ -52,9 +53,11 @@ public class ReceiveFragment extends BalanceFragment {
 	protected void displayStatusHook() {
 		this.receiveBitcoinAddressTextView.setText("Use this Bitcoin address to fund your account:\n" +
 				this.currentStatus.getPrimaryBTCAddress());
+		Display display = getSherlockActivity().getWindowManager().getDefaultDisplay();
+		int width = display.getWidth();
 		Bitmap qrCode = QRCodeUtils.encodeAsBitmap(
-				"bitcoin:" + this.currentStatus.getPrimaryBTCAddress(), 500);
-		this.primaryBTCAddressQRCodeImageView.setImageBitmap(qrCode);		
+				"bitcoin:" + this.currentStatus.getPrimaryBTCAddress(), Math.max(500, width));
+		this.primaryBTCAddressQRCodeImageView.setImageBitmap(qrCode);
 		this.fullScreenImageView.setImageBitmap(qrCode);
 	}
 
