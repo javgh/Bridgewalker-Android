@@ -353,13 +353,6 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private OnClickListener sendPaymentButtonOnClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
-//			SharedPreferences settings = 
-//					getActivity().getSharedPreferences(BackendService.BRIDGEWALKER_PREFERENCES_FILE, 0);
-//			SharedPreferences.Editor editor = settings.edit();
-//			editor.clear();
-//			editor.commit();
-			
-			
 			String address = recipientAddressEditText.getText().toString();
 			double amount = parseAmount();
 			long adjustedAmount = 0;
