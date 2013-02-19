@@ -161,24 +161,47 @@
 		    	</LinearLayout>
 		    </LinearLayout>
 		    
-		    <Button 
-		        android:id="@+id/send_payment_button"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_gravity="center_horizontal"
-		        android:layout_marginTop="32dp"
-		        android:textAppearance="?android:attr/textAppearanceLarge"
-		        android:text="@string/send_payment"
-		        android:enabled="false"
-		        />
-		    
-		    <TextView 
-		        android:id="@+id/send_payment_hint_textview"
-                android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:gravity="center"
-		        android:text=""
-		        />		            
+			<RelativeLayout 
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content" >
+		        
+			    <ProgressBar
+					android:id="@+id/send_payment_progressbar"
+				    style="?android:attr/progressBarStyle"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:layout_centerInParent="true"
+				    android:paddingTop="16dp"
+				    android:visibility="gone"
+				    />			    
+			        	
+			    <LinearLayout
+			        android:id="@+id/send_payment_linearlayout"
+			        android:layout_width="match_parent"
+		    		android:layout_height="wrap_content"
+				    android:orientation="vertical"
+				    >
+		                
+				    <Button 
+				        android:id="@+id/send_payment_button"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:layout_gravity="center_horizontal"
+				        android:layout_marginTop="32dp"
+				        android:textAppearance="?android:attr/textAppearanceLarge"
+				        android:text="@string/send_payment"
+				        android:enabled="false"
+				        />
+				    
+				    <TextView 
+				        android:id="@+id/send_payment_hint_textview"
+		                android:layout_width="match_parent"
+				        android:layout_height="wrap_content"
+				        android:gravity="center"
+				        android:text=""
+				        />		       				    
+			    </LinearLayout>
+		    </RelativeLayout>
 		</LinearLayout>
 	</RelativeLayout>
 </ScrollView>

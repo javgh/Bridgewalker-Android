@@ -75,7 +75,7 @@ public abstract class WebsocketReply {
 				return wsSF;
 			}					
 			
-			if (json.get("reply").asText().equals("send_succesful")) {
+			if (json.get("reply").asText().equals("send_successful")) {
 				WSSendSuccessful wsSS =
 						mapper.treeToValue(json, WSSendSuccessful.class);
 				return wsSS;

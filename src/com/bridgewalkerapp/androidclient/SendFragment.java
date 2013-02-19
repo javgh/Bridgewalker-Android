@@ -50,6 +50,8 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private RadioGroup currencyRadioGroup = null;
 	private CheckBox feesOnTop = null;
 	private TextView infoTextView = null;
+	private ProgressBar sendPaymentProgressBar = null;
+	private LinearLayout sendPaymentLinearLayout = null;
 	private Button sendPaymentButton = null;
 	private TextView sendPaymentHintTextView = null;
 	
@@ -80,6 +82,8 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.currencyRadioGroup = (RadioGroup)view.findViewById(R.id.currency_radiogroup);
 		this.feesOnTop = (CheckBox)view.findViewById(R.id.fees_on_top_checkbox);
 		this.infoTextView = (TextView)view.findViewById(R.id.info_textview);
+		this.sendPaymentProgressBar = (ProgressBar)view.findViewById(R.id.send_payment_progressbar);
+		this.sendPaymentLinearLayout = (LinearLayout)view.findViewById(R.id.send_payment_linearlayout);
 		this.sendPaymentButton = (Button)view.findViewById(R.id.send_payment_button);
 		this.sendPaymentHintTextView = (TextView)view.findViewById(R.id.send_payment_hint_textview);
 		
@@ -98,6 +102,26 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	@Override
 	protected void displayStatusHook() {
 		/* do nothing */
+	}
+	
+	private void setSendPaymentControlsState(boolean enabled) {
+		this.recipientAddressEditText.setEnabled(enabled);
+		this.scanButton.setEnabled(enabled);
+		this.amountEditText.setEnabled(enabled);
+		this.feesOnTop.setEnabled(enabled);
+		
+		for (int i = 0; i < this.currencyRadioGroup.getChildCount(); i++) {
+			RadioButton rbtn = (RadioButton)this.currencyRadioGroup.getChildAt(i);
+			rbtn.setEnabled(enabled);
+		}
+		
+		if (enabled) {
+			this.sendPaymentProgressBar.setVisibility(View.GONE);
+			this.sendPaymentLinearLayout.setVisibility(View.VISIBLE);
+		} else {
+			this.sendPaymentLinearLayout.setVisibility(View.GONE);
+			this.sendPaymentProgressBar.setVisibility(View.VISIBLE);
+		}
 	}
 	
 	private double parseAmount() {
@@ -424,6 +448,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 
 	@Override
 	public void onDialogPositiveClick() {
+		setSendPaymentControlsState(false);
 		this.parentActivity.getServiceUtils().sendCommand(lastSendPayment, new ParameterizedRunnable() {
 			@Override
 			public void run(WebsocketReply reply) {
@@ -436,9 +461,13 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 				}
 				
 				if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_SUCCESSFUL) {
+					recipientAddressEditText.setText("");
+					amountEditText.setText("");
 					Toast.makeText(getActivity()
 							, R.string.send_payment_success, Toast.LENGTH_SHORT).show();
 				}
+
+				setSendPaymentControlsState(true);
 			}
 		});
 	}
