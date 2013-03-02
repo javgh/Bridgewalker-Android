@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET" />        
 
     <application
-        android:icon="@drawable/logo_black_with_cube"
+        android:icon="@drawable/ic_launcher"
         android:logo="@drawable/logo_white"
         android:label="@string/app_name"
         android:theme="@style/Theme.Sherlock"
