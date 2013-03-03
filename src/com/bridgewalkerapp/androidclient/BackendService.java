@@ -1,6 +1,8 @@
 package com.bridgewalkerapp.androidclient;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -27,7 +29,7 @@ import com.bridgewalkerapp.androidclient.data.RequestAndRunnable;
 
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketException;
-import de.tavendo.autobahn.WebSocketHandler;
+import de.tavendo.autobahn.WebSocket.WebSocketConnectionObserver;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
@@ -67,7 +69,8 @@ public class BackendService extends Service implements Callback {
 	public static final double USD_BASE_AMOUNT = Math.pow(10, 5);
 	public static final long MINIMUM_BTC_AMOUNT = Math.round(0.01 * BTC_BASE_AMOUNT);
 	
-	private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
+	//private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
+	private static final String BRIDGEWALKER_URI = "wss://www.bridgewalkerapp.com/backend";
 	private static final int MAX_ERROR_WAIT_TIME = 15 * 1000;
 	private static final int INITIAL_ERROR_WAIT_TIME = 1 * 1000;
 	
@@ -221,13 +224,16 @@ public class BackendService extends Service implements Callback {
 	
 	private void connect() {
 		try {
+			URI uri = new URI(BRIDGEWALKER_URI);
 			this.connectionState = CONNECTION_STATE_CONNECTING;
-			this.connection.connect(BRIDGEWALKER_URI, webSocketHandler);
+			this.connection.connect(uri, webSocketHandler);
 		} catch (WebSocketException e) {
+			throw new RuntimeException(e);
+		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private void reconnect() {
 		if (this.isRunning) {
 			Log.d(TAG, "Lost connection; retrying in " + currentErrorWaitTime + " ms.");
@@ -384,7 +390,7 @@ public class BackendService extends Service implements Callback {
 		return Integer.valueOf(parts[0]);
 	}
 	
-	private WebSocketHandler webSocketHandler = new WebSocketHandler() {
+	private WebSocketConnectionObserver webSocketHandler = new WebSocketConnectionObserver() {
 		@Override
 		public void onOpen() {
 			Log.d(TAG, "WS: Connected to " + BRIDGEWALKER_URI);
@@ -420,9 +426,19 @@ public class BackendService extends Service implements Callback {
 		}
 		
 		@Override
-		public void onClose(int code, String reason) {
-			Log.d(TAG, "WS: Connection lost.");
+		public void onClose(WebSocketCloseNotification code, String reason) {
+			Log.d(TAG, "WS: Connection lost (reason: " + reason + ").");
 			reconnect();
+		}
+
+		@Override
+		public void onRawTextMessage(byte[] payload) {
+			/* ignore */
+		}
+
+		@Override
+		public void onBinaryMessage(byte[] payload) {
+			/* ignore */
 		}
 	};
 }
