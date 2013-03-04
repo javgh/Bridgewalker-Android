@@ -114,7 +114,6 @@ public class BackendService extends Service implements Callback {
 		
 		this.mapper = new ObjectMapper();
 		
-		this.connection = new WebSocketConnection();
 		connect();
 		enqueuePing();
 		
@@ -184,7 +183,7 @@ public class BackendService extends Service implements Callback {
 				sendCommands();
 				break;
 			case MSG_SEND_PING:
-				if (this.connection.isConnected())
+				if (isConnected())
 					sendCommand(new Ping());
 				enqueuePing();
 				break;
@@ -218,13 +217,27 @@ public class BackendService extends Service implements Callback {
 	public void onDestroy() {
 		super.onDestroy();
 		this.isRunning = false;
-		this.connection.disconnect();
+		disconnect();
 		Log.d(TAG, "BackendService destroyed");
+	}
+	
+	private boolean isConnected() {
+		if (this.connection == null)
+			return false;
+		
+		return this.connection.isConnected();
+	}
+	
+	private void disconnect() {
+		if (this.connection != null)
+			this.connection.disconnect();
 	}
 	
 	private void connect() {
 		try {
 			URI uri = new URI(BRIDGEWALKER_URI);
+			this.connection = new WebSocketConnection();
+			
 			this.connectionState = CONNECTION_STATE_CONNECTING;
 			this.connection.connect(uri, webSocketHandler);
 		} catch (WebSocketException e) {
@@ -258,7 +271,7 @@ public class BackendService extends Service implements Callback {
 	}
 	
 	private void sendCommands() {
-		if (this.connection.isConnected()) {
+		if (isConnected()) {
 			WebsocketRequest cmd;
 			while ((cmd = this.cmdQueue.poll()) != null) {
 				sendCommand(cmd);
@@ -356,7 +369,7 @@ public class BackendService extends Service implements Callback {
 	private void setPermanentError() {
 		this.connectionState = CONNECTION_STATE_PERMANENT_ERROR;
 		this.isRunning = false;
-		this.connection.disconnect();
+		disconnect();
 	}
 	
     private String asJson(Object o) {
