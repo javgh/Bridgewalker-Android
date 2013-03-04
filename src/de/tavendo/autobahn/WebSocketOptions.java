@@ -18,6 +18,8 @@
 
 package de.tavendo.autobahn;
 
+import java.io.InputStream;
+
 
 
 /**
@@ -36,6 +38,8 @@ public class WebSocketOptions {
    private boolean mValidateIncomingUtf8;
    private boolean mMaskClientFrames;
    private int mReconnectInterval;
+   private InputStream mKeyStoreInputStream;
+   private String mKeyStorePassword;
 
 
    /**
@@ -52,6 +56,8 @@ public class WebSocketOptions {
       mValidateIncomingUtf8 = true;
       mMaskClientFrames = true;
       mReconnectInterval = 0;  // no reconnection by default
+      mKeyStoreInputStream = null;
+      mKeyStorePassword = null;
    }
 
    /**
@@ -70,6 +76,8 @@ public class WebSocketOptions {
       mValidateIncomingUtf8 = other.mValidateIncomingUtf8;
       mMaskClientFrames = other.mMaskClientFrames;
       mReconnectInterval = other.mReconnectInterval;
+      mKeyStoreInputStream = other.mKeyStoreInputStream;
+      mKeyStorePassword = other.mKeyStorePassword;
    }
 
    /**
@@ -269,5 +277,21 @@ public class WebSocketOptions {
    
    public int getReconnectInterval() {
 	   return mReconnectInterval;
+   }
+   
+   public InputStream getKeyStoreInputStream() {
+	   return mKeyStoreInputStream;
+   }
+	
+   public void setKeyStoreInputStream(InputStream keyStoreInputStream) {
+	   this.mKeyStoreInputStream = keyStoreInputStream;
+   }
+	
+   public String getKeyStorePassword() {
+	   return mKeyStorePassword;
+   }
+	
+   public void setKeyStorePassword(String keyStorePassword) {
+	   this.mKeyStorePassword = keyStorePassword;
    }
 }

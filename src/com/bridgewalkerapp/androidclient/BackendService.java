@@ -30,9 +30,11 @@ import com.bridgewalkerapp.androidclient.data.RequestAndRunnable;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocket.WebSocketConnectionObserver;
+import de.tavendo.autobahn.WebSocketOptions;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -63,6 +65,7 @@ public class BackendService extends Service implements Callback {
 	public static final int CONNECTION_STATE_AUTHENTICATED = 2;
 	
 	public static final String BRIDGEWALKER_PREFERENCES_FILE = "bridgewalker_preferences";
+	public static final String BRIDGEWALKER_KEYSTORE_PASSWORD = "bridgewalker";
 	public static final String SETTING_GUEST_ACCOUNT = "SETTING_GUEST_ACCOUNT";
 	public static final String SETTING_GUEST_PASSWORD = "SETTING_GUEST_PASSWORD";
 	public static final double BTC_BASE_AMOUNT = Math.pow(10, 8);
@@ -102,6 +105,8 @@ public class BackendService extends Service implements Callback {
 	
 	private WSStatus currentAccountStatus = null;
 	
+	private Resources resources;
+	
 	@SuppressLint("UseSparseArrays")
 	@Override
 	public void onCreate() {
@@ -113,6 +118,7 @@ public class BackendService extends Service implements Callback {
 		this.cmdQueue = new LinkedList<WebsocketRequest>();
 		
 		this.mapper = new ObjectMapper();
+		this.resources = getResources();
 		
 		connect();
 		enqueuePing();
@@ -236,10 +242,13 @@ public class BackendService extends Service implements Callback {
 	private void connect() {
 		try {
 			URI uri = new URI(BRIDGEWALKER_URI);
+			WebSocketOptions options = new WebSocketOptions();
 			this.connection = new WebSocketConnection();
 			
 			this.connectionState = CONNECTION_STATE_CONNECTING;
-			this.connection.connect(uri, webSocketHandler);
+			options.setKeyStoreInputStream(this.resources.openRawResource(R.raw.mykeystore));
+			options.setKeyStorePassword(BRIDGEWALKER_KEYSTORE_PASSWORD);
+			this.connection.connect(uri, webSocketHandler, options);
 		} catch (WebSocketException e) {
 			throw new RuntimeException(e);
 		} catch (URISyntaxException e) {

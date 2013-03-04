@@ -23,16 +23,17 @@ import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.net.URI;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
-import android.net.SSLCertificateSocketFactory;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.params.BasicHttpParams;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -259,7 +260,8 @@ public class WebSocketConnection implements WebSocket {
 		 *  - reconnect interval is set
 		 */
 		int interval = mWebSocketOptions.getReconnectInterval();
-		boolean shouldReconnect = mSocket.isConnected() && mPreviousConnection && (interval > 0);
+		boolean shouldReconnect =
+				(mSocket != null) &&  mSocket.isConnected() && mPreviousConnection && (interval > 0);
 		if (shouldReconnect) {
 			Log.d(TAG, "WebSocket reconnection scheduled");
 			mHandler.postDelayed(new Runnable() {
@@ -437,6 +439,7 @@ public class WebSocketConnection implements WebSocket {
 		private static final String WS_CONNECTOR = "WebSocketConnector";
 
 		private final URI mWebSocketURI;
+		private WebSocketOptions mWebSocketOptions;
 
 		private Socket mSocket = null;
 		private String mFailureMessage = null;
@@ -449,6 +452,7 @@ public class WebSocketConnection implements WebSocket {
 			this.setName(WS_CONNECTOR);
 			
 			this.mWebSocketURI = uri;
+			this.mWebSocketOptions = options;
 		}
 
 
@@ -480,41 +484,39 @@ public class WebSocketConnection implements WebSocket {
 					}
 				}
 				
-				SocketFactory factory = null;
 				if (mWebSocketURI.getScheme().equalsIgnoreCase(WSS_URI_SCHEME)) {
-					//factory = SSLCertificateSocketFactory.getDefault();
-
-					// create a trust manager that does not validate certificate chains
-					TrustManager tm = new X509TrustManager() {
-						@Override
-						public X509Certificate[] getAcceptedIssuers() {
-							return null;
-						}
-						
-						@Override
-						public void checkServerTrusted(X509Certificate[] chain, String authType)
-								throws CertificateException {
-						}
-						
-						@Override
-						public void checkClientTrusted(X509Certificate[] chain, String authType)
-								throws CertificateException {
-						}
-					};
-					SSLContext ctxt = SSLContext.getInstance("TLS");
-					ctxt.init(null, new TrustManager[] {tm}, null);
-					factory = ctxt.getSocketFactory();
+					KeyStore trusted = KeyStore.getInstance("BKS");                                                              
+                    
+		            // Initialize the keystore with the provided trusted certificates                                            
+		            trusted.load(mWebSocketOptions.getKeyStoreInputStream(),
+		            				mWebSocketOptions.getKeyStorePassword().toCharArray());
+		                                                                                                                         
+		            // Pass the keystore to the SSLSocketFactory. The factory is responsible                                     
+		            // for the verification of the server certificate.                                                           
+		            SSLSocketFactory factory = new SSLSocketFactory(trusted);       
+		                                                                                                                         
+		            // Hostname verification from certificate                                                                    
+		            // http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html#d4e506                          
+		            factory.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);      
+					
+		            this.mSocket = factory.connectSocket(null, host, port, null, 0, new BasicHttpParams());
 				} else {
-					factory = SocketFactory.getDefault();
+					SocketFactory factory = SocketFactory.getDefault();
+					
+					// Do not replace host string with InetAddress or you lose automatic host name verification
+					this.mSocket = factory.createSocket(host, port);
 				}
-
-				// Do not replace host string with InetAddress or you lose automatic host name verification
-				this.mSocket = factory.createSocket(host, port);
 			} catch (IOException e) {
 				this.mFailureMessage = e.getLocalizedMessage();
 			} catch (NoSuchAlgorithmException e) {
 				this.mFailureMessage = e.getLocalizedMessage();
 			} catch (KeyManagementException e) {
+				this.mFailureMessage = e.getLocalizedMessage();
+			} catch (KeyStoreException e) {
+				this.mFailureMessage = e.getLocalizedMessage();
+			} catch (CertificateException e) {
+				this.mFailureMessage = e.getLocalizedMessage();
+			} catch (UnrecoverableKeyException e) {
 				this.mFailureMessage = e.getLocalizedMessage();
 			}
 			
