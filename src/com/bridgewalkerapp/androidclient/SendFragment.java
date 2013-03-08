@@ -60,7 +60,8 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private long nextRequestId = 0;
 	private long lastRequestQuoteTimestamp = 0;
 	private RequestQuote lastSuccessfulRequestQuote = null;
-	private WSQuote lastSuccessfulQuote = null;
+	private WSQuote lastSuccessfulQuote = null;		// note: can be null, when the last 'successful'
+													// request returned 'quote unavailable'
 	
 	private SendPayment lastSendPayment = null;
 	
@@ -188,12 +189,8 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 				if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE_UNAVAILABLE) {
 					WSQuoteUnavailable qu = (WSQuoteUnavailable)reply;
 					removePendingRequests(qu.getId(), null);
-					
-					infoTextView.setText("Sorry, I was unable to get a quote.");
-					updateSendPaymentButton();
-				}
-				
-				if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE) {
+					displayQuote(null);
+				} else if (reply.getReplyType() == WebsocketReply.TYPE_WS_QUOTE) {
 					WSQuote quote = (WSQuote)reply;
 					removePendingRequests(quote.getId(), quote);
 					displayQuote(quote);
@@ -207,15 +204,21 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	}
 	
 	private void displayQuote(WSQuote quote) {
-		double actualFee =
-				(double)(quote.getUsdAccount() - quote.getUsdRecipient())
-					/ (double)quote.getUsdRecipient();
-		String infoText = resources.getString(
-				R.string.quote_info_text
-				, formatBTC(quote.getBtc())
-				, formatUSD(quote.getUsdRecipient())
-				, formatUSD(quote.getUsdAccount())
-				, actualFee * 100);
+		String infoText = null;
+		if (quote != null) {
+			double actualFee =
+					(double)(quote.getUsdAccount() - quote.getUsdRecipient())
+						/ (double)quote.getUsdRecipient();
+			infoText = resources.getString(
+					R.string.quote_info_text
+					, formatBTC(quote.getBtc())
+					, formatUSD(quote.getUsdRecipient())
+					, formatUSD(quote.getUsdAccount())
+					, actualFee * 100);
+		} else {
+			infoText = resources.getString(R.string.quote_unavailable);
+		}
+			
 		infoTextView.setText(infoText);
 		updateSendPaymentButton();
 	}
@@ -230,7 +233,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 
 		// see if we have quote data to do some additional checks
 		RequestQuote rq = compileRequestQuote();
-		if (rq.isSameRequest(this.lastSuccessfulRequestQuote)) {
+		if (rq.isSameRequest(this.lastSuccessfulRequestQuote) && lastSuccessfulQuote != null) {
 			if (!this.lastSuccessfulQuote.hasSufficientBalance()) {
 				String hint = this.resources.getString(R.string.insufficient_balance);
 				return new SendPaymentCheck(false, hint);
