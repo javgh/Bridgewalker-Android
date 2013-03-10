@@ -420,7 +420,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 					if (quote == null)
 						message = resources.getString(
 								R.string.send_payment_confirmation_text_based_on_usd_before_fees
-								, formatBTC(adjustedAmount), address);
+								, formatUSD(adjustedAmount), address);
 					else
 						message = resources.getString(
 								R.string.send_payment_confirmation_text_based_on_usd_before_fees_with_quote
@@ -431,7 +431,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 					if (quote == null)
 						message = resources.getString(
 								R.string.send_payment_confirmation_text_based_on_usd_after_fees
-								, formatBTC(adjustedAmount), address);
+								, formatUSD(adjustedAmount), address);
 					else
 						message = resources.getString(
 								R.string.send_payment_confirmation_text_based_on_usd_after_fees_with_quote
