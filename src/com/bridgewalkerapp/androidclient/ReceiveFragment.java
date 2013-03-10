@@ -47,6 +47,8 @@ public class ReceiveFragment extends BalanceFragment {
 		this.primaryBTCAddressQRCodeImageView.setOnClickListener(this.primaryBTCAddressQRCodeOnClickListener);
 		this.fullScreenImageView.setOnClickListener(this.fullScreenOnClickListener);
 		
+		this.resources = getResources();
+		
 		return view; 
 	}
 	

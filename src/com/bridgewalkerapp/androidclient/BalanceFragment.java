@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import android.content.res.Resources;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +28,8 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	protected BitcoinFragmentHost parentActivity = null;
 		
 	protected WSStatus currentStatus = null;
+	
+	protected Resources resources = null;
 	
 	@Override
 	public void onStart() {
@@ -77,6 +80,13 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		if (btcIn != null) pendingEvents.add(btcIn);
 		pendingEvents.addAll(formatPendingTxs(this.currentStatus.getPendingTxs()));
 		
+		if (this.currentStatus.getBtcIn() > 0
+				&& this.currentStatus.getBtcIn() < BackendService.MINIMUM_BTC_AMOUNT) {
+			String note = this.resources.getString(R.string.minimum_exchange_amount,
+							formatBTC(BackendService.MINIMUM_BTC_AMOUNT));
+			pendingEvents.add(note);
+		}
+		
 		if (pendingEvents.size() > 0) {
 			StringBuilder sb = new StringBuilder();
 			String separator = "";
@@ -98,19 +108,19 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	abstract protected void displayStatusHook();
 	
 	private String formatUSDBalance(long usdBalance) {
-		return String.format("Balance: %s USD", formatUSD(usdBalance));
+		return this.resources.getString(R.string.balance, formatUSD(usdBalance));
 	}	
 	
 	private String formatBTCIn(long btcIn) {
 		if (btcIn == 0) return null;
 		
-		return String.format("+ %s BTC waiting to be exchanged.", formatBTC(btcIn));
+		return this.resources.getString(R.string.waiting_for_exchange, formatBTC(btcIn));
 	}
 	
 	private List<String> formatPendingTxs(List<PendingTransaction> pendingTxs) {
 		List<String> result = new ArrayList<String>();
 		for (PendingTransaction pendingTx : pendingTxs) {
-			result.add(String.format("+ %s BTC waiting to be confirmed.",
+			result.add(this.resources.getString(R.string.waiting_for_confirmation,
 						formatBTC(pendingTx.getAmount())));
 		}
 		return result;

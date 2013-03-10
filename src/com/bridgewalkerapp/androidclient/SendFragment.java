@@ -19,7 +19,6 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -54,8 +53,6 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private LinearLayout sendPaymentLinearLayout = null;
 	private Button sendPaymentButton = null;
 	private TextView sendPaymentHintTextView = null;
-	
-	private Resources resources;
 	
 	private long nextRequestId = 0;
 	private long lastRequestQuoteTimestamp = 0;
