@@ -16,7 +16,6 @@
 		    />
 	
 		<LinearLayout 
-		    xmlns:tools="http://schemas.android.com/tools"
 		    android:id="@+id/send_fragment_content_linearlayout"
 		    android:layout_width="match_parent"
 		    android:layout_height="match_parent"
@@ -198,6 +197,15 @@
 		                android:layout_width="match_parent"
 				        android:layout_height="wrap_content"
 				        android:gravity="center"
+				        android:text=""
+				        />
+				    
+				    <TextView 
+				        android:id="@+id/exchange_status_textview"
+		                android:layout_width="match_parent"
+				        android:layout_height="wrap_content"
+				        android:gravity="center"
+				        android:textColor="#FF0000"
 				        android:text=""
 				        />		       				    
 			    </LinearLayout>

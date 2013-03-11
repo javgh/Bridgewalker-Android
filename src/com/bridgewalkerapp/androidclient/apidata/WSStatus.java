@@ -13,6 +13,7 @@ public class WSStatus extends WebsocketReply {
 	private long btcIn;
 	private String primaryBTCAddress;
 	private List<PendingTransaction> pendingTxs;
+	private boolean exchangeAvailable;
 
 	@JsonProperty("usd_balance")
 	public long getUsdBalance() {
@@ -48,6 +49,15 @@ public class WSStatus extends WebsocketReply {
 
 	public void setPendingTxs(List<PendingTransaction> pendingTxs) {
 		this.pendingTxs = pendingTxs;
+	}
+	
+	public boolean isExchangeAvailable() {
+		return exchangeAvailable;
+	}
+	
+	@JsonProperty("exchange_available")
+	public void setExchangeAvailable(boolean exchangeAvailable) {
+		this.exchangeAvailable = exchangeAvailable;
 	}
 
 	@Override

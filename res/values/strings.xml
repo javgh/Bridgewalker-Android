@@ -43,4 +43,5 @@
 	<string name="balance">Balance: %1$s USD</string>
 	<string name="waiting_for_exchange">+ %1$s BTC waiting to be exchanged.</string>
 	<string name="waiting_for_confirmation">+ %1$s BTC waiting to be confirmed.</string>
+	<string name="exchange_unavailable">The server is currently experiencing communication problems with Mt.Gox. Sending payments will probably not work, sorry.</string>
 </resources>

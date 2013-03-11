@@ -53,6 +53,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private LinearLayout sendPaymentLinearLayout = null;
 	private Button sendPaymentButton = null;
 	private TextView sendPaymentHintTextView = null;
+	private TextView exchangeStatusTextView = null;
 	
 	private long nextRequestId = 0;
 	private long lastRequestQuoteTimestamp = 0;
@@ -84,6 +85,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.sendPaymentLinearLayout = (LinearLayout)view.findViewById(R.id.send_payment_linearlayout);
 		this.sendPaymentButton = (Button)view.findViewById(R.id.send_payment_button);
 		this.sendPaymentHintTextView = (TextView)view.findViewById(R.id.send_payment_hint_textview);
+		this.exchangeStatusTextView = (TextView)view.findViewById(R.id.exchange_status_textview);
 		
 		this.scanButton.setOnClickListener(this.scanButtonOnClickListener);
 		this.recipientAddressEditText.addTextChangedListener(this.recipientAddressTextWatcher);
@@ -99,7 +101,11 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 
 	@Override
 	protected void displayStatusHook() {
-		/* do nothing */
+		if (this.currentStatus.isExchangeAvailable()) {
+			this.exchangeStatusTextView.setText("");
+		} else {
+			this.exchangeStatusTextView.setText(this.resources.getString(R.string.exchange_unavailable));
+		}
 	}
 	
 	private void setSendPaymentControlsState(boolean enabled) {
