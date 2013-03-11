@@ -215,8 +215,8 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			infoText = resources.getString(
 					R.string.quote_info_text
 					, formatBTC(quote.getBtc())
-					, formatUSD(quote.getUsdRecipient())
-					, formatUSD(quote.getUsdAccount())
+					, formatUSD(quote.getUsdRecipient(), Rounding.NO_ROUNDING)
+					, formatUSD(quote.getUsdAccount(), Rounding.NO_ROUNDING)
 					, actualFee * 100);
 		} else {
 			infoText = resources.getString(R.string.quote_unavailable);
@@ -420,28 +420,28 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 						message = resources.getString(
 								R.string.send_payment_confirmation_text_based_on_btc_with_quote
 								, formatBTC(adjustedAmount)
-								, formatUSD(quote.getUsdRecipient()), address);
+								, formatUSD(quote.getUsdRecipient(), Rounding.NO_ROUNDING), address);
 					break;
 				case AMOUNT_BASED_ON_USD_BEFORE_FEES:
 					if (quote == null)
 						message = resources.getString(
 								R.string.send_payment_confirmation_text_based_on_usd_before_fees
-								, formatUSD(adjustedAmount), address);
+								, formatUSD(adjustedAmount, Rounding.NO_ROUNDING), address);
 					else
 						message = resources.getString(
 								R.string.send_payment_confirmation_text_based_on_usd_before_fees_with_quote
-								, formatUSD(adjustedAmount)
+								, formatUSD(adjustedAmount, Rounding.NO_ROUNDING)
 								, formatBTC(quote.getBtc()), address);
 					break;
 				case AMOUNT_BASED_ON_USD_AFTER_FEES:
 					if (quote == null)
 						message = resources.getString(
 								R.string.send_payment_confirmation_text_based_on_usd_after_fees
-								, formatUSD(adjustedAmount), address);
+								, formatUSD(adjustedAmount, Rounding.NO_ROUNDING), address);
 					else
 						message = resources.getString(
 								R.string.send_payment_confirmation_text_based_on_usd_after_fees_with_quote
-								, formatUSD(adjustedAmount)
+								, formatUSD(adjustedAmount, Rounding.NO_ROUNDING)
 								, formatBTC(quote.getBtc()), address);
 					break;
 			}

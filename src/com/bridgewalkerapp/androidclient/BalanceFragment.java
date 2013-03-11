@@ -19,6 +19,7 @@ import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
 
 abstract public class BalanceFragment extends SherlockFragment implements BitcoinFragment {
 	private static final String TAG = "com.bridgewalkerapp";
+	public static enum Rounding { ROUND_DOWN, NO_ROUNDING }; 
 	
 	protected ProgressBar progressBar = null;
 	protected LinearLayout contentLinearLayout = null;
@@ -108,7 +109,7 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	abstract protected void displayStatusHook();
 	
 	private String formatUSDBalance(long usdBalance) {
-		return this.resources.getString(R.string.balance, formatUSD(usdBalance));
+		return this.resources.getString(R.string.balance, formatUSD(usdBalance, Rounding.ROUND_DOWN));
 	}	
 	
 	private String formatBTCIn(long btcIn) {
@@ -126,10 +127,25 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		return result;
 	}
 	
-	protected String formatUSD(long usd) {
+	protected String formatUSD(long usd, Rounding rounding) {
 		// use US locale for now, as we only support English at the moment
 		double asDouble = (double)usd / BackendService.USD_BASE_AMOUNT;
-		return String.format(Locale.US, "%.5f", asDouble);
+		switch (rounding) {
+			case ROUND_DOWN:
+				double rounded = Math.floor(asDouble * 100.0) / 100.0;
+				return String.format(Locale.US, "%.2f", rounded);
+			case NO_ROUNDING:
+				String asString = String.format(Locale.US, "%.5f", asDouble);
+				
+				// remove up to three trailing zeroes
+				for (int i=0; i<3 && asString.endsWith("0"); i++) { 
+					asString = asString.substring(0, asString.length() - 1);
+				}
+				
+				return asString;
+			default:
+				throw new RuntimeException("Unhandled case");
+		}
 	}	
 	
 	protected String formatBTC(long btc) {
