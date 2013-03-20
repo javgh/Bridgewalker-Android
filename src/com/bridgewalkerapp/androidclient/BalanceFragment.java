@@ -77,9 +77,11 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 				formatUSDBalance(this.currentStatus.getUsdBalance()));
 		
 		List<String> pendingEvents = new ArrayList<String>();
-		String btcIn = formatBTCIn(this.currentStatus.getBtcIn());
+		String btcIn = formatBTCIn(this.currentStatus.getBtcIn(),
+									this.currentStatus.getExchangeRate());
 		if (btcIn != null) pendingEvents.add(btcIn);
-		pendingEvents.addAll(formatPendingTxs(this.currentStatus.getPendingTxs()));
+		pendingEvents.addAll(formatPendingTxs(this.currentStatus.getPendingTxs(),
+												this.currentStatus.getExchangeRate()));
 		
 		if (this.currentStatus.getBtcIn() > 0
 				&& this.currentStatus.getBtcIn() < BackendService.MINIMUM_BTC_AMOUNT) {
@@ -112,19 +114,41 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		return this.resources.getString(R.string.balance, formatUSD(usdBalance, Rounding.ROUND_DOWN));
 	}	
 	
-	private String formatBTCIn(long btcIn) {
+	private String formatBTCIn(long btcIn, long exchangeRate) {
 		if (btcIn == 0) return null;
 		
-		return this.resources.getString(R.string.waiting_for_exchange, formatBTC(btcIn));
+		if (exchangeRate != 0) {
+			return this.resources.getString(R.string.waiting_for_exchange_with_usd
+					, formatBTC(btcIn)
+					, calcAndFormatUSDEquivalent(btcIn, exchangeRate));
+		} else {
+			return this.resources.getString(R.string.waiting_for_exchange, formatBTC(btcIn));
+		}
 	}
 	
-	private List<String> formatPendingTxs(List<PendingTransaction> pendingTxs) {
+	private List<String> formatPendingTxs(List<PendingTransaction> pendingTxs, long exchangeRate) {
 		List<String> result = new ArrayList<String>();
 		for (PendingTransaction pendingTx : pendingTxs) {
-			result.add(this.resources.getString(R.string.waiting_for_confirmation,
-						formatBTC(pendingTx.getAmount())));
+			String msg = "";
+			if (exchangeRate != 0) {
+				msg = this.resources.getString(R.string.waiting_for_confirmation_with_usd
+						, formatBTC(pendingTx.getAmount()) 
+						, calcAndFormatUSDEquivalent(pendingTx.getAmount(), exchangeRate));
+			} else {
+				msg = this.resources.getString(R.string.waiting_for_confirmation
+						, formatBTC(pendingTx.getAmount()));
+			}
+			
+			result.add(msg);
 		}
 		return result;
+	}
+	
+	protected String calcAndFormatUSDEquivalent(long btc, long exchangeRate) {
+		long usdEquivalent = Math.round(	
+								((double)btc / BackendService.BTC_BASE_AMOUNT)
+								* (double)exchangeRate);
+		return formatUSD(usdEquivalent, Rounding.ROUND_DOWN);
 	}
 	
 	protected String formatUSD(long usd, Rounding rounding) {
