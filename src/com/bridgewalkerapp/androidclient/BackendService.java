@@ -3,6 +3,7 @@ package com.bridgewalkerapp.androidclient;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 
+import org.apache.http.message.BasicNameValuePair;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -26,11 +28,9 @@ import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest;
 import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
 import com.bridgewalkerapp.androidclient.data.RequestAndRunnable;
+import com.codebutler.android_websockets.WebSocketClient;
+import com.codebutler.android_websockets.WebSocketClient.Listener;
 
-import de.tavendo.autobahn.WebSocketConnection;
-import de.tavendo.autobahn.WebSocketException;
-import de.tavendo.autobahn.WebSocket.WebSocketConnectionObserver;
-import de.tavendo.autobahn.WebSocketOptions;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
@@ -72,8 +72,8 @@ public class BackendService extends Service implements Callback {
 	public static final double USD_BASE_AMOUNT = Math.pow(10, 5);
 	public static final long MINIMUM_BTC_AMOUNT = Math.round(0.01 * BTC_BASE_AMOUNT);
 	
-	//private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
-	private static final String BRIDGEWALKER_URI = "wss://www.bridgewalkerapp.com/backend";
+	private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
+	//private static final String BRIDGEWALKER_URI = "wss://www.bridgewalkerapp.com/backend";
 	private static final int MAX_ERROR_WAIT_TIME = 15 * 1000;
 	private static final int INITIAL_ERROR_WAIT_TIME = 1 * 1000;
 	
@@ -82,7 +82,7 @@ public class BackendService extends Service implements Callback {
 	
 	private static final int SHUTDOWN_INTERVAL = 2 * 60 * 1000;
 	
-	private WebSocketConnection connection;
+	private WebSocketClient wsClient;
 	private boolean isRunning = true;
 	private int currentErrorWaitTime = INITIAL_ERROR_WAIT_TIME;
 	private int connectionState = 0;
@@ -228,29 +228,27 @@ public class BackendService extends Service implements Callback {
 	}
 	
 	private boolean isConnected() {
-		if (this.connection == null)
+		if (this.wsClient == null)
 			return false;
 		
-		return this.connection.isConnected();
+		return this.wsClient.isConnected();
 	}
 	
 	private void disconnect() {
-		if (this.connection != null)
-			this.connection.disconnect();
+		if (this.wsClient != null)
+			this.wsClient.disconnect();
 	}
 	
 	private void connect() {
 		try {
 			URI uri = new URI(BRIDGEWALKER_URI);
-			WebSocketOptions options = new WebSocketOptions();
-			this.connection = new WebSocketConnection();
+			this.wsClient = new WebSocketClient(uri, webSocketListener, new ArrayList<BasicNameValuePair>());
 			
 			this.connectionState = CONNECTION_STATE_CONNECTING;
-			options.setKeyStoreInputStream(this.resources.openRawResource(R.raw.mykeystore));
-			options.setKeyStorePassword(BRIDGEWALKER_KEYSTORE_PASSWORD);
-			this.connection.connect(uri, webSocketHandler, options);
-		} catch (WebSocketException e) {
-			throw new RuntimeException(e);
+			//options.setKeyStoreInputStream(this.resources.openRawResource(R.raw.mykeystore));
+			//options.setKeyStorePassword(BRIDGEWALKER_KEYSTORE_PASSWORD);
+			this.wsClient.connect();
+			//this.connection.connect(uri, webSocketHandler, options);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
@@ -290,7 +288,7 @@ public class BackendService extends Service implements Callback {
 	
 	private void sendCommand(Object cmd) {
 		Log.d(TAG, "WS: Sending text message (" + asJson(cmd) + ")");
-		connection.sendTextMessage(asJson(cmd));
+		wsClient.send(asJson(cmd));
 	}
 	
 	private void processReply(WebsocketReply reply) {
@@ -412,9 +410,9 @@ public class BackendService extends Service implements Callback {
 		return Integer.valueOf(parts[0]);
 	}
 	
-	private WebSocketConnectionObserver webSocketHandler = new WebSocketConnectionObserver() {
+	private Listener webSocketListener = new Listener() {
 		@Override
-		public void onOpen() {
+		public void onConnect() {
 			Log.d(TAG, "WS: Connected to " + BRIDGEWALKER_URI);
 			currentErrorWaitTime = INITIAL_ERROR_WAIT_TIME;
 			currentAccountStatus = null;
@@ -425,11 +423,11 @@ public class BackendService extends Service implements Callback {
 		}
 		
 		@Override
-		public void onTextMessage(String payload) {
-			Log.d(TAG, "WS: Text message received (" + payload + ")");
+		public void onMessage(String message) {
+			Log.d(TAG, "WS: Text message received (" + message + ")");
 			
 			try {
-				JsonNode json = mapper.readValue(payload, JsonNode.class);
+				JsonNode json = mapper.readValue(message, JsonNode.class);
 				if (json == null)
 					return;
 				
@@ -448,18 +446,19 @@ public class BackendService extends Service implements Callback {
 		}
 		
 		@Override
-		public void onClose(WebSocketCloseNotification code, String reason) {
+		public void onError(Exception error) {
+			Log.d(TAG, "WS: Exception raised (" + error + ").");
+			reconnect();
+		}
+		
+		@Override
+		public void onDisconnect(int code, String reason) {
 			Log.d(TAG, "WS: Connection lost (reason: " + reason + ").");
 			reconnect();
 		}
 
 		@Override
-		public void onRawTextMessage(byte[] payload) {
-			/* ignore */
-		}
-
-		@Override
-		public void onBinaryMessage(byte[] payload) {
+		public void onMessage(byte[] data) {
 			/* ignore */
 		}
 	};
