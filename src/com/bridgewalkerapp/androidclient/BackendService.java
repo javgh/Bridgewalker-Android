@@ -3,6 +3,7 @@ package com.bridgewalkerapp.androidclient;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -72,8 +73,8 @@ public class BackendService extends Service implements Callback {
 	public static final double USD_BASE_AMOUNT = Math.pow(10, 5);
 	public static final long MINIMUM_BTC_AMOUNT = Math.round(0.01 * BTC_BASE_AMOUNT);
 	
-	private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
-	//private static final String BRIDGEWALKER_URI = "wss://www.bridgewalkerapp.com/backend";
+	//private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
+	private static final String BRIDGEWALKER_URI = "wss://www.bridgewalkerapp.com/backend";
 	private static final int MAX_ERROR_WAIT_TIME = 15 * 1000;
 	private static final int INITIAL_ERROR_WAIT_TIME = 1 * 1000;
 	
@@ -245,11 +246,14 @@ public class BackendService extends Service implements Callback {
 			this.wsClient = new WebSocketClient(uri, webSocketListener, new ArrayList<BasicNameValuePair>());
 			
 			this.connectionState = CONNECTION_STATE_CONNECTING;
-			//options.setKeyStoreInputStream(this.resources.openRawResource(R.raw.mykeystore));
-			//options.setKeyStorePassword(BRIDGEWALKER_KEYSTORE_PASSWORD);
+			WebSocketClient.setKeystore(
+					this.resources.openRawResource(R.raw.mykeystore), BRIDGEWALKER_KEYSTORE_PASSWORD);
 			this.wsClient.connect();
-			//this.connection.connect(uri, webSocketHandler, options);
 		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		} catch (GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -287,9 +291,14 @@ public class BackendService extends Service implements Callback {
 	}
 	
 	private void sendCommand(Object cmd) {
+		if (!isConnected())
+			return;		/* silently discard; hopefully the
+						   caller will retry in some form */
+		
 		Log.d(TAG, "WS: Sending text message (" + asJson(cmd) + ")");
 		wsClient.send(asJson(cmd));
 	}
+		
 	
 	private void processReply(WebsocketReply reply) {
 		// check for replies that are relevant for us

@@ -7,22 +7,22 @@ import android.util.Base64;
 import android.util.Log;
 import org.apache.http.*;
 import org.apache.http.client.HttpResponseException;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
 
 import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.util.List;
 
 public class WebSocketClient {
@@ -40,10 +40,26 @@ public class WebSocketClient {
 
     private final Object mSendLock = new Object();
 
-    private static TrustManager[] sTrustManagers;
+    private static SSLSocketFactory sSSLSocketFactory = null;
 
-    public static void setTrustManagers(TrustManager[] tm) {
-        sTrustManagers = tm;
+    /**
+     * Note: Keystore will only be initialized once; calling the function again will have no effect.
+     */
+    public static void setKeystore(InputStream keyStoreInputStream, String keyStorePassword) throws GeneralSecurityException, IOException {
+		if (sSSLSocketFactory != null) return;
+		
+    	KeyStore trusted = KeyStore.getInstance("BKS");                                                              
+        
+        // Initialize the keystore with the provided trusted certificates                                            
+        trusted.load(keyStoreInputStream, keyStorePassword.toCharArray());
+                                                                                                                     
+        // Pass the keystore to the SSLSocketFactory. The factory is responsible                                     
+        // for the verification of the server certificate.                                                           
+        sSSLSocketFactory = new SSLSocketFactory(trusted);       
+                                                                                                                     
+        // Hostname verification from certificate                                                                    
+        // http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html#d4e506                          
+        sSSLSocketFactory.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);      
     }
 
     public WebSocketClient(URI uri, Listener listener, List<BasicNameValuePair> extraHeaders) {
@@ -81,8 +97,15 @@ public class WebSocketClient {
                     String originScheme = mURI.getScheme().equals("wss") ? "https" : "http";
                     URI origin = new URI(originScheme, "//" + mURI.getHost(), null);
 
-                    SocketFactory factory = mURI.getScheme().equals("wss") ? getSSLSocketFactory() : SocketFactory.getDefault();
-                    mSocket = factory.createSocket(mURI.getHost(), port);
+                    if (mURI.getScheme().equals("wss")) {
+                    	if (sSSLSocketFactory == null)
+                    		throw new RuntimeException("Need to call setKeystore() before connecting");
+                    	mSocket = sSSLSocketFactory.connectSocket(
+                    				null, mURI.getHost(), port, null, 0, new BasicHttpParams());
+                    } else {
+                    	SocketFactory factory = SocketFactory.getDefault();
+                    	mSocket = factory.createSocket(mURI.getHost(), port);
+                    }
 
                     PrintWriter out = new PrintWriter(mSocket.getOutputStream());
                     out.print("GET " + path + " HTTP/1.1\r\n");
@@ -128,13 +151,13 @@ public class WebSocketClient {
                 } catch (EOFException ex) {
                     Log.d(TAG, "WebSocket EOF!", ex);
                     mIsConnected = false;
-                    mListener.onDisconnect(0, "EOF");
+                    mListener.onDisconnect(0, "EOF; " + ex);
 
                 } catch (SSLException ex) {
                     // Connection reset by peer
                     Log.d(TAG, "Websocket SSL error!", ex);
                     mIsConnected = false;
-                    mListener.onDisconnect(0, "SSL");
+                    mListener.onDisconnect(0, "SSL; " + ex);
 
                 } catch (Exception ex) {
                     mListener.onError(ex);
@@ -235,11 +258,5 @@ public class WebSocketClient {
         public void onMessage(byte[] data);
         public void onDisconnect(int code, String reason);
         public void onError(Exception error);
-    }
-
-    private SSLSocketFactory getSSLSocketFactory() throws NoSuchAlgorithmException, KeyManagementException {
-        SSLContext context = SSLContext.getInstance("TLS");
-        context.init(null, sTrustManagers, null);
-        return context.getSocketFactory();
     }
 }
