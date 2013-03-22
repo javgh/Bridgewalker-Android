@@ -247,6 +247,8 @@ public class WebSocketClient {
                     }
                 } catch (IOException e) {
                     mListener.onError(e);
+                } catch (NullPointerException e) {
+                	/* ignore; probably in the process of shutting down */
                 }
             }
         });
