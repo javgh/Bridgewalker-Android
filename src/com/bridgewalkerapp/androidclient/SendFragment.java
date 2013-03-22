@@ -245,7 +245,8 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			if (this.lastSuccessfulQuote.getBtc() < BackendService.MINIMUM_BTC_AMOUNT) {
 				String hint = this.resources.getString(R.string.minimum_amount,
 						formatBTC(BackendService.MINIMUM_BTC_AMOUNT));
-				return new SendPaymentCheck(false, hint);
+				return new SendPaymentCheck(true, hint);	// show warning; but allow user to
+															// try it anyway
 			}
 		}
 		
@@ -254,13 +255,8 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	
 	private void updateSendPaymentButton() {
 		SendPaymentCheck check = isReadyToSendPayment();
-		if (check.isReady()) {
-			this.sendPaymentButton.setEnabled(true);
-			this.sendPaymentHintTextView.setText("");
-		} else {
-			this.sendPaymentButton.setEnabled(false);
-			this.sendPaymentHintTextView.setText(check.getHint());
-		}
+		this.sendPaymentHintTextView.setText(check.getHint());
+		this.sendPaymentButton.setEnabled(check.isReady());
 	}
 	
 	private AmountType getAmountType() {
