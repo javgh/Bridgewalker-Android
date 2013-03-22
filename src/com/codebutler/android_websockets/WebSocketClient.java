@@ -27,6 +27,7 @@ import java.util.List;
 
 public class WebSocketClient {
     private static final String TAG = "WebSocketClient";
+    private static final boolean DEBUG_LOG = false;
 
     private URI                      mURI;
     private Listener                 mListener;
@@ -149,13 +150,13 @@ public class WebSocketClient {
                     mParser.start(stream);
 
                 } catch (EOFException ex) {
-                    Log.d(TAG, "WebSocket EOF!", ex);
+                    if (DEBUG_LOG) Log.d(TAG, "WebSocket EOF!", ex);
                     mIsConnected = false;
                     mListener.onDisconnect(0, "EOF; " + ex);
 
                 } catch (SSLException ex) {
                     // Connection reset by peer
-                    Log.d(TAG, "Websocket SSL error!", ex);
+                	if (DEBUG_LOG) Log.d(TAG, "Websocket SSL error!", ex);
                     mIsConnected = false;
                     mListener.onDisconnect(0, "SSL; " + ex);
 
@@ -176,7 +177,7 @@ public class WebSocketClient {
                         mSocket.close();
                         mSocket = null;
                     } catch (IOException ex) {
-                        Log.d(TAG, "Error while disconnecting", ex);
+                    	if (DEBUG_LOG) Log.d(TAG, "Error while disconnecting", ex);
                         mListener.onError(ex);
                     }
                 }

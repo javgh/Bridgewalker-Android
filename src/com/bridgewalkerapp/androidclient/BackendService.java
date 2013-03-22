@@ -47,6 +47,7 @@ import android.util.Log;
 
 public class BackendService extends Service implements Callback {
 	private static final String TAG = "com.bridgewalkerapp";
+	private static final boolean DEBUG_LOG = false;
 	
 	public static final int MSG_REGISTER_CLIENT = 1;
 	public static final int MSG_UNREGISTER_CLIENT = 2;
@@ -124,7 +125,7 @@ public class BackendService extends Service implements Callback {
 		connect();
 		enqueuePing();
 		
-		Log.d(TAG, "BackendService created");
+		if (DEBUG_LOG) Log.d(TAG, "BackendService created");
 	}
 	
 	@Override
@@ -153,13 +154,14 @@ public class BackendService extends Service implements Callback {
 			case MSG_REGISTER_CLIENT:
 				this.clientMessengers.put(msg.replyTo.hashCode(), msg.replyTo);
 				this.lastClientActivity = System.currentTimeMillis();
-				Log.d(TAG, "Client registered");
+				if (DEBUG_LOG) Log.d(TAG, "Client registered");
 				break;
 			case MSG_UNREGISTER_CLIENT:
 				this.clientMessengers.remove(msg.replyTo.hashCode());
-				Log.d(TAG, "Client unregistered. Clients remaining: " + this.clientMessengers.size());
+				if (DEBUG_LOG) Log.d(TAG, "Client unregistered. Clients remaining: "
+														+ this.clientMessengers.size());
 				if (this.clientMessengers.size() == 0) {
-					Log.d(TAG, "Last client unregistered. Starting shutdown timer.");
+					if (DEBUG_LOG) Log.d(TAG, "Last client unregistered. Starting shutdown timer.");
 					Message shutdownMsg = Message.obtain(null, MSG_SHUTDOWN);
 					this.myHandler.sendMessageDelayed(shutdownMsg, SHUTDOWN_INTERVAL);
 				}
@@ -225,7 +227,7 @@ public class BackendService extends Service implements Callback {
 		super.onDestroy();
 		this.isRunning = false;
 		disconnect();
-		Log.d(TAG, "BackendService destroyed");
+		if (DEBUG_LOG) Log.d(TAG, "BackendService destroyed");
 	}
 	
 	private boolean isConnected() {
@@ -260,7 +262,7 @@ public class BackendService extends Service implements Callback {
 
 	private void reconnect() {
 		if (this.isRunning) {
-			Log.d(TAG, "Lost connection; retrying in " + currentErrorWaitTime + " ms.");
+			if (DEBUG_LOG) Log.d(TAG, "Lost connection; retrying in " + currentErrorWaitTime + " ms.");
 			connectionState = CONNECTION_STATE_CONNECTING;
 			sendToAllClients(MSG_CONNECTION_STATUS, Integer.valueOf(connectionState));
 			
@@ -295,7 +297,7 @@ public class BackendService extends Service implements Callback {
 			return;		/* silently discard; hopefully the
 						   caller will retry in some form */
 		
-		Log.d(TAG, "WS: Sending text message (" + asJson(cmd) + ")");
+		if (DEBUG_LOG) Log.d(TAG, "WS: Sending text message (" + asJson(cmd) + ")");
 		wsClient.send(asJson(cmd));
 	}
 		
@@ -422,7 +424,7 @@ public class BackendService extends Service implements Callback {
 	private Listener webSocketListener = new Listener() {
 		@Override
 		public void onConnect() {
-			Log.d(TAG, "WS: Connected to " + BRIDGEWALKER_URI);
+			if (DEBUG_LOG) Log.d(TAG, "WS: Connected to " + BRIDGEWALKER_URI);
 			currentErrorWaitTime = INITIAL_ERROR_WAIT_TIME;
 			currentAccountStatus = null;
 			
@@ -433,7 +435,7 @@ public class BackendService extends Service implements Callback {
 		
 		@Override
 		public void onMessage(String message) {
-			Log.d(TAG, "WS: Text message received (" + message + ")");
+			if (DEBUG_LOG) Log.d(TAG, "WS: Text message received (" + message + ")");
 			
 			try {
 				JsonNode json = mapper.readValue(message, JsonNode.class);
@@ -456,13 +458,13 @@ public class BackendService extends Service implements Callback {
 		
 		@Override
 		public void onError(Exception error) {
-			Log.d(TAG, "WS: Exception raised (" + error + ").");
+			if (DEBUG_LOG) Log.d(TAG, "WS: Exception raised (" + error + ").");
 			reconnect();
 		}
 		
 		@Override
 		public void onDisconnect(int code, String reason) {
-			Log.d(TAG, "WS: Connection lost (reason: " + reason + ").");
+			if (DEBUG_LOG) Log.d(TAG, "WS: Connection lost (reason: " + reason + ").");
 			reconnect();
 		}
 

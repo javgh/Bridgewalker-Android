@@ -19,6 +19,7 @@ import com.bridgewalkerapp.androidclient.data.ReplyAndRunnable;
 
 abstract public class BalanceFragment extends SherlockFragment implements BitcoinFragment {
 	private static final String TAG = "com.bridgewalkerapp";
+	private static final boolean DEBUG_LOG = false;
 	public static enum Rounding { ROUND_DOWN, NO_ROUNDING }; 
 	
 	protected ProgressBar progressBar = null;
@@ -52,7 +53,7 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 				return true;
 			case BackendService.MSG_CONNECTION_STATUS:
 				int status = (Integer)msg.obj;
-				Log.d(TAG, "Fragment: Connection state is: " + status);
+				if (DEBUG_LOG) Log.d(TAG, "Fragment: Connection state is: " + status);
 				if (status != BackendService.CONNECTION_STATE_AUTHENTICATED) {
 					showProgressBar();
 					this.currentStatus = null;

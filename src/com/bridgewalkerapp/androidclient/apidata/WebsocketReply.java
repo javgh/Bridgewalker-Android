@@ -11,6 +11,7 @@ import android.util.Log;
 
 public abstract class WebsocketReply {
 	private static final String TAG = "com.bridgewalkerapp";
+	private static final boolean DEBUG_LOG = false;
 	
 	public static final int TYPE_WS_SERVER_VERSION = 0;
 	public static final int TYPE_WS_GUEST_ACCOUNT_CREATED = 1;
@@ -91,13 +92,13 @@ public abstract class WebsocketReply {
 				return wsStatus;
 			}
 		} catch (JsonParseException e) {
-			Log.d(TAG, e.toString());
+			if (DEBUG_LOG) Log.d(TAG, e.toString());
 			/* ignore, will return null */
 		} catch (JsonMappingException e) {
-			Log.d(TAG, e.toString());
+			if (DEBUG_LOG) Log.d(TAG, e.toString());
 			/* ignore, will return null */
 		} catch (IOException e) {
-			Log.d(TAG, e.toString());
+			if (DEBUG_LOG) Log.d(TAG, e.toString());
 			/* ignore, will return null */
 		}
 
