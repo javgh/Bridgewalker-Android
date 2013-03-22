@@ -194,7 +194,8 @@ public class BackendService extends Service implements Callback {
 			case MSG_SEND_PING:
 				if (isConnected())
 					sendCommand(new Ping());
-				enqueuePing();
+				if (this.isRunning)
+					enqueuePing();
 				break;
 			case MSG_SHUTDOWN:
 				// double check, that there have not been any new

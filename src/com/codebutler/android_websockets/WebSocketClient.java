@@ -26,7 +26,7 @@ import java.security.KeyStore;
 import java.util.List;
 
 public class WebSocketClient {
-    private static final String TAG = "WebSocketClient";
+    private static final String TAG = "com.bridgewalkerapp";
     private static final boolean DEBUG_LOG = false;
 
     private URI                      mURI;
@@ -37,7 +37,6 @@ public class WebSocketClient {
     private Handler                  mHandler;
     private List<BasicNameValuePair> mExtraHeaders;
     private HybiParser               mParser;
-    private boolean                  mIsConnected;
 
     private final Object mSendLock = new Object();
 
@@ -68,7 +67,6 @@ public class WebSocketClient {
         mListener = listener;
         mExtraHeaders = extraHeaders;
         mParser       = new HybiParser(this);
-        mIsConnected  = false;
 
         mHandlerThread = new HandlerThread("websocket-thread");
         mHandlerThread.start();
@@ -143,7 +141,6 @@ public class WebSocketClient {
                         }
                     }
 
-                    mIsConnected = true;
                     mListener.onConnect();
 
                     // Now decode websocket frames.
@@ -151,16 +148,15 @@ public class WebSocketClient {
 
                 } catch (EOFException ex) {
                     if (DEBUG_LOG) Log.d(TAG, "WebSocket EOF!", ex);
-                    mIsConnected = false;
                     mListener.onDisconnect(0, "EOF; " + ex);
 
                 } catch (SSLException ex) {
                     // Connection reset by peer
                 	if (DEBUG_LOG) Log.d(TAG, "Websocket SSL error!", ex);
-                    mIsConnected = false;
                     mListener.onDisconnect(0, "SSL; " + ex);
 
                 } catch (Exception ex) {
+                	if (DEBUG_LOG) Log.d(TAG, "Exception in WebSocketClient thread; calling onError()");
                     mListener.onError(ex);
                 }
             }
@@ -194,7 +190,10 @@ public class WebSocketClient {
     }
     
     public boolean isConnected() {
-    	return mIsConnected;
+    	if (mSocket == null)
+    			return false;
+    	
+    	return mSocket.isConnected();
     }
 
     private StatusLine parseStatusLine(String line) {
@@ -247,8 +246,10 @@ public class WebSocketClient {
                         outputStream.flush();
                     }
                 } catch (IOException e) {
+                	if (DEBUG_LOG) Log.d(TAG, "IOException in sendFrame()", e);
                     mListener.onError(e);
                 } catch (NullPointerException e) {
+                	if (DEBUG_LOG) Log.d(TAG, "NullPointerException in sendFrame()", e);
                 	/* ignore; probably in the process of shutting down */
                 }
             }
