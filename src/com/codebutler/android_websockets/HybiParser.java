@@ -334,7 +334,11 @@ public class HybiParser {
     }
 
     private byte[] slice(byte[] array, int start) {
-        return Arrays.copyOfRange(array, start, array.length);
+    	// do Arrays.copyOfRange(array, start, array.length)
+    	// manually, as it is not available in API < 9
+    	byte[] copy = new byte[array.length - start];
+    	System.arraycopy(array, start, copy, 0, array.length - start);
+    	return copy;
     }
 
     public static class ProtocolError extends IOException {
