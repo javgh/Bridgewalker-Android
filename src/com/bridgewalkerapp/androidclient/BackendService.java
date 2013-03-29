@@ -3,7 +3,6 @@ package com.bridgewalkerapp.androidclient;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,7 +34,6 @@ import com.codebutler.android_websockets.WebSocketClient.Listener;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -67,7 +65,6 @@ public class BackendService extends Service implements Callback {
 	public static final int CONNECTION_STATE_AUTHENTICATED = 2;
 	
 	public static final String BRIDGEWALKER_PREFERENCES_FILE = "bridgewalker_preferences";
-	public static final String BRIDGEWALKER_KEYSTORE_PASSWORD = "bridgewalker";
 	public static final String SETTING_GUEST_ACCOUNT = "SETTING_GUEST_ACCOUNT";
 	public static final String SETTING_GUEST_PASSWORD = "SETTING_GUEST_PASSWORD";
 	public static final double BTC_BASE_AMOUNT = Math.pow(10, 8);
@@ -107,8 +104,6 @@ public class BackendService extends Service implements Callback {
 	
 	private WSStatus currentAccountStatus = null;
 	
-	private Resources resources;
-	
 	@SuppressLint("UseSparseArrays")
 	@Override
 	public void onCreate() {
@@ -120,7 +115,6 @@ public class BackendService extends Service implements Callback {
 		this.cmdQueue = new LinkedList<WebsocketRequest>();
 		
 		this.mapper = new ObjectMapper();
-		this.resources = getResources();
 		
 		connect();
 		enqueuePing();
@@ -249,14 +243,8 @@ public class BackendService extends Service implements Callback {
 			this.wsClient = new WebSocketClient(uri, webSocketListener, new ArrayList<BasicNameValuePair>());
 			
 			this.connectionState = CONNECTION_STATE_CONNECTING;
-			WebSocketClient.setKeystore(
-					this.resources.openRawResource(R.raw.mykeystore), BRIDGEWALKER_KEYSTORE_PASSWORD);
 			this.wsClient.connect();
 		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
