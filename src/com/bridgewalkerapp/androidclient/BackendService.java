@@ -76,10 +76,10 @@ public class BackendService extends Service implements Callback {
 	private static final int MAX_ERROR_WAIT_TIME = 15 * 1000;
 	private static final int INITIAL_ERROR_WAIT_TIME = 1 * 1000;
 	
-	// server will time us out after 30 seconds, so send ping every 25 seconds
-	private static final int KEEP_ALIVE_INTERVAL = 25 * 1000;
+	// server will time us out after 90 seconds, so send ping every 85 seconds
+	private static final int KEEP_ALIVE_INTERVAL = 85 * 1000;
 	
-	private static final int SHUTDOWN_INTERVAL = 2 * 60 * 1000;
+	private static final int SHUTDOWN_INTERVAL = 60 * 1000;
 	
 	private WebSocketClient wsClient;
 	private boolean isRunning = true;
