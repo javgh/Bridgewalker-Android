@@ -103,4 +103,9 @@ public class ReceiveFragment extends BalanceFragment {
 			innerContentLinearLayout.setVisibility(View.VISIBLE);
 		}
 	};
+
+	@Override
+	public void handleBitcoinURI(BitcoinURI btcURI) {
+		/* ignore */
+	}
 }

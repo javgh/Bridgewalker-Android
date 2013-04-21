@@ -7,4 +7,5 @@ import android.os.Handler.Callback;
 
 public interface BitcoinFragment extends Callback, SendConfirmationDialogListener {
 	public void onActivityResult(int requestCode, int resultCode, Intent intent);
+	public void handleBitcoinURI(BitcoinURI btcURI);
 }

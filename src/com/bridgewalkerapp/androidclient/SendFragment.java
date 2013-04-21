@@ -300,14 +300,19 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
     		return;
     	
 		BitcoinURI btcURI = BitcoinURI.parse(scanResult.getContents());
-		if (btcURI != null) {
-			this.recipientAddressEditText.setText(btcURI.getAddress());
-			if (btcURI.getAmount() > 0) {
-				this.amountEditText.setText(formatBTCForEditText(btcURI.getAmount()));
-				this.btcRadioButton.setChecked(true);
-			}
-		}
+		handleBitcoinURI(btcURI);
     }
+	
+	@Override
+	public void handleBitcoinURI(BitcoinURI btcURI) {
+		if (btcURI == null) return;
+		
+		this.recipientAddressEditText.setText(btcURI.getAddress());
+		if (btcURI.getAmount() > 0) {
+			this.amountEditText.setText(formatBTCForEditText(btcURI.getAmount()));
+			this.btcRadioButton.setChecked(true);
+		}
+	}
 	
 	private android.widget.CompoundButton.OnCheckedChangeListener feesOnTopOnCheckedChangeListener = new android.widget.CompoundButton.OnCheckedChangeListener() {
 		@Override

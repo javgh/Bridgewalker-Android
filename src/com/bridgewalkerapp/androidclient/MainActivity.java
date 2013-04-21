@@ -5,6 +5,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bridgewalkerapp.androidclient.SendConfirmationDialogFragment.SendConfirmationDialogListener;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
@@ -15,6 +16,8 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
 	private ServiceUtils serviceUtils;
 	
 	private BitcoinFragment currentFragment = null;
+	
+	private BitcoinURI btcURI = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,15 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
         		.setText(R.string.receive_tab_label)
         		.setTabListener(new TabListenerUtils<ReceiveFragment>(
         				this, "receive", ReceiveFragment.class)));
+        
+        /* check for bitcoin: intent */
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        Uri intentUri = intent.getData();
+        if (Intent.ACTION_VIEW.equals(action) && intentUri != null
+        		&& "bitcoin".equals(intentUri.getScheme())) {
+        	this.btcURI = BitcoinURI.parse(intentUri.toString());
+        }
     }
 
 	@Override
@@ -69,6 +81,11 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
 	public void registerFragment(BitcoinFragment fragment) {
 		this.currentFragment = fragment;
 		
+		/* pass on a Bitcoin URI, if we received one earlier */
+		if (this.btcURI != null) {
+			this.currentFragment.handleBitcoinURI(this.btcURI);
+			this.btcURI = null;
+		}
 	}
 
 	@Override
