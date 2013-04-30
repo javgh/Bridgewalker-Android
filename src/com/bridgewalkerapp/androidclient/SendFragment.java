@@ -209,15 +209,17 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private void displayQuote(WSQuote quote) {
 		String infoText = null;
 		if (quote != null) {
-			double actualFee =
-					(double)(quote.getUsdAccount() - quote.getUsdRecipient())
-						/ (double)quote.getUsdRecipient();
+			long difference = quote.getUsdAccount() - quote.getUsdRecipient();
+			double actualFee = (double)difference / (double)quote.getUsdRecipient();
 			infoText = resources.getString(
 					R.string.quote_info_text
 					, formatBTC(quote.getBtc())
 					, formatUSD(quote.getUsdRecipient(), Rounding.NO_ROUNDING)
 					, formatUSD(quote.getUsdAccount(), Rounding.NO_ROUNDING)
+					, formatUSD(difference, Rounding.NO_ROUNDING)
 					, actualFee * 100);
+			if (quote.getBtc() < BackendService.SMALL_BTC_AMOUNT)
+				infoText += " " + resources.getString(R.string.quote_warning);
 		} else {
 			infoText = resources.getString(R.string.quote_unavailable);
 		}
@@ -240,13 +242,6 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			if (!this.lastSuccessfulQuote.hasSufficientBalance()) {
 				String hint = this.resources.getString(R.string.insufficient_balance);
 				return new SendPaymentCheck(false, hint);
-			}
-			
-			if (this.lastSuccessfulQuote.getBtc() < BackendService.MINIMUM_BTC_AMOUNT) {
-				String hint = this.resources.getString(R.string.minimum_amount,
-						formatBTC(BackendService.MINIMUM_BTC_AMOUNT));
-				return new SendPaymentCheck(true, hint);	// show warning; but allow user to
-															// try it anyway
 			}
 		}
 		

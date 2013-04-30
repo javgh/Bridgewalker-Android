@@ -25,7 +25,8 @@
 	<string name="recipient_will_receive">Recipient will\nreceive:</string>
 	<string name="deducted_from_your_account">Deducted from\nyour account:</string>
 	<string name="send_payment">Send payment</string>
-	<string name="quote_info_text">Info: Recipient will receive %1$s BTC (~ %2$s USD). From your account %3$s USD will be deducted. This is a difference of about +%4$.2f %%.</string>
+	<string name="quote_info_text">Info: Recipient will receive %1$s BTC (~ %2$s USD). From your account %3$s USD will be deducted. This is a difference of %4$s USD or about +%5$.2f %%.</string>
+	<string name="quote_warning">Note that small transactions have a higher overhead because of fixed transaction fees.</string>
 	<string name="send_payment_confirmation_text_based_on_btc">About to send %1$s BTC to %2$s.</string>
 	<string name="send_payment_confirmation_text_based_on_btc_with_quote">About to send %1$s BTC (~ %2$s USD) to %3$s.</string>
 	<string name="send_payment_confirmation_text_based_on_usd_before_fees">About to send a payment worth %1$s USD to %2$s.</string>
@@ -37,9 +38,7 @@
 	<string name="ok">OK</string>
 	<string name="cancel">Cancel</string>
 	<string name="insufficient_balance">Insufficient balance</string>
-	<string name="minimum_amount">Note: Minimum amount is currently %1$s BTC (except for transactions between Bridgewalker users).</string>
 	<string name="quote_unavailable">Sorry, I was unable to get a quote.</string>
-	<string name="minimum_exchange_amount">Note: Minimum exchange amount is %1$s BTC.</string>
 	<string name="balance">Balance: %1$s USD</string>
 	<string name="waiting_for_exchange">+ %1$s BTC waiting to be exchanged.</string>
 	<string name="waiting_for_confirmation">+ %1$s BTC waiting to be confirmed.</string>

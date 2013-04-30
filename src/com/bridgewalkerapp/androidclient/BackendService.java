@@ -69,7 +69,7 @@ public class BackendService extends Service implements Callback {
 	public static final String SETTING_GUEST_PASSWORD = "SETTING_GUEST_PASSWORD";
 	public static final double BTC_BASE_AMOUNT = Math.pow(10, 8);
 	public static final double USD_BASE_AMOUNT = Math.pow(10, 5);
-	public static final long MINIMUM_BTC_AMOUNT = Math.round(0.01 * BTC_BASE_AMOUNT);
+	public static final long SMALL_BTC_AMOUNT = Math.round(0.01 * BTC_BASE_AMOUNT);
 	
 	//private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
 	private static final String BRIDGEWALKER_URI = "wss://www.bridgewalkerapp.com/backend";

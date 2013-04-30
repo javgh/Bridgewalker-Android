@@ -84,13 +84,6 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		pendingEvents.addAll(formatPendingTxs(this.currentStatus.getPendingTxs(),
 												this.currentStatus.getExchangeRate()));
 		
-		if (this.currentStatus.getBtcIn() > 0
-				&& this.currentStatus.getBtcIn() < BackendService.MINIMUM_BTC_AMOUNT) {
-			String note = this.resources.getString(R.string.minimum_exchange_amount,
-							formatBTC(BackendService.MINIMUM_BTC_AMOUNT));
-			pendingEvents.add(note);
-		}
-		
 		if (pendingEvents.size() > 0) {
 			StringBuilder sb = new StringBuilder();
 			String separator = "";
