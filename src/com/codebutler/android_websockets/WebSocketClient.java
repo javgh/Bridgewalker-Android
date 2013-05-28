@@ -38,6 +38,8 @@ public class WebSocketClient {
     private HybiParser               mParser;
 
     private final Object mSendLock = new Object();
+    
+    private boolean isShuttingDown = false;
 
     public WebSocketClient(URI uri, Listener listener, List<BasicNameValuePair> extraHeaders) {
         mURI          = uri;
@@ -126,8 +128,10 @@ public class WebSocketClient {
                     mListener.onDisconnect(0, "SSL; " + ex);
 
                 } catch (Exception ex) {
-                	if (DEBUG_LOG) Log.d(TAG, "Exception in WebSocketClient thread; calling onError()");
-                    mListener.onError(ex);
+                	if (!isShuttingDown) {
+                		if (DEBUG_LOG) Log.d(TAG, "Exception in WebSocketClient thread; calling onError()");
+                		mListener.onError(ex);
+                	} /* else: ignore expected exception */
                 }
             }
         });
@@ -140,6 +144,7 @@ public class WebSocketClient {
                 @Override
                 public void run() {
                     try {
+                    	isShuttingDown = true;
                         mSocket.close();
                         mSocket = null;
                     } catch (IOException ex) {
