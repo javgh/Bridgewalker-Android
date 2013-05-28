@@ -52,6 +52,10 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
 	@Override
 	protected void onStart() {
 		super.onStart();
+		
+		if (!this.serviceUtils.hasCredentials())
+			switchToLoginActivity();
+		
 		this.serviceUtils.bindService();
 	}
 	
@@ -59,6 +63,11 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
 	protected void onStop() {
 		super.onStop();
 		this.serviceUtils.unbindService();
+	}
+	
+	private void switchToLoginActivity() {
+		Intent intent = new Intent(this, LoginActivity.class);
+		startActivity(intent);		
 	}
 	
 	@Override

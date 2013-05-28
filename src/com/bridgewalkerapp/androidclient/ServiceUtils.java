@@ -39,6 +39,10 @@ public class ServiceUtils {
 		this.commandQueue = new LinkedList<Message>();
 	}
 	
+	public boolean hasCredentials() {
+		return this.settings.contains(BackendService.SETTING_GUEST_ACCOUNT);
+	}
+	
 	public void bindService() {
 		Intent intent = new Intent(this.context, BackendService.class);
 		

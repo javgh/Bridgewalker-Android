@@ -153,6 +153,10 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	}
 	
 	private void displayAndOrRequestQuote() {
+		displayAndOrRequestQuote(true);
+	}
+	
+	private void displayAndOrRequestQuote(boolean enableResumeRestriction) {
 		RequestQuote rq = compileRequestQuote();
 		long adjustedAmount = rq.getAmount();
 		
@@ -162,7 +166,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		}
 		
 		// do not send any requests, if we are not yet fully resumed
-		if (!isResumed())
+		if (enableResumeRestriction && !isResumed())
 			return;
 		
 		// do not send requests too fast
@@ -306,6 +310,9 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		if (btcURI.getAmount() > 0) {
 			this.amountEditText.setText(formatBTCForEditText(btcURI.getAmount()));
 			this.btcRadioButton.setChecked(true);
+			
+			displayAndOrRequestQuote(false);
+			updateSendPaymentButton();
 		}
 	}
 	
