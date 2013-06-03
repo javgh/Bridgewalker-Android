@@ -22,6 +22,7 @@ import com.bridgewalkerapp.androidclient.apidata.Login;
 import com.bridgewalkerapp.androidclient.apidata.Ping;
 import com.bridgewalkerapp.androidclient.apidata.RequestStatus;
 import com.bridgewalkerapp.androidclient.apidata.RequestVersion;
+import com.bridgewalkerapp.androidclient.apidata.WSPong;
 import com.bridgewalkerapp.androidclient.apidata.WSServerVersion;
 import com.bridgewalkerapp.androidclient.apidata.WSStatus;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
@@ -323,6 +324,22 @@ public class BackendService extends Service implements Callback {
 		if (reply.getReplyType() == WebsocketReply.TYPE_WS_STATUS) {
 			this.currentAccountStatus = (WSStatus)reply;
 			sendToAllClients(MSG_ACCOUNT_STATUS, this.currentAccountStatus);
+		}
+		
+		if (reply.getReplyType() == WebsocketReply.TYPE_WS_PONG) {
+			long exchangeRate = ((WSPong)reply).getExchangeRate();
+			
+			// update account status and inform all clients if:
+			//  - we already have an account status
+			//  - we received a proper exchange rate
+			//  - and it is different than the one we already have
+			if (this.currentAccountStatus != null
+					&& exchangeRate != 0
+					&& this.currentAccountStatus.getExchangeRate() != exchangeRate) {
+				this.currentAccountStatus.setExchangeAvailable(true);
+				this.currentAccountStatus.setExchangeRate(exchangeRate);
+				sendToAllClients(MSG_ACCOUNT_STATUS, this.currentAccountStatus);
+			}
 		}
 		
 		// see if this is a reply to a specific request

@@ -75,7 +75,8 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 			return;
 		
 		this.usdBalanceTextView.setText(
-				formatUSDBalance(this.currentStatus.getUsdBalance()));
+				formatBalance(this.currentStatus.getUsdBalance(),
+								this.currentStatus.getExchangeRate()));
 		
 		List<String> pendingEvents = new ArrayList<String>();
 		String btcIn = formatBTCIn(this.currentStatus.getBtcIn(),
@@ -104,9 +105,17 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	
 	abstract protected void displayStatusHook();
 	
-	private String formatUSDBalance(long usdBalance) {
-		return this.resources.getString(R.string.balance, formatUSD(usdBalance, Rounding.ROUND_DOWN));
-	}	
+	private String formatBalance(long usdBalance, long exchangeRate) {
+		if (exchangeRate != 0) {
+			return this.resources.getString(R.string.balance
+					, calcAndFormatBTCEquivalent(usdBalance, exchangeRate)
+					, formatUSD(usdBalance, Rounding.ROUND_DOWN));
+		} else {
+			return this.resources.getString(R.string.balance
+					, "?"
+					, formatUSD(usdBalance, Rounding.ROUND_DOWN));
+		}
+	}
 	
 	private String formatBTCIn(long btcIn, long exchangeRate) {
 		if (btcIn == 0) return null;
@@ -136,6 +145,13 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 			result.add(msg);
 		}
 		return result;
+	}
+	
+	protected String calcAndFormatBTCEquivalent(long usd, long exchangeRate) {
+		long btcEquivalent = Math.round(
+								((double)usd / (double)exchangeRate)
+								* BackendService.BTC_BASE_AMOUNT);
+		return formatBTC(btcEquivalent);
 	}
 	
 	protected String calcAndFormatUSDEquivalent(long btc, long exchangeRate) {

@@ -22,6 +22,7 @@ public abstract class WebsocketReply {
 	public static final int TYPE_WS_QUOTE = 6;
 	public static final int TYPE_WS_SEND_FAILED = 7;
 	public static final int TYPE_WS_SEND_SUCCESSFUL = 8;
+	public static final int TYPE_WS_PONG = 9;
 	
 	private static ObjectMapper mapper = new ObjectMapper(); 
 	
@@ -80,7 +81,13 @@ public abstract class WebsocketReply {
 				WSSendSuccessful wsSS =
 						mapper.treeToValue(json, WSSendSuccessful.class);
 				return wsSS;
-			}					
+			}
+			
+			if (json.get("reply").asText().equals("pong")) {
+				WSPong wsP =
+						mapper.treeToValue(json, WSPong.class);
+				return wsP;
+			}
 			
 			if (json.get("reply").asText().equals("status")) {
 				JsonNode statusJSON = json.get("status");

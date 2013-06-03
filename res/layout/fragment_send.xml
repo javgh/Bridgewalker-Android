@@ -129,18 +129,17 @@
 			        		android:orientation="horizontal" >
 			 
 					        <RadioButton
-					            android:id="@+id/usd_radiobutton"
-					            android:layout_width="wrap_content"
-					            android:layout_height="wrap_content"
-					            android:text="@string/usd" 
-					            android:checked="true"
-					             />
-					 
-					        <RadioButton
 					            android:id="@+id/btc_radiobutton"
 					            android:layout_width="wrap_content"
 					            android:layout_height="wrap_content"
-					            android:text="@string/btc" />
+					            android:text="@string/btc"
+					            android:checked="true" />
+					        
+					        <RadioButton
+					            android:id="@+id/usd_radiobutton"
+					            android:layout_width="wrap_content"
+					            android:layout_height="wrap_content"
+					            android:text="@string/usd" /> 
 					    </RadioGroup>	           	
 					</LinearLayout>    		 
 	
@@ -149,7 +148,8 @@
 				        android:layout_width="wrap_content"
 				        android:layout_height="wrap_content"
 				        android:text="@string/fees_on_top"
-				        android:checked="true" />
+				        android:checked="true"
+				        android:enabled="false" />
 		        
 		            <TextView 
 				        android:id="@+id/info_textview"
