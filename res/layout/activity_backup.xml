@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".BackupActivity" >
+    
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:padding="16dp"
+	    android:orientation="vertical">
+		
+	   	<TextView
+		        android:id="@+id/guest_backup_description_textview"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="bottom"
+		        android:text="@string/guest_backup_description"
+		        />
+	   	
+	   	<TextView 
+	   	    android:id="@+id/guest_credentials_textview"
+	   	    android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text=""
+			android:textAlignment="center"
+			android:paddingTop="16dp"
+			android:paddingLeft="32dp"
+			android:paddingBottom="16dp"
+			/>
+	   	
+		<RelativeLayout
+		    android:id="@+id/guest_backup_buttons_relativelayout"
+			android:layout_width="match_parent"
+	    	android:layout_height="wrap_content"
+	    	android:gravity="center"
+	    	android:orientation="horizontal">
+	
+		    <Button
+		        android:id="@+id/show_credentials_button"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_centerVertical="true"
+		        android:text="@string/show_credentials" />
+		    		    
+		    <Button
+		        android:id="@+id/copy_credentials_button"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_toRightOf="@id/show_credentials_button"
+		        android:text="@string/copy_credentials" />
+		</RelativeLayout>   	
+	</LinearLayout>
+</ScrollView>

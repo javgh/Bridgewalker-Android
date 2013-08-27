@@ -45,4 +45,16 @@
 	<string name="waiting_for_exchange_with_usd">+ %1$s BTC (~ %2$s USD) waiting to be exchanged.</string>
 	<string name="waiting_for_confirmation_with_usd">+ %1$s BTC (~ %2$s USD) waiting to be confirmed.</string>
 	<string name="exchange_unavailable">The server is currently experiencing communication problems with Mt.Gox. Sending payments will probably not work, sorry.</string>
+	<string name="backup_guest_account">Backup</string>
+	<string name="guest_backup_description">Below you can find the login credentials to your guest account. Please write them down somewhere safe to be protected in case your phone is lost or breaks.\n\nThis is a preliminary backup function while Bridgewalker is in beta and full accounts are not implemented yet. There is no automatic restore function yet. If you need to make use of your backup, please get in touch at jan@uos.de and I will restore your account.</string>
+	<string name="show_credentials">Show credentials</string>
+	<string name="hide_credentials">Hide credentials</string>
+	<string name="copy_credentials">Copy credentials</string>
+	<string name="guest_credentials">Login:\n%1$s\n\nPassword:\n%2$s\n\nLast displayed:\n%3$s</string>
+	<string name="never">never</string>
+	<string name="timespan_now">just now</string>
+	<string name="timespan_seconds">seconds ago</string>
+	<string name="timespan_minutes">more than a minute ago</string>
+	<string name="timespan_hours">more than an hour ago</string>
+	<string name="timespan_days">more than a day ago</string>
 </resources>

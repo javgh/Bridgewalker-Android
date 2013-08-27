@@ -37,6 +37,12 @@
                 <data android:scheme="bitcoin"/>
            </intent-filter>
 		</activity>
+		<activity
+            android:name=".BackupActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:label="@string/activity_title" >
+        </activity>
         <service android:name=".BackendService" />
     </application>
 

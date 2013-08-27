@@ -2,6 +2,9 @@ package com.bridgewalkerapp.androidclient;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.bridgewalkerapp.androidclient.SendConfirmationDialogFragment.SendConfirmationDialogListener;
 
 import android.content.Intent;
@@ -48,6 +51,13 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
         	this.btcURI = BitcoinURI.parse(intentUri.toString());
         }
     }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getSupportMenuInflater();
+    	inflater.inflate(R.menu.app_menu, menu);
+    	return true;
+    }
 
 	@Override
 	protected void onStart() {
@@ -68,6 +78,19 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
 	private void switchToLoginActivity() {
 		Intent intent = new Intent(this, LoginActivity.class);
 		startActivity(intent);		
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	        case R.id.guest_account_backup:
+	        	Intent intent = new Intent(this, BackupActivity.class);
+	        	startActivity(intent);
+	        	return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
 	}
 	
 	@Override

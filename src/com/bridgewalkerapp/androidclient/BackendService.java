@@ -68,6 +68,7 @@ public class BackendService extends Service implements Callback {
 	public static final String BRIDGEWALKER_PREFERENCES_FILE = "bridgewalker_preferences";
 	public static final String SETTING_GUEST_ACCOUNT = "SETTING_GUEST_ACCOUNT";
 	public static final String SETTING_GUEST_PASSWORD = "SETTING_GUEST_PASSWORD";
+	public static final String SETTING_LAST_BACKUP = "SETTING_LAST_BACKUP";
 	public static final double BTC_BASE_AMOUNT = Math.pow(10, 8);
 	public static final double USD_BASE_AMOUNT = Math.pow(10, 5);
 	public static final long SMALL_BTC_AMOUNT = Math.round(0.01 * BTC_BASE_AMOUNT);
