@@ -94,8 +94,6 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.feesOnTop.setOnCheckedChangeListener(this.feesOnTopOnCheckedChangeListener);
 		this.sendPaymentButton.setOnClickListener(this.sendPaymentButtonOnClickListener);
 		
-		this.resources = getResources();
-		
 		return view;
 	}
 
@@ -104,7 +102,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		if (this.currentStatus.isExchangeAvailable()) {
 			this.exchangeStatusTextView.setText("");
 		} else {
-			this.exchangeStatusTextView.setText(this.resources.getString(R.string.exchange_unavailable));
+			this.exchangeStatusTextView.setText(getString(R.string.exchange_unavailable));
 		}
 	}
 	
@@ -215,16 +213,16 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		if (quote != null) {
 			long difference = quote.getUsdAccount() - quote.getUsdRecipient();
 			double actualFee = (double)difference / (double)quote.getUsdRecipient();
-			infoText = resources.getString(
+			infoText = getString(
 					R.string.quote_info_text
 					, formatBTC(quote.getBtc())
 					, formatUSD(quote.getUsdRecipient(), Rounding.ROUND_DOWN)
 					, formatUSD(difference, Rounding.NO_ROUNDING)
 					, actualFee * 100);
 			if (quote.getBtc() < BackendService.SMALL_BTC_AMOUNT)
-				infoText += " " + resources.getString(R.string.quote_warning);
+				infoText += " " + getString(R.string.quote_warning);
 		} else {
-			infoText = resources.getString(R.string.quote_unavailable);
+			infoText = getString(R.string.quote_unavailable);
 		}
 			
 		infoTextView.setText(infoText);
@@ -243,7 +241,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		RequestQuote rq = compileRequestQuote();
 		if (rq.isSameRequest(this.lastSuccessfulRequestQuote) && lastSuccessfulQuote != null) {
 			if (!this.lastSuccessfulQuote.hasSufficientBalance()) {
-				String hint = this.resources.getString(R.string.insufficient_balance);
+				String hint = getString(R.string.insufficient_balance);
 				return new SendPaymentCheck(false, hint);
 			}
 		}
@@ -415,33 +413,33 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			switch (type) {
 				case AMOUNT_BASED_ON_BTC:
 					if (quote == null)
-						message = resources.getString(
+						message = getString(
 								R.string.send_payment_confirmation_text_based_on_btc
 								, formatBTC(adjustedAmount), address);
 					else
-						message = resources.getString(
+						message = getString(
 								R.string.send_payment_confirmation_text_based_on_btc_with_quote
 								, formatBTC(adjustedAmount)
 								, formatUSD(quote.getUsdRecipient(), Rounding.NO_ROUNDING), address);
 					break;
 				case AMOUNT_BASED_ON_USD_BEFORE_FEES:
 					if (quote == null)
-						message = resources.getString(
+						message = getString(
 								R.string.send_payment_confirmation_text_based_on_usd_before_fees
 								, formatUSD(adjustedAmount, Rounding.NO_ROUNDING), address);
 					else
-						message = resources.getString(
+						message = getString(
 								R.string.send_payment_confirmation_text_based_on_usd_before_fees_with_quote
 								, formatUSD(adjustedAmount, Rounding.NO_ROUNDING)
 								, formatBTC(quote.getBtc()), address);
 					break;
 				case AMOUNT_BASED_ON_USD_AFTER_FEES:
 					if (quote == null)
-						message = resources.getString(
+						message = getString(
 								R.string.send_payment_confirmation_text_based_on_usd_after_fees
 								, formatUSD(adjustedAmount, Rounding.NO_ROUNDING), address);
 					else
-						message = resources.getString(
+						message = getString(
 								R.string.send_payment_confirmation_text_based_on_usd_after_fees_with_quote
 								, formatUSD(adjustedAmount, Rounding.NO_ROUNDING)
 								, formatBTC(quote.getBtc()), address);
@@ -462,7 +460,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			public void run(WebsocketReply reply) {
 				if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_FAILED) {
 					WSSendFailed wsSF = (WSSendFailed)reply;
-					String message = resources.getString(R.string.send_payment_error)
+					String message = getString(R.string.send_payment_error)
 											+ " " + wsSF.getReason(); 
 					SherlockDialogFragment dialog = ErrorMessageDialogFragment.newInstance(message);
 					dialog.show(getActivity().getSupportFragmentManager(), "errormessage");

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import android.content.res.Resources;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -30,8 +29,6 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	protected BitcoinFragmentHost parentActivity = null;
 		
 	protected WSStatus currentStatus = null;
-	
-	protected Resources resources = null;
 	
 	@Override
 	public void onStart() {
@@ -107,11 +104,11 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	
 	private String formatBalance(long usdBalance, long exchangeRate) {
 		if (exchangeRate != 0) {
-			return this.resources.getString(R.string.balance
+			return getString(R.string.balance
 					, calcAndFormatBTCEquivalent(usdBalance, exchangeRate)
 					, formatUSD(usdBalance, Rounding.ROUND_DOWN));
 		} else {
-			return this.resources.getString(R.string.balance
+			return getString(R.string.balance
 					, "?"
 					, formatUSD(usdBalance, Rounding.ROUND_DOWN));
 		}
@@ -121,11 +118,11 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		if (btcIn == 0) return null;
 		
 		if (exchangeRate != 0) {
-			return this.resources.getString(R.string.waiting_for_exchange_with_usd
+			return getString(R.string.waiting_for_exchange_with_usd
 					, formatBTC(btcIn)
 					, calcAndFormatUSDEquivalent(btcIn, exchangeRate));
 		} else {
-			return this.resources.getString(R.string.waiting_for_exchange, formatBTC(btcIn));
+			return getString(R.string.waiting_for_exchange, formatBTC(btcIn));
 		}
 	}
 	
@@ -134,11 +131,11 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		for (PendingTransaction pendingTx : pendingTxs) {
 			String msg = "";
 			if (exchangeRate != 0) {
-				msg = this.resources.getString(R.string.waiting_for_confirmation_with_usd
+				msg = getString(R.string.waiting_for_confirmation_with_usd
 						, formatBTC(pendingTx.getAmount()) 
 						, calcAndFormatUSDEquivalent(pendingTx.getAmount(), exchangeRate));
 			} else {
-				msg = this.resources.getString(R.string.waiting_for_confirmation
+				msg = getString(R.string.waiting_for_confirmation
 						, formatBTC(pendingTx.getAmount()));
 			}
 			
