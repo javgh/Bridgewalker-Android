@@ -105,11 +105,11 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	private String formatBalance(long usdBalance, long exchangeRate) {
 		if (exchangeRate != 0) {
 			return getString(R.string.balance
+					, formatUSD(usdBalance, Rounding.ROUND_DOWN)
 					, calcAndFormatBTCEquivalent(usdBalance, exchangeRate)
-					, formatUSD(usdBalance, Rounding.ROUND_DOWN));
+					);
 		} else {
-			return getString(R.string.balance
-					, "?"
+			return getString(R.string.balance_without_btc
 					, formatUSD(usdBalance, Rounding.ROUND_DOWN));
 		}
 	}

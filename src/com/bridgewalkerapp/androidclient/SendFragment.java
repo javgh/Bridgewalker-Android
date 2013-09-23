@@ -217,6 +217,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 					R.string.quote_info_text
 					, formatBTC(quote.getBtc())
 					, formatUSD(quote.getUsdRecipient(), Rounding.ROUND_DOWN)
+					, formatUSD(quote.getUsdAccount(), Rounding.ROUND_DOWN)
 					, formatUSD(difference, Rounding.NO_ROUNDING)
 					, actualFee * 100);
 			if (quote.getBtc() < BackendService.SMALL_BTC_AMOUNT)
