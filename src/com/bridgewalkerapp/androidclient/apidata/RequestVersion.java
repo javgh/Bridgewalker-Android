@@ -3,7 +3,7 @@ package com.bridgewalkerapp.androidclient.apidata;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 public class RequestVersion extends WebsocketRequest {
-	public static final String BRIDGEWALKER_CLIENT_VERSION = "0.4.1";
+	public static final String BRIDGEWALKER_CLIENT_VERSION = "0.5";
 	
 	public String getOp() {
 		return "request_version";
