@@ -9,10 +9,12 @@ public class BitcoinURI {
 	
 	private String address;
 	private long amount;
+	private String currency;
 
-	public BitcoinURI(String address, long amount) {
+	public BitcoinURI(String address, long amount, String currency) {
 		this.address = address;
 		this.amount = amount;
+		this.currency = currency;
 	}
 	
 	public String getAddress() {
@@ -21,6 +23,10 @@ public class BitcoinURI {
 	
 	public long getAmount() {
 		return amount;
+	}
+	
+	public String getCurrency() {
+		return currency;
 	}
 	
 	public static BitcoinURI parse(String uriString) {
@@ -33,14 +39,17 @@ public class BitcoinURI {
 			String queryPart = matcher.group(5);	// might be null
 			
 			if (queryPart == null)
-				return new BitcoinURI(bitcoinAddress, 0);
+				return new BitcoinURI(bitcoinAddress, 0, "BTC");
 
-			// try to parse amount
+			// try to parse amount & currency
 			long amount = 0;
-			Pattern subpattern = Pattern.compile("amount=(.*)");
+			String currency = "BTC";
+			Pattern amountSubpattern = Pattern.compile("amount=(.*)");
+			Pattern currencySubpattern = Pattern.compile("currency=(.*)");
 			String[] parameters = queryPart.split("&");
 			for (String parameter : parameters) {
-				Matcher submatcher = subpattern.matcher(parameter);
+				// amount
+				Matcher submatcher = amountSubpattern.matcher(parameter);
 				if (submatcher.matches()) {
 					String asString = submatcher.group(1);
 					try {
@@ -48,8 +57,15 @@ public class BitcoinURI {
 						amount = Math.round(asDouble * BTC_BASE_AMOUNT);
 					} catch (NumberFormatException e) { /* ignore */ }
 				}
+				
+				// currency
+				submatcher = currencySubpattern.matcher(parameter);
+				if (submatcher.matches()) {
+					currency = submatcher.group(1);
+				}
 			}
-			return new BitcoinURI(bitcoinAddress, amount);
+			
+			return new BitcoinURI(bitcoinAddress, amount, currency);
 		} else {
 			return null;
 		}

@@ -6,9 +6,14 @@ import junit.framework.TestCase;
 
 public class BitcoinURITest extends TestCase {
 	private void helper(String input, String expectedAddress, long expectedAmount) {
+		helper(input, expectedAddress, expectedAmount, "BTC");
+	}
+	
+	private void helper(String input, String expectedAddress, long expectedAmount, String expectedCurrency) {
 		BitcoinURI uri = BitcoinURI.parse(input);
 		assertEquals(expectedAddress, uri.getAddress());
 		assertEquals(expectedAmount, uri.getAmount());
+		assertEquals(expectedCurrency, uri.getCurrency());
 	}
 	
 	public void testStandardFormat() {
@@ -61,5 +66,16 @@ public class BitcoinURITest extends TestCase {
 		
 		helper("14Z1mazY4HfysZyMaKudFr63EwHqQT2njz?desc=test&amount=1&desc=test",
 				"14Z1mazY4HfysZyMaKudFr63EwHqQT2njz", 100000000L);
+	}
+	
+	public void testCurrencyParameter() {
+		helper("14Z1mazY4HfysZyMaKudFr63EwHqQT2njz?amount=1&currency=BTC",
+				"14Z1mazY4HfysZyMaKudFr63EwHqQT2njz", 100000000L);
+		
+		helper("14Z1mazY4HfysZyMaKudFr63EwHqQT2njz?amount=1&currency=EUR",
+				"14Z1mazY4HfysZyMaKudFr63EwHqQT2njz", 100000000L, "EUR");
+		
+		helper("14Z1mazY4HfysZyMaKudFr63EwHqQT2njz?currency=USD&amount=1",
+				"14Z1mazY4HfysZyMaKudFr63EwHqQT2njz", 100000000L, "USD");
 	}
 }

@@ -95,7 +95,7 @@ public class ServiceUtils {
 		RequestAndRunnable randr = new RequestAndRunnable(request, runnable);
 		msg.obj = randr;
 		
-		if (this.serviceMessenger != null) { 
+		if (this.isServiceBound && this.serviceMessenger != null) { 
 			try {
 				this.serviceMessenger.send(msg);
 			} catch (RemoteException e) {

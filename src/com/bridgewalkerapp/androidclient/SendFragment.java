@@ -46,6 +46,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private EditText amountEditText = null;
 	private Button scanButton = null;
 	private RadioButton btcRadioButton = null;
+	private RadioButton usdRadioButton = null;
 	private RadioGroup currencyRadioGroup = null;
 	private CheckBox feesOnTop = null;
 	private TextView infoTextView = null;
@@ -78,6 +79,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.amountEditText = (EditText)view.findViewById(R.id.amount_edittext);
 		this.scanButton = (Button)view.findViewById(R.id.scan_button);
 		this.btcRadioButton = (RadioButton)view.findViewById(R.id.btc_radiobutton);
+		this.usdRadioButton = (RadioButton)view.findViewById(R.id.usd_radiobutton);
 		this.currencyRadioGroup = (RadioGroup)view.findViewById(R.id.currency_radiogroup);
 		this.feesOnTop = (CheckBox)view.findViewById(R.id.fees_on_top_checkbox);
 		this.infoTextView = (TextView)view.findViewById(R.id.info_textview);
@@ -154,7 +156,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		displayAndOrRequestQuote(true);
 	}
 	
-	private void displayAndOrRequestQuote(boolean enableResumeRestriction) {
+	private void displayAndOrRequestQuote(boolean beCareful) {
 		RequestQuote rq = compileRequestQuote();
 		long adjustedAmount = rq.getAmount();
 		
@@ -164,16 +166,16 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		}
 		
 		// do not send any requests, if we are not yet fully resumed
-		if (enableResumeRestriction && !isResumed())
+		if (beCareful && !isResumed())
 			return;
 		
 		// do not send requests too fast
-		if (System.currentTimeMillis() - this.lastRequestQuoteTimestamp
+		if (beCareful && System.currentTimeMillis() - this.lastRequestQuoteTimestamp
 				< REPEAT_REQUEST_QUOTE_INTERVAL)
 			return;
 		
 		// do not send the same request again
-		if (rq.isSameRequest(this.lastSuccessfulRequestQuote))
+		if (beCareful && rq.isSameRequest(this.lastSuccessfulRequestQuote))
 			return;
 		
 		// do not send requests for 0
@@ -307,7 +309,13 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.recipientAddressEditText.setText(btcURI.getAddress());
 		if (btcURI.getAmount() > 0) {
 			this.amountEditText.setText(formatBTCForEditText(btcURI.getAmount()));
-			this.btcRadioButton.setChecked(true);
+			
+			if (btcURI.getCurrency().equalsIgnoreCase("EUR")) {
+				this.usdRadioButton.setChecked(true);
+				this.feesOnTop.setChecked(true);
+			} else {
+				this.btcRadioButton.setChecked(true);
+			}
 			
 			displayAndOrRequestQuote(false);
 			updateSendPaymentButton();
