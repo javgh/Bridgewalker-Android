@@ -9,6 +9,7 @@ import com.bridgewalkerapp.androidclient.SendConfirmationDialogFragment.SendConf
 
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Handler.Callback;
 import android.os.Message;
@@ -47,6 +48,10 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
         String action = intent.getAction();
         Uri intentUri = intent.getData();
         if (Intent.ACTION_VIEW.equals(action) && intentUri != null
+        		&& "bitcoin".equals(intentUri.getScheme())) {
+        	this.btcURI = BitcoinURI.parse(intentUri.toString());
+        }
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action) && intentUri != null
         		&& "bitcoin".equals(intentUri.getScheme())) {
         	this.btcURI = BitcoinURI.parse(intentUri.toString());
         }

@@ -74,6 +74,7 @@ public class BackendService extends Service implements Callback {
 	public static final long SMALL_BTC_AMOUNT = Math.round(0.01 * BTC_BASE_AMOUNT);
 	
 	//private static final String BRIDGEWALKER_URI = "ws://192.168.1.6:8000/backend";
+	//private static final String BRIDGEWALKER_URI = "ws://192.168.0.109:8080/backend";
 	private static final String BRIDGEWALKER_URI = "wss://www.bridgewalkerapp.com/backend";
 	private static final int MAX_ERROR_WAIT_TIME = 15 * 1000;
 	private static final int INITIAL_ERROR_WAIT_TIME = 1 * 1000;
