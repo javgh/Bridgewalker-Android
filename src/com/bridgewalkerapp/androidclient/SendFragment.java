@@ -11,6 +11,7 @@ import com.bridgewalkerapp.androidclient.apidata.SendPayment;
 import com.bridgewalkerapp.androidclient.apidata.WSQuote;
 import com.bridgewalkerapp.androidclient.apidata.WSQuoteUnavailable;
 import com.bridgewalkerapp.androidclient.apidata.WSSendFailed;
+import com.bridgewalkerapp.androidclient.apidata.WSSendSuccessful;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest.AmountType;
 import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
@@ -18,6 +19,7 @@ import com.bridgewalkerapp.androidclient.data.SendPaymentCheck;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -64,6 +66,9 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	
 	private SendPayment lastSendPayment = null;
 	
+	private BluetoothAdapter bluetoothAdapter = null;
+	private String lastBluetoothAddress = null;
+	
 	private List<RequestQuote> pendingRequests = new ArrayList<RequestQuote>();
 	
 	@Override
@@ -95,6 +100,8 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.currencyRadioGroup.setOnCheckedChangeListener(this.currencyOnCheckedChangeListener);
 		this.feesOnTop.setOnCheckedChangeListener(this.feesOnTopOnCheckedChangeListener);
 		this.sendPaymentButton.setOnClickListener(this.sendPaymentButtonOnClickListener);
+		
+		this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		
 		return view;
 	}
@@ -317,6 +324,8 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 				this.btcRadioButton.setChecked(true);
 			}
 			
+			this.lastBluetoothAddress = btcURI.getBluetoothAddress();
+			
 			displayAndOrRequestQuote(false);
 			updateSendPaymentButton();
 		}
@@ -478,6 +487,11 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 				if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_SUCCESSFUL) {
 					recipientAddressEditText.setText("");
 					amountEditText.setText("");
+					
+					WSSendSuccessful wsSS = (WSSendSuccessful)reply;
+					if (wsSS.getTx() != null && lastBluetoothAddress != null)
+						maybeBroadcastViaBluetooth(wsSS.getTx(), lastBluetoothAddress);
+					
 					Toast.makeText(getActivity()
 							, R.string.send_payment_success, Toast.LENGTH_SHORT).show();
 				}
@@ -485,5 +499,21 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 				setSendPaymentControlsState(true);
 			}
 		});
+	}
+	
+	private void maybeBroadcastViaBluetooth(final String tx, final String bluetoothAddress) {
+		if (bluetoothAdapter == null)
+			return;
+		
+		if (!bluetoothAdapter.isEnabled())
+			return;
+		
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				BluetoothUtils.broadcastTransaction(bluetoothAdapter, bluetoothAddress, tx);
+			}
+		};
+		new Thread(runnable).start();
 	}
 }

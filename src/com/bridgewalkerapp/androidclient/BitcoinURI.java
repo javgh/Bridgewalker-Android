@@ -10,11 +10,17 @@ public class BitcoinURI {
 	private String address;
 	private long amount;
 	private String currency;
-
+	private String bluetoothAddress;
+	
 	public BitcoinURI(String address, long amount, String currency) {
+		this(address, amount, currency, null);
+	}
+
+	public BitcoinURI(String address, long amount, String currency, String bluetoothAddress) {
 		this.address = address;
 		this.amount = amount;
 		this.currency = currency;
+		this.bluetoothAddress = bluetoothAddress;
 	}
 	
 	public String getAddress() {
@@ -29,6 +35,10 @@ public class BitcoinURI {
 		return currency;
 	}
 	
+	public String getBluetoothAddress() {
+		return bluetoothAddress;
+	}
+	
 	public static BitcoinURI parse(String uriString) {
 		Pattern pattern = Pattern.compile("(bitcoin:(//)?)?([^?]*)(\\?(.*))?");
 		Matcher matcher = pattern.matcher(uriString);
@@ -41,11 +51,13 @@ public class BitcoinURI {
 			if (queryPart == null)
 				return new BitcoinURI(bitcoinAddress, 0, "BTC");
 
-			// try to parse amount & currency
+			// try to parse amount, currency and bluetooth address
 			long amount = 0;
 			String currency = "BTC";
+			String bluetoothAddress = null;
 			Pattern amountSubpattern = Pattern.compile("amount=(.*)");
 			Pattern currencySubpattern = Pattern.compile("currency=(.*)");
+			Pattern bluetoothSubpattern = Pattern.compile("bt=(.*)");
 			String[] parameters = queryPart.split("&");
 			for (String parameter : parameters) {
 				// amount
@@ -63,9 +75,15 @@ public class BitcoinURI {
 				if (submatcher.matches()) {
 					currency = submatcher.group(1);
 				}
+				
+				// bluetooth address
+				submatcher = bluetoothSubpattern.matcher(parameter);
+				if (submatcher.matches()) {
+					bluetoothAddress = submatcher.group(1);
+				}
 			}
 			
-			return new BitcoinURI(bitcoinAddress, amount, currency);
+			return new BitcoinURI(bitcoinAddress, amount, currency, bluetoothAddress);
 		} else {
 			return null;
 		}
