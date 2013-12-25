@@ -160,15 +160,14 @@
 				        android:text="@string/fees_on_top"
 				        android:checked="true"
 				        android:enabled="false" />
-		        
-		            <TextView 
-				        android:id="@+id/info_textview"
-		                android:layout_width="match_parent"
-				        android:layout_height="wrap_content"
-				        android:text=""
-				        />
 		    	</LinearLayout>
 		    </LinearLayout>
+		    
+			<WebView
+			    android:id="@+id/info_webview"
+			    android:layout_width="match_parent"
+		        android:layout_height="125dp"
+			    />
 		    
 			<RelativeLayout 
 			    android:layout_width="match_parent"

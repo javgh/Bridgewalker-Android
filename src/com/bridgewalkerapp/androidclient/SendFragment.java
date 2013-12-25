@@ -22,6 +22,7 @@ import com.bridgewalkerapp.androidclient.data.SendPaymentCheck;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,6 +32,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -46,6 +49,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	// only send new requests when either this time has
 	// passed or the previous result has been received
 	private static int REPEAT_REQUEST_QUOTE_INTERVAL = 3 * 1000;
+	private static String INFO_DIAGRAM = "file:///android_asset/info_diagram.html";
 	
 	private EditText recipientAddressEditText = null;
 	private EditText amountEditText = null;
@@ -54,12 +58,14 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private RadioButton usdRadioButton = null;
 	private RadioGroup currencyRadioGroup = null;
 	private CheckBox feesOnTop = null;
-	private TextView infoTextView = null;
+	private WebView infoWebView = null;
 	private ProgressBar sendPaymentProgressBar = null;
 	private LinearLayout sendPaymentLinearLayout = null;
 	private Button sendPaymentButton = null;
 	private TextView sendPaymentHintTextView = null;
 	private TextView exchangeStatusTextView = null;
+	
+	private boolean webViewInitialized = false;
 	
 	private long nextRequestId = 0;
 	private long lastRequestQuoteTimestamp = 0;
@@ -75,11 +81,12 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	
 	private List<RequestQuote> pendingRequests = new ArrayList<RequestQuote>();
 	
+	@SuppressLint("SetJavaScriptEnabled")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_send, container, false);
-		
+
 		this.progressBar = (ProgressBar)view.findViewById(R.id.send_fragment_progressbar);
 		this.contentLinearLayout = (LinearLayout)view.findViewById(R.id.send_fragment_content_linearlayout);
 		this.usdBalanceTextView = (TextView)view.findViewById(R.id.send_fragment_usd_balance_textview);
@@ -92,7 +99,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.usdRadioButton = (RadioButton)view.findViewById(R.id.usd_radiobutton);
 		this.currencyRadioGroup = (RadioGroup)view.findViewById(R.id.currency_radiogroup);
 		this.feesOnTop = (CheckBox)view.findViewById(R.id.fees_on_top_checkbox);
-		this.infoTextView = (TextView)view.findViewById(R.id.info_textview);
+		this.infoWebView = (WebView)view.findViewById(R.id.info_webview);
 		this.sendPaymentProgressBar = (ProgressBar)view.findViewById(R.id.send_payment_progressbar);
 		this.sendPaymentLinearLayout = (LinearLayout)view.findViewById(R.id.send_payment_linearlayout);
 		this.sendPaymentButton = (Button)view.findViewById(R.id.send_payment_button);
@@ -107,6 +114,11 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.sendPaymentButton.setOnClickListener(this.sendPaymentButtonOnClickListener);
 		
 		this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		
+		this.infoWebView.setFocusable(false);
+		this.infoWebView.getSettings().setJavaScriptEnabled(true);
+		this.infoWebView.loadUrl(INFO_DIAGRAM);
+		this.webViewInitialized = true;
 		
 		return view;
 	}
@@ -223,25 +235,44 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	}
 	
 	private void displayQuote(WSQuote quote) {
-		String infoText = null;
 		if (quote != null) {
 			long difference = quote.getUsdAccount() - quote.getUsdRecipient();
 			double actualFee = (double)difference / (double)quote.getUsdRecipient();
-			infoText = getString(
-					R.string.quote_info_text
-					, formatBTC(quote.getBtc())
-					, formatUSD(quote.getUsdRecipient(), Rounding.ROUND_DOWN)
-					, formatUSD(quote.getUsdAccount(), Rounding.ROUND_DOWN)
-					, formatUSD(difference, Rounding.NO_ROUNDING)
-					, actualFee * 100);
-			if (quote.getBtc() < BackendService.SMALL_BTC_AMOUNT)
-				infoText += " " + getString(R.string.quote_warning);
+			
+			String feeStr = getString(R.string.quote_fee, actualFee * 100, formatUSD(difference, Rounding.NO_ROUNDING));
+			String jsCall = "update_diagram("
+								+ "\"+ " + formatBTC(quote.getBtc()) + " BTC\", "
+								+ quote.getUsdRecipient() + ", \"+ " + formatUSD(quote.getUsdRecipient(), Rounding.ROUND_DOWN) + " EUR\", "
+								+ quote.getUsdAccount() + ", \"- " + formatUSD(quote.getUsdAccount(), Rounding.ROUND_DOWN) + " EUR\", "
+								+ "\"" + feeStr + "\")";
+			
+			updateWebView(jsCall);
 		} else {
-			infoText = getString(R.string.quote_unavailable);
+			hideWebView();
 		}
 			
-		infoTextView.setText(infoText);
 		updateSendPaymentButton();
+	}
+	
+	private void updateWebView(final String jsCall) {
+		infoWebView.setVisibility(View.VISIBLE);
+		if (this.webViewInitialized) {
+			infoWebView.loadUrl("javascript:" + jsCall);
+		} else {
+			infoWebView.setWebViewClient(new WebViewClient(){
+				@Override  
+			    public void onPageFinished(WebView view, String url) {
+					if (!webViewInitialized)
+						infoWebView.loadUrl("javascript:" + jsCall);
+					webViewInitialized = true;
+				}
+			});
+			infoWebView.loadUrl(INFO_DIAGRAM);
+		}
+	}
+	
+	private void hideWebView() {
+		infoWebView.setVisibility(View.GONE);
 	}
 	
 	private SendPaymentCheck isReadyToSendPayment() {
@@ -378,7 +409,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		@Override
 		public void afterTextChanged(Editable s) {
 			if (parseAmount() == 0)
-				infoTextView.setText("");
+				hideWebView();
 			displayAndOrRequestQuote();
 			updateSendPaymentButton();
 		}

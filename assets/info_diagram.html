@@ -1,0 +1,244 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0px;
+                padding: 0px;
+                background:#192426;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container" style="background:#192426"></div>
+        <script src="kinetic-v4.7.4.min.js"></script>
+        <script defer="defer">
+            var padding = 25;
+            var textColumn = 180;
+            var chartColumn = 1000 - textColumn;
+            var strokeWidth = 5;
+            var easing = Kinetic.Easings.StrongEaseOut;
+            var fontSize = 35;
+            var fontSizeFee = 30;
+            var chartHalf = chartColumn / 2;
+            var chartMiddle = textColumn + chartHalf;
+
+            var stage = new Kinetic.Stage({
+                container: 'container'
+            });
+
+            var width = window.innerWidth - 10;
+            var height = window.innerHeight - 10;
+
+            stage.setWidth(width);
+            stage.setHeight(height);
+            stage.setScale(width / 1000)
+            var sectionHeight = stage.getHeight() / (3.3 * stage.getScaleY());
+            var halfBarHeight = sectionHeight / 3
+
+            var layer = new Kinetic.Layer();
+
+            var middleLine = new Kinetic.Line({
+                points: [chartMiddle, sectionHeight / 2,
+                            chartMiddle, 2.5 * sectionHeight],
+                stroke: 'gray',
+                strokeWidth: strokeWidth
+            });
+            layer.add(middleLine);
+
+            var recipientBTCBarX = textColumn;
+            var recipientBarWidth = chartMiddle - textColumn;
+            var recipientBTCBar = new Kinetic.Rect({
+                x: chartMiddle,
+                y: sectionHeight - halfBarHeight,
+                width: 0,
+                height: halfBarHeight * 2,
+                stroke: 'white',
+                strokeWidth: strokeWidth
+            });
+            layer.add(recipientBTCBar);
+
+            var recipientFiatBar = new Kinetic.Rect({
+                x: chartMiddle,
+                y: sectionHeight - halfBarHeight,
+                width: 0,
+                height: halfBarHeight * 2,
+                stroke: 'white',
+                strokeWidth: strokeWidth
+            });
+            layer.add(recipientFiatBar);
+
+            var accountFiatBar = new Kinetic.Rect({
+                x: chartMiddle,
+                y: (sectionHeight * 2) - halfBarHeight,
+                width: 0,
+                height: halfBarHeight * 2,
+                stroke: 'white',
+                strokeWidth: strokeWidth
+            });
+            layer.add(accountFiatBar);
+
+            var textRecipient = new Kinetic.Text({
+                x: padding,
+                y: sectionHeight,
+                text: 'Recipient',
+                fontSize: fontSize,
+                fontFamily: 'Calibri',
+                fill: 'white'
+            });
+            textRecipient.setOffset({
+                y: textRecipient.getHeight() / 2
+            });
+            layer.add(textRecipient);
+
+            var textYou = new Kinetic.Text({
+                x: padding,
+                y: sectionHeight * 2,
+                text: 'You',
+                fontSize: fontSize,
+                fontFamily: 'Calibri',
+                fill: 'white'
+            });
+            textYou.setOffset({
+                y: textYou.getHeight() / 2
+            });
+            layer.add(textYou);
+
+            var feeLine = new Kinetic.Line({
+                points: [0, 0, 1, 1],
+                stroke: 'white',
+                strokeWidth: strokeWidth,
+                visible: false
+            });
+            layer.add(feeLine);
+
+            var markerLine = new Kinetic.Line({
+                points: [0, 0, 1, 1],
+                stroke: 'white',
+                strokeWidth: strokeWidth,
+                visible: false
+            });
+            layer.add(markerLine);
+
+            var textFee = new Kinetic.Text({
+                x: chartMiddle,
+                y: sectionHeight * 3,
+                text: '',
+                fontSize: fontSizeFee,
+                fontFamily: 'Calibri',
+                fill: 'white'
+            });
+            layer.add(textFee);
+
+            var recipientBTCText = new Kinetic.Text({
+                x: chartMiddle,
+                y: sectionHeight,
+                text: '',
+                fontSize: fontSize,
+                fontFamily: 'Calibri',
+                fill: 'white'
+            });
+            layer.add(recipientBTCText);
+
+            var recipientFiatText = new Kinetic.Text({
+                x: chartMiddle,
+                y: sectionHeight,
+                text: '',
+                fontSize: fontSize,
+                fontFamily: 'Calibri',
+                fill: 'white'
+            });
+            layer.add(recipientFiatText);
+
+            var accountFiatText = new Kinetic.Text({
+                x: chartMiddle,
+                y: sectionHeight * 2,
+                text: '',
+                fontSize: fontSize,
+                fontFamily: 'Calibri',
+                fill: 'white'
+            });
+            layer.add(accountFiatText);
+
+            stage.add(layer);
+
+            function update_diagram( recipientBTCStr
+                                   , recipientFiat, recipientFiatStr
+                                   , accountFiat, accountFiatStr
+                                   , feeInfo) {
+                var accountFiatBarWidth = chartHalf - padding;
+                var recipientBarWidth = accountFiatBarWidth *
+                                        (recipientFiat / accountFiat);
+                var differenceWidth = accountFiatBarWidth - recipientBarWidth;
+
+                recipientBTCText.setX(chartMiddle - recipientBarWidth / 2);
+                recipientBTCText.setText(recipientBTCStr);
+                recipientBTCText.setOffset({
+                    x: recipientBTCText.getWidth() / 2,
+                    y: recipientBTCText.getHeight() / 2
+                });
+
+                recipientFiatText.setX(chartMiddle + recipientBarWidth / 2);
+                recipientFiatText.setText(recipientFiatStr);
+                recipientFiatText.setOffset({
+                    x: recipientFiatText.getWidth() / 2,
+                    y: recipientFiatText.getHeight() / 2
+                });
+
+                accountFiatText.setX(chartMiddle + accountFiatBarWidth / 2);
+                accountFiatText.setText(accountFiatStr);
+                accountFiatText.setOffset({
+                    x: accountFiatText.getWidth() / 2,
+                    y: accountFiatText.getHeight() / 2
+                });
+
+                var recipientFiatTween = new Kinetic.Tween({
+                    node: recipientFiatBar,
+                    easing: easing,
+                    width: recipientBarWidth
+                });
+                recipientFiatTween.play();
+
+                var recipientBTCTween = new Kinetic.Tween({
+                    node: recipientBTCBar,
+                    easing: easing,
+                    x: chartMiddle - recipientBarWidth,
+                    width: recipientBarWidth
+                });
+                recipientBTCTween.play();
+
+                var accountFiatTween = new Kinetic.Tween({
+                    node: accountFiatBar,
+                    easing: easing,
+                    x: chartMiddle,
+                    width: accountFiatBarWidth
+                });
+                accountFiatTween.play();
+
+                var feeLineY = 3 * sectionHeight - halfBarHeight;
+                var feeLineStartX = chartMiddle + accountFiatBarWidth - differenceWidth;
+                var feeLineStopX = chartMiddle + accountFiatBarWidth;
+                feeLine.setPoints([feeLineStartX, feeLineY,
+                                    feeLineStopX, feeLineY]);
+                feeLine.setVisible(true);
+
+                var markerLineStartX = feeLineStartX;
+                var markerLineStartY = 3 * sectionHeight;
+                var markerLineStopX = feeLineStartX +
+                                        (feeLineStopX - feeLineStartX) / 2;
+                var markerLineStopY = (feeLineY + markerLineStartY) / 2;
+                markerLine.setPoints([markerLineStartX, markerLineStartY,
+                                        markerLineStopX, markerLineStopY]);
+                markerLine.setVisible(true);
+
+                textFee.setX(markerLineStartX - padding);
+                textFee.setText(feeInfo);
+                textFee.setOffset({
+                    x: textFee.getWidth(),
+                    y: textFee.getHeight() / 2
+                });
+
+            };
+        </script>
+    </body>
+</html>
