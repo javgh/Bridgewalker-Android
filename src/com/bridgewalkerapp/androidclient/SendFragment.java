@@ -3,6 +3,8 @@ package com.bridgewalkerapp.androidclient;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.bridgewalkerapp.androidclient.SendConfirmationDialogFragment.SendConfirmationDialogListener;
@@ -14,6 +16,7 @@ import com.bridgewalkerapp.androidclient.apidata.WSSendFailed;
 import com.bridgewalkerapp.androidclient.apidata.WSSendSuccessful;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketReply;
 import com.bridgewalkerapp.androidclient.apidata.WebsocketRequest.AmountType;
+import com.bridgewalkerapp.androidclient.data.Maybe;
 import com.bridgewalkerapp.androidclient.data.ParameterizedRunnable;
 import com.bridgewalkerapp.androidclient.data.SendPaymentCheck;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -68,6 +71,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	
 	private BluetoothAdapter bluetoothAdapter = null;
 	private String lastBluetoothAddress = null;
+	private BlockingQueue<Maybe<String>> bluetoothSendTaskQueue = null;
 	
 	private List<RequestQuote> pendingRequests = new ArrayList<RequestQuote>();
 	
@@ -473,9 +477,13 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	@Override
 	public void onDialogPositiveClick() {
 		setSendPaymentControlsState(false);
+		if (lastBluetoothAddress != null)
+			maybePrepareBluetoothBroadcast(lastBluetoothAddress);
 		this.parentActivity.getServiceUtils().sendCommand(lastSendPayment, new ParameterizedRunnable() {
 			@Override
 			public void run(WebsocketReply reply) {
+				String tx = null;
+				
 				if (reply.getReplyType() == WebsocketReply.TYPE_WS_SEND_FAILED) {
 					WSSendFailed wsSF = (WSSendFailed)reply;
 					String message = getString(R.string.send_payment_error)
@@ -489,31 +497,36 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 					amountEditText.setText("");
 					
 					WSSendSuccessful wsSS = (WSSendSuccessful)reply;
-					if (wsSS.getTx() != null && lastBluetoothAddress != null)
-						maybeBroadcastViaBluetooth(wsSS.getTx(), lastBluetoothAddress);
+					tx = wsSS.getTx();
 					
 					Toast.makeText(getActivity()
 							, R.string.send_payment_success, Toast.LENGTH_SHORT).show();
 				}
 
+				maybeBroadcastViaBluetooth(tx);
 				setSendPaymentControlsState(true);
 			}
 		});
 	}
 	
-	private void maybeBroadcastViaBluetooth(final String tx, final String bluetoothAddress) {
+	private void maybePrepareBluetoothBroadcast(final String bluetoothAddress) {
+		this.bluetoothSendTaskQueue = null;
 		if (bluetoothAdapter == null)
 			return;
 		
 		if (!bluetoothAdapter.isEnabled())
 			return;
 		
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				BluetoothUtils.broadcastTransaction(bluetoothAdapter, bluetoothAddress, tx);
-			}
-		};
+		this.bluetoothSendTaskQueue = new LinkedBlockingQueue<Maybe<String>>();
+		Runnable runnable = new BluetoothSendTask(this.bluetoothSendTaskQueue, bluetoothAdapter, bluetoothAddress);
 		new Thread(runnable).start();
+	}
+	
+	private void maybeBroadcastViaBluetooth(final String tx) {
+		try {
+			if (this.bluetoothSendTaskQueue != null) {
+				this.bluetoothSendTaskQueue.put(new Maybe<String>(tx));
+			}
+		} catch (InterruptedException e) { /* ignore */ }
 	}
 }
