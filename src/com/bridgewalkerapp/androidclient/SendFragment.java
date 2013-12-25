@@ -33,7 +33,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -64,8 +63,6 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private Button sendPaymentButton = null;
 	private TextView sendPaymentHintTextView = null;
 	private TextView exchangeStatusTextView = null;
-	
-	private boolean webViewInitialized = false;
 	
 	private long nextRequestId = 0;
 	private long lastRequestQuoteTimestamp = 0;
@@ -118,7 +115,6 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.infoWebView.setFocusable(false);
 		this.infoWebView.getSettings().setJavaScriptEnabled(true);
 		this.infoWebView.loadUrl(INFO_DIAGRAM);
-		this.webViewInitialized = true;
 		
 		return view;
 	}
@@ -256,19 +252,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	
 	private void updateWebView(final String jsCall) {
 		infoWebView.setVisibility(View.VISIBLE);
-		if (this.webViewInitialized) {
-			infoWebView.loadUrl("javascript:" + jsCall);
-		} else {
-			infoWebView.setWebViewClient(new WebViewClient(){
-				@Override  
-			    public void onPageFinished(WebView view, String url) {
-					if (!webViewInitialized)
-						infoWebView.loadUrl("javascript:" + jsCall);
-					webViewInitialized = true;
-				}
-			});
-			infoWebView.loadUrl(INFO_DIAGRAM);
-		}
+		infoWebView.loadUrl("javascript:" + jsCall);
 	}
 	
 	private void hideWebView() {
