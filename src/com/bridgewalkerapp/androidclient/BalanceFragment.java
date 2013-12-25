@@ -24,6 +24,7 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	protected ProgressBar progressBar = null;
 	protected LinearLayout contentLinearLayout = null;
 	protected TextView usdBalanceTextView = null;
+	protected TextView exchangeRateTextView = null;
 	protected TextView pendingEventsTextView = null;
 	
 	protected BitcoinFragmentHost parentActivity = null;
@@ -71,9 +72,8 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		if (this.currentStatus == null)
 			return;
 		
-		this.usdBalanceTextView.setText(
-				formatBalance(this.currentStatus.getUsdBalance(),
-								this.currentStatus.getExchangeRate()));
+		this.usdBalanceTextView.setText(formatBalance(this.currentStatus.getUsdBalance()));
+		this.exchangeRateTextView.setText(formatExchangeRate(this.currentStatus.getExchangeRate()));
 		
 		List<String> pendingEvents = new ArrayList<String>();
 		String btcIn = formatBTCIn(this.currentStatus.getBtcIn(),
@@ -102,17 +102,19 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	
 	abstract protected void displayStatusHook();
 	
-	private String formatBalance(long usdBalance, long exchangeRate) {
-		if (exchangeRate != 0) {
-			return getString(R.string.balance
-					, formatUSD(usdBalance, Rounding.ROUND_DOWN)
-					, (double)exchangeRate / BackendService.USD_BASE_AMOUNT
-					);
-		} else {
-			return getString(R.string.balance_without_btc
-					, formatUSD(usdBalance, Rounding.ROUND_DOWN));
-		}
+	private String formatBalance(long usdBalance) {
+		return getString(R.string.balance
+							, formatUSD(usdBalance, Rounding.ROUND_DOWN));
 	}
+	
+	private String formatExchangeRate(long exchangeRate) {
+		if (exchangeRate != 0) {
+			return getString(R.string.exchange_rate
+								, (double)exchangeRate / BackendService.USD_BASE_AMOUNT);
+		} else {
+			return "";
+		}
+	}	
 	
 	private String formatBTCIn(long btcIn, long exchangeRate) {
 		if (btcIn == 0) return null;

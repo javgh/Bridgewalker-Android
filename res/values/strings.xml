@@ -39,8 +39,8 @@
 	<string name="cancel">Cancel</string>
 	<string name="insufficient_balance">Insufficient balance</string>
 	<string name="quote_unavailable">Sorry, I was unable to get a quote.</string>
-	<string name="balance">%1$s EUR\n(1 BTC ~ %2$.2f EUR)</string>
-	<string name="balance_without_btc">%1$s EUR\n</string>
+	<string name="balance">%1$s EUR</string>
+	<string name="exchange_rate">(1 BTC ~ %1$.2f EUR)</string>
 	<string name="waiting_for_exchange">+ %1$s BTC waiting to be exchanged.</string>
 	<string name="waiting_for_confirmation">+ %1$s BTC waiting to be confirmed.</string>
 	<string name="waiting_for_exchange_with_usd">+ %1$s BTC (~ %2$s EUR) waiting to be exchanged.</string>

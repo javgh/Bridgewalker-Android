@@ -34,6 +34,7 @@ public class ReceiveFragment extends BalanceFragment {
 		this.progressBar = (ProgressBar)view.findViewById(R.id.receive_fragment_progressbar);
 		this.contentLinearLayout = (LinearLayout)view.findViewById(R.id.receive_fragment_content_linearlayout);
 		this.usdBalanceTextView = (TextView)view.findViewById(R.id.receive_fragment_usd_balance_textview);
+		this.exchangeRateTextView = (TextView)view.findViewById(R.id.receive_fragment_exchange_rate_textview);
 		this.pendingEventsTextView = (TextView)view.findViewById(R.id.receive_fragment_pending_events_textview);
 		this.receiveBitcoinAddressTextView = (TextView)view.findViewById(R.id.receive_bitcoin_address_textview);
 		this.primaryBTCAddressQRCodeImageView = (ImageView)view.findViewById(R.id.primary_btc_address_qrcode_imageview);

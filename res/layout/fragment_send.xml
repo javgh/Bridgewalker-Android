@@ -29,10 +29,20 @@
 		        android:layout_height="wrap_content"
 		        android:text="@string/usd_balance_zero"
 		        android:textAppearance="?android:attr/textAppearanceLarge"
+		        android:textSize="45sp"
 		        android:gravity="center"
 		        android:paddingTop="16dp"
-		        android:paddingBottom="4dp"
 		       	/>
+		    
+		    <TextView
+		        android:id="@+id/send_fragment_exchange_rate_textview"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text=""
+		        android:textAppearance="?android:attr/textAppearanceLarge"
+		        android:gravity="center"
+		        android:paddingBottom="4dp"
+		       	/>		    
 		    
 		    <TextView
 		        android:id="@+id/send_fragment_pending_events_textview"

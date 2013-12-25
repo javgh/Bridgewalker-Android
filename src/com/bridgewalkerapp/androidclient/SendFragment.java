@@ -83,6 +83,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.progressBar = (ProgressBar)view.findViewById(R.id.send_fragment_progressbar);
 		this.contentLinearLayout = (LinearLayout)view.findViewById(R.id.send_fragment_content_linearlayout);
 		this.usdBalanceTextView = (TextView)view.findViewById(R.id.send_fragment_usd_balance_textview);
+		this.exchangeRateTextView = (TextView)view.findViewById(R.id.send_fragment_exchange_rate_textview);
 		this.pendingEventsTextView = (TextView)view.findViewById(R.id.send_fragment_pending_events_textview);
 		this.recipientAddressEditText = (EditText)view.findViewById(R.id.recipient_address_edittext);
 		this.amountEditText = (EditText)view.findViewById(R.id.amount_edittext);
