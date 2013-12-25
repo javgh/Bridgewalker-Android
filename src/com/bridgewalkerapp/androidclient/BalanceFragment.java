@@ -106,7 +106,7 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 		if (exchangeRate != 0) {
 			return getString(R.string.balance
 					, formatUSD(usdBalance, Rounding.ROUND_DOWN)
-					, calcAndFormatBTCEquivalent(usdBalance, exchangeRate)
+					, (double)exchangeRate / BackendService.USD_BASE_AMOUNT
 					);
 		} else {
 			return getString(R.string.balance_without_btc
@@ -142,13 +142,6 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 			result.add(msg);
 		}
 		return result;
-	}
-	
-	protected String calcAndFormatBTCEquivalent(long usd, long exchangeRate) {
-		long btcEquivalent = Math.round(
-								((double)usd / (double)exchangeRate)
-								* BackendService.BTC_BASE_AMOUNT);
-		return formatBTC(btcEquivalent);
 	}
 	
 	protected String calcAndFormatUSDEquivalent(long btc, long exchangeRate) {
