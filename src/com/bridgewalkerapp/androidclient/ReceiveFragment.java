@@ -23,7 +23,7 @@ public class ReceiveFragment extends BalanceFragment {
 	private TextView receiveBitcoinAddressTextView = null;
 	private ImageView primaryBTCAddressQRCodeImageView = null;
 	private ImageView fullScreenImageView = null;
-	private Button copyAddressToClipboardButton = null;
+	private ImageButton copyAddressToClipboardButton = null;
 	private ImageButton shareAddressButton = null;
 	private LinearLayout innerContentLinearLayout = null;
 	
@@ -39,7 +39,7 @@ public class ReceiveFragment extends BalanceFragment {
 		this.receiveBitcoinAddressTextView = (TextView)view.findViewById(R.id.receive_bitcoin_address_textview);
 		this.primaryBTCAddressQRCodeImageView = (ImageView)view.findViewById(R.id.primary_btc_address_qrcode_imageview);
 		this.fullScreenImageView = (ImageView)view.findViewById(R.id.fullscreen_imageview);
-		this.copyAddressToClipboardButton = (Button)view.findViewById(R.id.copy_address_to_clipboard_button);
+		this.copyAddressToClipboardButton = (ImageButton)view.findViewById(R.id.copy_address_to_clipboard_button);
 		this.shareAddressButton = (ImageButton)view.findViewById(R.id.share_address_button);
 		this.innerContentLinearLayout = (LinearLayout)view.findViewById(R.id.inner_content_linearlayout);
 		

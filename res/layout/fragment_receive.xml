@@ -93,12 +93,13 @@
 			    	android:gravity="center"
 			    	android:orientation="horizontal">
 		
-				    <Button
+				    <ImageButton
 				        android:id="@+id/copy_address_to_clipboard_button"
 				        android:layout_width="wrap_content"
 				        android:layout_height="wrap_content"
+				        android:src="@drawable/ic_action_copy"
 				        android:layout_centerVertical="true"
-				        android:text="@string/copy_to_clipboard" />
+				        android:contentDescription="@string/copy_to_clipboard" />
 				    		    
 				    <ImageButton
 				        android:id="@+id/share_address_button"
