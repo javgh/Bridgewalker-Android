@@ -110,7 +110,7 @@ abstract public class BalanceFragment extends SherlockFragment implements Bitcoi
 	private String formatExchangeRate(long exchangeRate) {
 		if (exchangeRate != 0) {
 			return getString(R.string.exchange_rate
-								, (double)exchangeRate / BackendService.USD_BASE_AMOUNT);
+								, (double)exchangeRate / (double)BackendService.USD_BASE_AMOUNT);
 		} else {
 			return "";
 		}
