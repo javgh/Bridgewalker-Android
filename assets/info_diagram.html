@@ -5,12 +5,12 @@
             body {
                 margin: 0px;
                 padding: 0px;
-                background:#192426;
+                background: #1f2827;
             }
         </style>
     </head>
     <body>
-        <div id="container" style="background:#192426"></div>
+        <div id="container" style="background: #1f2827"></div>
         <script src="kinetic-v4.7.4.min.js"></script>
         <script defer="defer">
             var padding = 25;
@@ -22,13 +22,14 @@
             var fontSizeFee = 30;
             var chartHalf = chartColumn / 2;
             var chartMiddle = textColumn + chartHalf;
+            var color = 'white';
 
             var stage = new Kinetic.Stage({
                 container: 'container'
             });
 
             var width = 330;    // window.innerWidth - 10;
-            var height = 115;   // window.innerHeight - 10;
+            var height = 95;   // window.innerHeight - 10;
 
             stage.setWidth(width);
             stage.setHeight(height);
@@ -53,7 +54,7 @@
                 y: sectionHeight - halfBarHeight,
                 width: 0,
                 height: halfBarHeight * 2,
-                stroke: 'white',
+                stroke: color,
                 strokeWidth: strokeWidth
             });
             layer.add(recipientBTCBar);
@@ -63,7 +64,7 @@
                 y: sectionHeight - halfBarHeight,
                 width: 0,
                 height: halfBarHeight * 2,
-                stroke: 'white',
+                stroke: color,
                 strokeWidth: strokeWidth
             });
             layer.add(recipientFiatBar);
@@ -73,7 +74,7 @@
                 y: (sectionHeight * 2) - halfBarHeight,
                 width: 0,
                 height: halfBarHeight * 2,
-                stroke: 'white',
+                stroke: color,
                 strokeWidth: strokeWidth
             });
             layer.add(accountFiatBar);
@@ -84,7 +85,7 @@
                 text: 'Recipient',
                 fontSize: fontSize,
                 fontFamily: 'Calibri',
-                fill: 'white'
+                fill: color
             });
             textRecipient.setOffset({
                 y: textRecipient.getHeight() / 2
@@ -97,7 +98,7 @@
                 text: 'You',
                 fontSize: fontSize,
                 fontFamily: 'Calibri',
-                fill: 'white'
+                fill: color
             });
             textYou.setOffset({
                 y: textYou.getHeight() / 2
@@ -106,7 +107,7 @@
 
             var feeLine = new Kinetic.Line({
                 points: [0, 0, 1, 1],
-                stroke: 'white',
+                stroke: color,
                 strokeWidth: strokeWidth,
                 visible: false
             });
@@ -114,7 +115,7 @@
 
             var markerLine = new Kinetic.Line({
                 points: [0, 0, 1, 1],
-                stroke: 'white',
+                stroke: color,
                 strokeWidth: strokeWidth,
                 visible: false
             });
@@ -126,37 +127,37 @@
                 text: '',
                 fontSize: fontSizeFee,
                 fontFamily: 'Calibri',
-                fill: 'white'
+                fill: color
             });
             layer.add(textFee);
 
             var recipientBTCText = new Kinetic.Text({
-                x: chartMiddle,
+                x: chartMiddle - padding,
                 y: sectionHeight,
                 text: '',
                 fontSize: fontSize,
                 fontFamily: 'Calibri',
-                fill: 'white'
+                fill: color
             });
             layer.add(recipientBTCText);
 
             var recipientFiatText = new Kinetic.Text({
-                x: chartMiddle,
+                x: chartMiddle + padding,
                 y: sectionHeight,
                 text: '',
                 fontSize: fontSize,
                 fontFamily: 'Calibri',
-                fill: 'white'
+                fill: color
             });
             layer.add(recipientFiatText);
 
             var accountFiatText = new Kinetic.Text({
-                x: chartMiddle,
+                x: chartMiddle + padding,
                 y: sectionHeight * 2,
                 text: '',
                 fontSize: fontSize,
                 fontFamily: 'Calibri',
-                fill: 'white'
+                fill: color
             });
             layer.add(accountFiatText);
 
@@ -171,24 +172,19 @@
                                         (recipientFiat / accountFiat);
                 var differenceWidth = accountFiatBarWidth - recipientBarWidth;
 
-                recipientBTCText.setX(chartMiddle - recipientBarWidth / 2);
                 recipientBTCText.setText(recipientBTCStr);
                 recipientBTCText.setOffset({
-                    x: recipientBTCText.getWidth() / 2,
+                    x: recipientBTCText.getWidth(),
                     y: recipientBTCText.getHeight() / 2
                 });
 
-                recipientFiatText.setX(chartMiddle + recipientBarWidth / 2);
                 recipientFiatText.setText(recipientFiatStr);
                 recipientFiatText.setOffset({
-                    x: recipientFiatText.getWidth() / 2,
                     y: recipientFiatText.getHeight() / 2
                 });
 
-                accountFiatText.setX(chartMiddle + accountFiatBarWidth / 2);
                 accountFiatText.setText(accountFiatStr);
                 accountFiatText.setOffset({
-                    x: accountFiatText.getWidth() / 2,
                     y: accountFiatText.getHeight() / 2
                 });
 
@@ -238,6 +234,7 @@
                     y: textFee.getHeight() / 2
                 });
 
+                layer.draw();
             };
         </script>
     </body>

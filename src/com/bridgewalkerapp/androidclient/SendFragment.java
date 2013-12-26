@@ -114,8 +114,9 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		
 		this.infoWebView.setFocusable(false);
 		this.infoWebView.getSettings().setJavaScriptEnabled(true);
+		this.infoWebView.loadUrl("about:blank");
 		this.infoWebView.loadUrl(INFO_DIAGRAM);
-		
+
 		return view;
 	}
 
@@ -244,7 +245,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			
 			updateWebView(jsCall);
 		} else {
-			hideWebView();
+			clearWebView();
 		}
 			
 		updateSendPaymentButton();
@@ -255,10 +256,10 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		infoWebView.loadUrl("javascript:" + jsCall);
 	}
 	
-	private void hideWebView() {
-		infoWebView.setVisibility(View.GONE);
+	private void clearWebView() {
+		infoWebView.loadUrl(INFO_DIAGRAM);
 	}
-	
+
 	private SendPaymentCheck isReadyToSendPayment() {
 		if (parseAmount() == 0)
 			return new SendPaymentCheck(false, "");
@@ -393,7 +394,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		@Override
 		public void afterTextChanged(Editable s) {
 			if (parseAmount() == 0)
-				hideWebView();
+				clearWebView();
 			displayAndOrRequestQuote();
 			updateSendPaymentButton();
 		}

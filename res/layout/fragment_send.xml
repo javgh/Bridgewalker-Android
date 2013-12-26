@@ -1,224 +1,234 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
-	<RelativeLayout 
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+	<ScrollView
 	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content" >
+	    android:layout_height="0dp"
+	    android:layout_weight="1">
 	    
-	    <ProgressBar
-			android:id="@+id/send_fragment_progressbar"
-		    style="?android:attr/progressBarStyleLarge"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:layout_centerInParent="true"
-		    />
-	
-		<LinearLayout 
-		    android:id="@+id/send_fragment_content_linearlayout"
+		<RelativeLayout 
 		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:padding="8dp"
-		    android:orientation="vertical"
-		    android:visibility="invisible" >
-		
-		    <TextView
-		        android:id="@+id/send_fragment_usd_balance_textview"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:text="@string/usd_balance_zero"
-		        android:textAppearance="?android:attr/textAppearanceLarge"
-		        android:textSize="45sp"
-		        android:gravity="center"
-		        android:paddingTop="16dp"
-		       	/>
+		    android:layout_height="wrap_content" >
 		    
-		    <TextView
-		        android:id="@+id/send_fragment_exchange_rate_textview"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:text=""
-		        android:textAppearance="?android:attr/textAppearanceLarge"
-		        android:gravity="center"
-		        android:paddingBottom="4dp"
-		       	/>		    
-		    
-		    <TextView
-		        android:id="@+id/send_fragment_pending_events_textview"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:paddingBottom="8dp"
-		        android:gravity="center"
-		        android:visibility="gone"
-		        android:text="" />
-		    
-		    <LinearLayout 
-		    	android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:paddingTop="32dp">
-	
-		        <RelativeLayout 
-		            android:layout_width="wrap_content"
-		        	android:layout_height="wrap_content"
-		        	android:orientation="vertical">
-		        	
-					<EditText 
-					    android:id="@+id/alignment_helper1"
-					    android:layout_width="0dp"
-					    android:layout_height="wrap_content"
-					    android:inputType="text"
-					    />
-		            
-					<EditText 
-					    android:id="@+id/alignment_helper2"
-					    android:layout_width="0dp"
-					    android:layout_height="wrap_content"
-					    android:layout_below="@id/alignment_helper1"
-					    android:inputType="text"
-					    />
-									
-			      	<TextView 
-			            android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			        	android:layout_alignBaseline="@id/alignment_helper1"
-			        	android:textAppearance="?android:attr/textAppearanceMedium"
-			        	android:text="@string/send_to" />
-			      	
-		           	<TextView 
-			            android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			        	android:layout_alignBaseline="@id/alignment_helper2"
-			        	android:textAppearance="?android:attr/textAppearanceMedium"
-			        	android:text="@string/amount"
-						/>		      	
-		      	</RelativeLayout>
-	        
-		        <LinearLayout 
-		            android:layout_width="match_parent"
-		        	android:layout_height="wrap_content"
-		        	android:orientation="vertical">
-		    
-		           	<LinearLayout
-		           	    android:layout_width="match_parent"
-		        		android:layout_height="wrap_content">
-		           	    
-		           	    <EditText 
-		           	        android:id="@+id/recipient_address_edittext"
-				            android:layout_width="0dp"
-				            android:layout_height="wrap_content"
-				            android:layout_weight="1"
-				            android:inputType="text"
-				            />		 
-				            
-			        	<Button 
-			        	    android:id="@+id/scan_button"
-				            android:layout_width="wrap_content"
-				        	android:layout_height="match_parent"
-				            android:text="@string/scan"
-				            />
-		        	</LinearLayout>
-	
-		           	<LinearLayout
-		           	    android:layout_width="match_parent"
-		        		android:layout_height="wrap_content">
-		           	
-		           	
-		           	    <EditText
-		           	        android:id="@+id/amount_edittext" 
-				            android:layout_width="0dp"
-				            android:layout_height="wrap_content"
-				            android:layout_weight="1"
-				            android:inputType="numberDecimal"
-				            />
-		           	    
-					    <RadioGroup
-					        android:id="@+id/currency_radiogroup"
-					        android:layout_width="wrap_content"
-			        		android:layout_height="match_parent"
-			        		android:orientation="horizontal" >
-			 
-					        <RadioButton
-					            android:id="@+id/btc_radiobutton"
-					            android:layout_width="wrap_content"
-					            android:layout_height="wrap_content"
-					            android:text="@string/btc"
-					            android:checked="true" />
-					        
-					        <RadioButton
-					            android:id="@+id/usd_radiobutton"
-					            android:layout_width="wrap_content"
-					            android:layout_height="wrap_content"
-					            android:text="@string/usd" /> 
-					    </RadioGroup>	           	
-					</LinearLayout>    		 
-	
-		            <CheckBox
-		                android:id="@+id/fees_on_top_checkbox"
-				        android:layout_width="wrap_content"
-				        android:layout_height="wrap_content"
-				        android:text="@string/fees_on_top"
-				        android:checked="true"
-				        android:enabled="false" />
-		    	</LinearLayout>
-		    </LinearLayout>
-		    
-			<WebView
-			    android:id="@+id/info_webview"
-			    android:layout_width="match_parent"
-		        android:layout_height="125dp"
+		    <ProgressBar
+				android:id="@+id/send_fragment_progressbar"
+			    style="?android:attr/progressBarStyleLarge"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_centerInParent="true"
 			    />
-		    
-			<RelativeLayout 
+		
+			<LinearLayout 
+			    android:id="@+id/send_fragment_content_linearlayout"
 			    android:layout_width="match_parent"
-			    android:layout_height="wrap_content" >
-		        
-			    <ProgressBar
-					android:id="@+id/send_payment_progressbar"
-				    style="?android:attr/progressBarStyle"
-				    android:layout_width="wrap_content"
-				    android:layout_height="wrap_content"
-				    android:layout_centerInParent="true"
-				    android:paddingTop="16dp"
-				    android:visibility="gone"
-				    />			    
-			        	
-			    <LinearLayout
-			        android:id="@+id/send_payment_linearlayout"
+			    android:layout_height="match_parent"
+			    android:padding="8dp"
+			    android:orientation="vertical"
+			    android:visibility="invisible" >
+			
+			    <TextView
+			        android:id="@+id/send_fragment_usd_balance_textview"
 			        android:layout_width="match_parent"
-		    		android:layout_height="wrap_content"
-				    android:orientation="vertical"
-				    >
-		                
-				    <Button 
-				        android:id="@+id/send_payment_button"
-				        android:layout_width="wrap_content"
-				        android:layout_height="wrap_content"
-				        android:layout_gravity="center_horizontal"
-				        android:layout_marginTop="32dp"
-				        android:textAppearance="?android:attr/textAppearanceLarge"
-				        android:text="@string/send_payment"
-				        android:enabled="false"
-				        />
-				    
-				    <TextView 
-				        android:id="@+id/send_payment_hint_textview"
-		                android:layout_width="match_parent"
-				        android:layout_height="wrap_content"
-				        android:gravity="center"
-				        android:text=""
-				        />
-				    
-				    <TextView 
-				        android:id="@+id/exchange_status_textview"
-		                android:layout_width="match_parent"
-				        android:layout_height="wrap_content"
-				        android:gravity="center"
-				        android:textColor="#FF0000"
-				        android:text=""
-				        />		       				    
+			        android:layout_height="wrap_content"
+			        android:text="@string/usd_balance_zero"
+			        android:textAppearance="?android:attr/textAppearanceLarge"
+			        android:textSize="45sp"
+			        android:gravity="center"
+			        android:paddingTop="16dp"
+			       	/>
+			    
+			    <TextView
+			        android:id="@+id/send_fragment_exchange_rate_textview"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:text=""
+			        android:textAppearance="?android:attr/textAppearanceLarge"
+			        android:gravity="center"
+			        android:paddingBottom="4dp"
+			       	/>		    
+			    
+			    <TextView
+			        android:id="@+id/send_fragment_pending_events_textview"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:paddingBottom="8dp"
+			        android:gravity="center"
+			        android:visibility="gone"
+			        android:text="" />
+			    
+			    <LinearLayout 
+			    	android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:paddingTop="32dp">
+		
+			        <RelativeLayout 
+			            android:layout_width="wrap_content"
+			        	android:layout_height="wrap_content"
+			        	android:orientation="vertical">
+			        	
+						<EditText 
+						    android:id="@+id/alignment_helper1"
+						    android:layout_width="0dp"
+						    android:layout_height="wrap_content"
+						    android:inputType="text"
+						    />
+			            
+						<EditText 
+						    android:id="@+id/alignment_helper2"
+						    android:layout_width="0dp"
+						    android:layout_height="wrap_content"
+						    android:layout_below="@id/alignment_helper1"
+						    android:inputType="text"
+						    />
+										
+				      	<TextView 
+				            android:layout_width="wrap_content"
+				        	android:layout_height="wrap_content"
+				        	android:layout_alignBaseline="@id/alignment_helper1"
+				        	android:textAppearance="?android:attr/textAppearanceMedium"
+				        	android:text="@string/send_to" />
+				      	
+			           	<TextView 
+				            android:layout_width="wrap_content"
+				        	android:layout_height="wrap_content"
+				        	android:layout_alignBaseline="@id/alignment_helper2"
+				        	android:textAppearance="?android:attr/textAppearanceMedium"
+				        	android:text="@string/amount"
+							/>		      	
+			      	</RelativeLayout>
+		        
+			        <LinearLayout 
+			            android:layout_width="match_parent"
+			        	android:layout_height="wrap_content"
+			        	android:orientation="vertical">
+			    
+			           	<LinearLayout
+			           	    android:layout_width="match_parent"
+			        		android:layout_height="wrap_content">
+			           	    
+			           	    <EditText 
+			           	        android:id="@+id/recipient_address_edittext"
+					            android:layout_width="0dp"
+					            android:layout_height="wrap_content"
+					            android:layout_weight="1"
+					            android:inputType="text"
+					            />		 
+					            
+				        	<Button 
+				        	    android:id="@+id/scan_button"
+					            android:layout_width="wrap_content"
+					        	android:layout_height="match_parent"
+					            android:text="@string/scan"
+					            />
+			        	</LinearLayout>
+		
+			           	<LinearLayout
+			           	    android:layout_width="match_parent"
+			        		android:layout_height="wrap_content">
+			           	
+			           	
+			           	    <EditText
+			           	        android:id="@+id/amount_edittext" 
+					            android:layout_width="0dp"
+					            android:layout_height="wrap_content"
+					            android:layout_weight="1"
+					            android:inputType="numberDecimal"
+					            />
+			           	    
+						    <RadioGroup
+						        android:id="@+id/currency_radiogroup"
+						        android:layout_width="wrap_content"
+				        		android:layout_height="match_parent"
+				        		android:orientation="horizontal" >
+				 
+						        <RadioButton
+						            android:id="@+id/btc_radiobutton"
+						            android:layout_width="wrap_content"
+						            android:layout_height="wrap_content"
+						            android:text="@string/btc"
+						            android:checked="true" />
+						        
+						        <RadioButton
+						            android:id="@+id/usd_radiobutton"
+						            android:layout_width="wrap_content"
+						            android:layout_height="wrap_content"
+						            android:text="@string/usd" /> 
+						    </RadioGroup>	           	
+						</LinearLayout>    		 
+		
+			            <CheckBox
+			                android:id="@+id/fees_on_top_checkbox"
+					        android:layout_width="wrap_content"
+					        android:layout_height="wrap_content"
+					        android:text="@string/fees_on_top"
+					        android:checked="true"
+					        android:enabled="false" />
+			    	</LinearLayout>
 			    </LinearLayout>
-		    </RelativeLayout>
-		</LinearLayout>
-	</RelativeLayout>
-</ScrollView>
+			    
+	
+				<RelativeLayout 
+				    android:layout_width="match_parent"
+				    android:layout_height="wrap_content" >
+			        
+				    <ProgressBar
+						android:id="@+id/send_payment_progressbar"
+					    style="?android:attr/progressBarStyle"
+					    android:layout_width="wrap_content"
+					    android:layout_height="wrap_content"
+					    android:layout_centerInParent="true"
+					    android:paddingTop="16dp"
+					    android:visibility="gone"
+					    />			    
+				        	
+				    <LinearLayout
+				        android:id="@+id/send_payment_linearlayout"
+				        android:layout_width="match_parent"
+			    		android:layout_height="wrap_content"
+					    android:orientation="vertical"
+					    >
+			            
+					    <Button 
+					        android:id="@+id/send_payment_button"
+					        android:layout_width="wrap_content"
+					        android:layout_height="wrap_content"
+					        android:layout_gravity="center_horizontal"
+					        android:layout_marginTop="16dp"
+					        android:textAppearance="?android:attr/textAppearanceLarge"
+					        android:text="@string/send_payment"
+					        android:enabled="false"
+					        />
+					    
+					    <TextView 
+					        android:id="@+id/send_payment_hint_textview"
+			                android:layout_width="match_parent"
+					        android:layout_height="wrap_content"
+					        android:gravity="center"
+					        android:text=""
+					        />
+					    
+					    <TextView 
+					        android:id="@+id/exchange_status_textview"
+			                android:layout_width="match_parent"
+					        android:layout_height="wrap_content"
+					        android:gravity="center"
+					        android:textColor="#FF0000"
+					        android:text=""
+					        />		       
+				    </LinearLayout>
+			    </RelativeLayout>
+			</LinearLayout>
+		</RelativeLayout>
+	</ScrollView>
+
+	<WebView
+		android:id="@+id/info_webview"
+		android:layout_width="match_parent"
+		android:layout_height="100dp"
+		/>   	    			        		 				    				    				    
+</LinearLayout>
+				    
