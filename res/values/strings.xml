@@ -26,6 +26,7 @@
 	<string name="deducted_from_your_account">Deducted from\nyour account:</string>
 	<string name="send_payment">Send payment</string>
 	<string name="quote_info_text">Info: Recipient will receive %1$s BTC (~ %2$s EUR). From your account %3$s EUR will be deducted. The difference is %4$s EUR or about +%5$.2f %%. Some amounts rounded here, but internal accounting uses full precision.</string>
+	<string name="quote_info_text_internal">Info: Recipient will receive %1$s EUR (~ %2$s BTC). The same amount will be deducted from your account. This is an internal transfer and no fees apply.</string>
 	<string name="quote_warning">Note that small transactions have a higher overhead because of fixed transaction fees.</string>
 	<string name="send_payment_confirmation_text_based_on_btc">About to send %1$s BTC to %2$s.</string>
 	<string name="send_payment_confirmation_text_based_on_btc_with_quote">About to send %1$s BTC (~ %2$s EUR) to %3$s.</string>

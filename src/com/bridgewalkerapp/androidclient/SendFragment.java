@@ -140,6 +140,15 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		}
 	}
 	
+	private String parseAddress() {
+		String address = this.recipientAddressEditText.getText().toString();
+		if ("".equals(address)) {
+			return null;
+		} else {
+			return address;
+		}
+	}
+	
 	private double parseAmount() {
 		String amountStr = this.amountEditText.getText().toString();
 		double amount = 0;
@@ -151,6 +160,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	}
 	
 	private RequestQuote compileRequestQuote() {
+		String address = parseAddress();	/* can be 'null' */
 		double amount = parseAmount();
 		long adjustedAmount = 0;
 		AmountType type = getAmountType();
@@ -161,7 +171,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			adjustedAmount = Math.round(amount * BackendService.USD_BASE_AMOUNT);
 		}
 		
-		return new RequestQuote(this.nextRequestId, type, adjustedAmount);
+		return new RequestQuote(this.nextRequestId, address, type, adjustedAmount);
 	}
 	
 	private void displayAndOrRequestQuote() {
@@ -227,15 +237,23 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		if (quote != null) {
 			long difference = quote.getUsdAccount() - quote.getUsdRecipient();
 			double actualFee = (double)difference / (double)quote.getUsdRecipient();
-			infoText = getString(
-					R.string.quote_info_text
-					, formatBTC(quote.getBtc())
-					, formatUSD(quote.getUsdRecipient(), Rounding.ROUND_DOWN)
-					, formatUSD(quote.getUsdAccount(), Rounding.ROUND_DOWN)
-					, formatUSD(difference, Rounding.NO_ROUNDING)
-					, actualFee * 100);
-			if (quote.getBtc() < BackendService.SMALL_BTC_AMOUNT)
-				infoText += " " + getString(R.string.quote_warning);
+			if (quote.getUsdRecipient() == quote.getUsdAccount()) {
+				// looks like an internal transfer
+				infoText = getString( R.string.quote_info_text_internal
+									, formatUSD(quote.getUsdRecipient(), Rounding.NO_ROUNDING)
+									, formatBTC(quote.getBtc())
+									);
+			} else {
+				infoText = getString(
+						R.string.quote_info_text
+						, formatBTC(quote.getBtc())
+						, formatUSD(quote.getUsdRecipient(), Rounding.ROUND_DOWN)
+						, formatUSD(quote.getUsdAccount(), Rounding.ROUND_DOWN)
+						, formatUSD(difference, Rounding.NO_ROUNDING)
+						, actualFee * 100);
+				if (quote.getBtc() < BackendService.SMALL_BTC_AMOUNT)
+					infoText += " " + getString(R.string.quote_warning);
+			}
 		} else {
 			infoText = getString(R.string.quote_unavailable);
 		}
@@ -359,6 +377,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private TextWatcher recipientAddressTextWatcher = new TextWatcher() {
 		@Override
 		public void afterTextChanged(Editable s) {
+			displayAndOrRequestQuote();
 			updateSendPaymentButton();
 		}
 		
