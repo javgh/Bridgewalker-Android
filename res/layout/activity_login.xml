@@ -14,11 +14,17 @@
         android:layout_weight="1"
         android:src="@drawable/logo_large_white"
         android:contentDescription="@string/bridgewalker_logo" />
+    
+   	<TextView
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/shutdown_notice" />
 
     <RelativeLayout
     	android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:visibility="gone" >
         
 	    <LinearLayout
 	        android:id="@+id/login_buttons_layout"
@@ -65,5 +71,6 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_gravity="bottom"
-	        android:text="@string/disclaimer" />
+	        android:text="@string/disclaimer"
+	        android:visibility="gone" />
 </LinearLayout>

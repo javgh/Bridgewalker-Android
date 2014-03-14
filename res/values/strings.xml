@@ -59,4 +59,5 @@
 	<string name="timespan_minutes">more than a minute ago</string>
 	<string name="timespan_hours">more than an hour ago</string>
 	<string name="timespan_days">more than a day ago</string>
+	<string name="shutdown_notice">The Bridgewalker service has been shut down. You can find more information on the Bridgewalker blog. Thanks for all your support!</string>
 </resources>
