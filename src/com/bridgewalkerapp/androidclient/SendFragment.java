@@ -10,6 +10,7 @@ import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.bridgewalkerapp.androidclient.SendConfirmationDialogFragment.SendConfirmationDialogListener;
 import com.bridgewalkerapp.androidclient.apidata.RequestQuote;
 import com.bridgewalkerapp.androidclient.apidata.SendPayment;
+import com.bridgewalkerapp.androidclient.apidata.SubmitClaim;
 import com.bridgewalkerapp.androidclient.apidata.WSQuote;
 import com.bridgewalkerapp.androidclient.apidata.WSQuoteUnavailable;
 import com.bridgewalkerapp.androidclient.apidata.WSSendFailed;
@@ -60,6 +61,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 	private Button sendPaymentButton = null;
 	private TextView sendPaymentHintTextView = null;
 	private TextView exchangeStatusTextView = null;
+	private Button submitClaimButton = null;
 	
 	private long nextRequestId = 0;
 	private long lastRequestQuoteTimestamp = 0;
@@ -98,6 +100,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.sendPaymentButton = (Button)view.findViewById(R.id.send_payment_button);
 		this.sendPaymentHintTextView = (TextView)view.findViewById(R.id.send_payment_hint_textview);
 		this.exchangeStatusTextView = (TextView)view.findViewById(R.id.exchange_status_textview);
+		this.submitClaimButton = (Button)view.findViewById(R.id.submit_claim_button);
 		
 		this.scanButton.setOnClickListener(this.scanButtonOnClickListener);
 		this.recipientAddressEditText.addTextChangedListener(this.recipientAddressTextWatcher);
@@ -105,6 +108,7 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 		this.currencyRadioGroup.setOnCheckedChangeListener(this.currencyOnCheckedChangeListener);
 		this.feesOnTop.setOnCheckedChangeListener(this.feesOnTopOnCheckedChangeListener);
 		this.sendPaymentButton.setOnClickListener(this.sendPaymentButtonOnClickListener);
+		this.submitClaimButton.setOnClickListener(this.submitClaimButtonOnClickListener);
 		
 		this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		
@@ -493,6 +497,23 @@ public class SendFragment extends BalanceFragment implements SendConfirmationDia
 			dialog.show(getActivity().getSupportFragmentManager(), "sendconfirmation");
 		}
 	};
+	
+	private OnClickListener submitClaimButtonOnClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View v) {
+			String address = recipientAddressEditText.getText().toString();
+			SubmitClaim submitClaim = new SubmitClaim(address);
+			parentActivity.getServiceUtils().sendCommand(submitClaim, new ParameterizedRunnable() {
+				@Override
+				public void run(WebsocketReply reply) {
+					/* no reply */
+				}
+			});
+			
+			submitClaimButton.setEnabled(false);
+			Toast.makeText(getActivity(), R.string.request_submitted, Toast.LENGTH_SHORT).show();
+		}
+	};	
 
 	@Override
 	public void onDialogPositiveClick() {

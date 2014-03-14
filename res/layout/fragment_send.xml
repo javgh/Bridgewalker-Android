@@ -76,6 +76,7 @@
 					    android:layout_height="wrap_content"
 					    android:layout_below="@id/alignment_helper1"
 					    android:inputType="text"
+					    android:visibility="gone"
 					    />
 									
 			      	<TextView 
@@ -91,6 +92,7 @@
 			        	android:layout_alignBaseline="@id/alignment_helper2"
 			        	android:textAppearance="?android:attr/textAppearanceMedium"
 			        	android:text="@string/amount"
+			        	android:visibility="gone"
 						/>		      	
 		      	</RelativeLayout>
 	        
@@ -121,7 +123,8 @@
 	
 		           	<LinearLayout
 		           	    android:layout_width="match_parent"
-		        		android:layout_height="wrap_content">
+		        		android:layout_height="wrap_content"
+		        		android:visibility="gone">
 		           	
 		           	
 		           	    <EditText
@@ -159,13 +162,15 @@
 				        android:layout_height="wrap_content"
 				        android:text="@string/fees_on_top"
 				        android:checked="true"
-				        android:enabled="false" />
+				        android:enabled="false"
+				        android:visibility="gone" />
 		        
 		            <TextView 
 				        android:id="@+id/info_textview"
 		                android:layout_width="match_parent"
 				        android:layout_height="wrap_content"
 				        android:text=""
+				        android:visibility="gone"
 				        />
 		    	</LinearLayout>
 		    </LinearLayout>
@@ -189,6 +194,7 @@
 			        android:layout_width="match_parent"
 		    		android:layout_height="wrap_content"
 				    android:orientation="vertical"
+				    android:visibility="gone"
 				    >
 		                
 				    <Button 
@@ -218,6 +224,33 @@
 				        android:textColor="#FF0000"
 				        android:text=""
 				        />		       				    
+			    </LinearLayout>
+			    
+			    <LinearLayout
+			        android:layout_width="match_parent"
+		    		android:layout_height="wrap_content"
+				    android:orientation="vertical" >
+			        
+			        <Button 
+			            android:id="@+id/submit_claim_button"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:layout_gravity="center_horizontal"
+				        android:layout_marginTop="32dp"
+				        android:textAppearance="?android:attr/textAppearanceLarge"
+				        android:text="@string/submit_request"
+				        />
+			        
+				    <TextView 
+		                android:layout_width="match_parent"
+				        android:layout_height="wrap_content"
+				        android:paddingTop="32dp"
+				        android:paddingLeft="8dp"
+				        android:paddingRight="8dp"
+				        android:gravity="bottom"
+				        android:textColor="#FF0000"
+				        android:text="@string/shutdown_notice_inapp"
+				        />		       			        
 			    </LinearLayout>
 		    </RelativeLayout>
 		</LinearLayout>

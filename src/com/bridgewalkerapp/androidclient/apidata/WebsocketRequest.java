@@ -13,6 +13,7 @@ public abstract class WebsocketRequest {
 	public static final int TYPE_PING = 4;
 	public static final int TYPE_REQUEST_QUOTE = 5;
 	public static final int TYPE_SEND_PAYMENT = 6;
+	public static final int TYPE_SUBMIT_CLAIM = 7;
 	
 	abstract public int getRequestType();
 }

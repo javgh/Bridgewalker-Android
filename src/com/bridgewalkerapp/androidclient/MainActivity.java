@@ -38,10 +38,12 @@ public class MainActivity extends SherlockFragmentActivity implements Callback, 
         		.setTabListener(new TabListenerUtils<SendFragment>(
         				this, "send", SendFragment.class)));
         
-        actionBar.addTab(actionBar.newTab()
-        		.setText(R.string.receive_tab_label)
-        		.setTabListener(new TabListenerUtils<ReceiveFragment>(
-        				this, "receive", ReceiveFragment.class)));
+//        actionBar.addTab(actionBar.newTab()
+//        		.setText(R.string.receive_tab_label)
+//        		.setTabListener(new TabListenerUtils<ReceiveFragment>(
+//        				this, "receive", ReceiveFragment.class)));
+        
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         
         /* check for bitcoin: intent */
         Intent intent = getIntent();
